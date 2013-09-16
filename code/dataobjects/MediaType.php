@@ -6,24 +6,35 @@ class MediaType extends DataObject {
 		'Title' => 'VARCHAR(255)'
 	);
 
-	//move defaults array to config
+	private static $pageDefaults = array(
+		'NewsPage',
+		'Event',
+		'Publication',
+		'MediaRelease',
+		'Speech',
+		'Blog',
+		'MediaHolder'
+	);
+
+	private static $customDefaults = array();
+
+	public static function addDefaults($objects) {
+
+		//merge any new media type customisation
+
+		if(is_array($objects)) {
+			self::$customDefaults = array_merge(self::$customDefaults, $objects);
+		}
+	}
+
 	public function requireDefaultRecords() {
 
 		parent::requireDefaultRecords();
 
 		// News Page, Event, Publication, Media Release, Speech, Blog, Media Holder.
 
-		$defaults = array(
-			'NewsPage',
-			'Event',
-			'Publication',
-			'MediaRelease',
-			'Speech',
-			'Blog',
-			'MediaHolder'
-		);
-
-		foreach($defaults as $default) {
+		$combinedDefaults = array_unique(array_merge(self::$pageDefaults, self::$customDefaults));
+		foreach($combinedDefaults as $default) {
 
 			// Create the default media page types.
 
@@ -36,6 +47,7 @@ class MediaType extends DataObject {
 		}
 	}
 
+	// grab array list rather than data objects so we have them populated before
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
@@ -43,6 +55,7 @@ class MediaType extends DataObject {
 			$fields->replaceField('Title', ReadonlyField::create('Title'));
 			$objects = MediaAttribute::get()->innerJoin('MediaPage', 'MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'");
 			$output = ArrayList::create();
+			//avoid duplicates
 			$titles = array();
 			foreach($objects as $object) {
 				if(!in_array($object->Title, $titles)) {

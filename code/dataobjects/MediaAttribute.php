@@ -4,6 +4,7 @@ class MediaAttribute extends DataObject {
 
 	private static $db = array(
 		'Title' => 'VARCHAR(255)',
+		'LinkID' => 'Int',
 		'Content' => 'HTMLText'
 	);
 
@@ -11,15 +12,17 @@ class MediaAttribute extends DataObject {
 		'MediaPage' => 'MediaPage'
 	);
 
-	public function getCMSFields() {
-		$fields = parent::getCMSFields();
+	private static $flag = false;
 
+	public function getCMSFields() {
+
+		$fields = parent::getCMSFields();
 		$fields->removeByName('Content');
+		$fields->removeByName('LinkID');
 		$fields->removeByName('MediaPageID');
 		return $fields;
 	}
 
-	//implement an update of attribute title to bulk update all attributes
 	public function onBeforeWrite() {
 		parent::onBeforeWrite();
 		$params = Controller::curr()->getRequest()->requestVars();
@@ -28,24 +31,41 @@ class MediaAttribute extends DataObject {
 		$result = preg_match('#MediaTypes/item/[0-9]*/#', $url, $matches);
 		if($result) {
 			$ID = preg_replace('#[^0-9]#', '', $matches[0]);
+			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaTypeID = MediaType.ID')->filter('MediaType.ID', $ID);
 			if(($this->MediaPageID === 0) || (is_null($this->MediaPageID))) {
-				$pages = MediaPage::get()->innerJoin('MediaType', 'MediaTypeID = MediaType.ID')->filter('MediaType.ID', $ID);
-
 				foreach($pages as $key => $page) {
 					if($key === 0) {
 						$this->MediaPageID = $page->ID;
+						$this->LinkID = -1;
+						self::$flag = true;
 						$page->MediaAttributes()->add($this);
 					}
 					else {
 						$new = MediaAttribute::create();
 						$new->Title = $this->Title;
 						$new->MediaPageID = $page->ID;
+						$new->LinkID = $this->ID;
 						$page->MediaAttributes()->add($new);
 						$new->write();
 					}
 				}
 			}
+			else {
+				if(!self::$flag) {
+					foreach($pages as $page) {
+						foreach($page->MediaAttributes() as $attribute) {
+							if($attribute->LinkID == $this->ID) {
+								$attribute->Title = $this->Title;
+								self::$flag = true;
+								$attribute->write();
+							}
+						}
+					}
+					self::$flag = false;
+				}
+			}
 		}
+		
 	}
 
 }
