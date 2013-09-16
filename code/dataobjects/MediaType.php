@@ -47,7 +47,6 @@ class MediaType extends DataObject {
 		}
 	}
 
-	// grab array list rather than data objects so we have them populated before
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
@@ -63,7 +62,9 @@ class MediaType extends DataObject {
 					$titles[] = $object->Title;
 				}
 			}
-			$fields->addFieldToTab('Root.AdditionalAttributes', $gridfield = GridField::create('AdditionalAttributes', 'Additional Attributes', $output, GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction'))->setModelClass('MediaAttribute'));
+			if($this->canEdit()) {
+				$fields->addFieldToTab('Root.AdditionalAttributes', $gridfield = GridField::create('AdditionalAttributes', 'Additional Attributes', $output, GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction'))->setModelClass('MediaAttribute'));
+			}
 		}
 
 		return $fields;
@@ -73,6 +74,13 @@ class MediaType extends DataObject {
 		$result = parent::validate();
 		$this->Title ? $result->valid() : $result->error('Pls give title');
 		return $result;
+	}
+
+	public function canEdit($member = null) {
+		$objects = MediaAttribute::get()->innerJoin('MediaPage', 'MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'");
+
+		$a = $objects->first() ? true : false;
+		return $a;
 	}
 
 }

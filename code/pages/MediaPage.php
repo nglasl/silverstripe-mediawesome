@@ -2,7 +2,7 @@
 
 class MediaPage extends Page {
 
-	private static $icon = 'silverstripe-media/images/MediaPage.png';
+	private static $icon = 'silverstripe-media/images/page.png';
 
 	private static $description = 'News Page, Event, Publication, Media Release, Speech, Blog';
 
