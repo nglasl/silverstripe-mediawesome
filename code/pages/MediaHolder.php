@@ -18,20 +18,26 @@ class MediaHolder extends Page {
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
-		if(count($this->AllChildren())) {
-			$fields->addFieldToTab('Root.Main', ReadonlyField::create('Media', 'Media Type', $this->MediaType()->Title), 'Title');
-		}
-		else {
+
+		// make the type read only if a child exists
+
+		($this->allChildren()->exists() && $this->MediaType()) ?
+			$fields->addFieldToTab('Root.Main', ReadonlyField::create('Media', 'Media Type', $this->MediaType()->Title), 'Title') :
 			$fields->addFieldToTab('Root.Main', DropdownField::create('MediaTypeID', 'Media Type', MediaType::get()->map()), 'Title');
-		}
-		$fields->addFieldToTab('Root.MediaTypes', $gridfield = GridField::create('MediaTypes', 'Media Types', MediaType::get()->exclude(array('Title' => 'MediaHolder')), GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')));
+
+		// allow addition of custom media types
+
+		$fields->addFieldToTab('Root.MediaTypes', GridField::create('MediaTypes', 'Media Types', MediaType::get(), GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')));
 		return $fields;
 	}
 
 	public function onBeforeWrite() {
+
 		parent::onBeforeWrite();
 
-		if(($this->MediaTypeID === 0) || is_null($this->MediaTypeID)) {
+		// make sure the media holder has a type if media pages are to be created under it.
+
+		if(is_null($this->MediaTypeID) || ($this->MediaTypeID === 0)) {
 			$this->MediaTypeID = MediaType::get_one('MediaType')->ID;
 		}
 	}

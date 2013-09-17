@@ -7,12 +7,12 @@ class MediaType extends DataObject {
 	);
 
 	private static $page_defaults = array(
-		'NewsPage',
+		'Blog',
 		'Event',
+		'Media Release',
+		'News',
 		'Publication',
-		'MediaRelease',
-		'Speech',
-		'Blog'
+		'Speech'
 	);
 
 	private static $custom_defaults = array(
@@ -36,71 +36,73 @@ class MediaType extends DataObject {
 
 		parent::requireDefaultRecords();
 
-		// News Page, Event, Publication, Media Release, Speech, Blog, Media Holder.
+		// create the default example types provided, along with any custom definitions
 
-		$combinedDefaults = array_unique(array_merge(self::$page_defaults, self::$custom_defaults));
-		foreach($combinedDefaults as $default) {
+		$defaults = array_unique(array_merge(self::$page_defaults, self::$custom_defaults));
+		foreach($defaults as $default) {
 
-			// Create the default media page types.
+			// make sure one doesn't already exist
 
-			if(!MediaType::get_one('MediaType', "Title = '$default'")) {
+			if(!MediaType::get_one('MediaType', "Title = '" . Convert::raw2sql($default) . "'")) {
 				$type = MediaType::create();
 				$type->Title = $default;
 				$type->write();
-				DB::alteration_message("Added Media Type $default", 'created');
+				DB::alteration_message("$default Media Type", 'created');
 			}
 		}
 	}
 
 	public function getCMSFields() {
+
 		$fields = parent::getCMSFields();
+
+		// if no title has been set, allow creation of a new media type
 
 		if($this->Title) {
 			$fields->replaceField('Title', ReadonlyField::create('Title'));
-			$objects = MediaAttribute::get()->innerJoin('MediaPage', 'MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'");
-			$output = ArrayList::create();
-			//avoid duplicates
-			$titles = array();
-			foreach($objects as $object) {
-				if(!in_array($object->Title, $titles)) {
-					$output->push($object);
-					$titles[] = $object->Title;
+			$fields->addFieldToTab('Root.Main', LiteralField::create(
+				'MediaAttributesTitle',
+				"<div class='field'><label class='left'>Custom Attributes</label></div>"
+			));
+			if(MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'")->exists()) {
+
+				// get the list of type attributes available
+
+				$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'");
+
+				// manually group the results
+
+				$cache = array();
+				$output = ArrayList::create();
+				foreach($attributes as $attribute) {
+					if(!in_array($attribute->Title, $cache)) {
+						$cache[] = $attribute->Title;
+						$output->push($attribute);
+					}
 				}
-			}
-			if($this->canEdit()) {
-				$fields->addFieldToTab('Root.AdditionalAttributes', $gridfield = GridField::create('AdditionalAttributes', 'Additional Attributes', $output, GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction'))->setModelClass('MediaAttribute'));
+				$fields->addFieldToTab('Root.Main', $gridfield = GridField::create('MediaAttributes', 'Custom Attributes', $output, GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction'))->setModelClass('MediaAttribute'));
 			}
 			else {
-				$fields->addFieldToTab('Root.Main', LiteralField::create('Notification',
-					'<div>Additional Attributes will be available here once a Media Page has been created</div>'
+
+				// Display a notification that a media page should first be created.
+
+				Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
+				$fields->addFieldToTab('Root.Main', LiteralField::create(
+					'MediaNotification',
+					"<p class='mediawesome notification'><strong>No {$this->Title} Pages Found</strong></p>"
 				));
 			}
 		}
-
 		return $fields;
 	}
 
 	public function validate() {
 		$result = parent::validate();
+
+		// make sure a new media type has been given a title
+
 		$this->Title ? $result->valid() : $result->error('Pls give title');
 		return $result;
-	}
-
-	public function canEdit($member = null) {
-		$params = Controller::curr()->getRequest()->requestVars();
-		$url = $params['url'];
-		$matches = array();
-		$result = preg_match('#MediaTypes/item/new#', $url, $matches);
-		if($result && Permission::check('ADMIN', 'any', $member)) {
-			return true;
-		}
-		else {
-			//only need pages?
-			$objects = MediaAttribute::get()->innerJoin('MediaPage', 'MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'");
-			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'");
-			$a = ($objects->first() || $pages->first()) ? true : false;
-			return $a;
-		}
 	}
 
 }
