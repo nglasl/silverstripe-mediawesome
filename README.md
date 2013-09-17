@@ -1,2 +1,2 @@
-silverstripe-media
+silverstripe-mediawesome
 ==================

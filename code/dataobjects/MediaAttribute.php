@@ -4,8 +4,8 @@ class MediaAttribute extends DataObject {
 
 	private static $db = array(
 		'Title' => 'VARCHAR(255)',
-		'LinkID' => 'Int',
-		'Content' => 'HTMLText'
+		'Content' => 'HTMLTEXT',
+		'LinkID' => 'INT'
 	);
 
 	private static $has_one = array(

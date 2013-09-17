@@ -2,9 +2,7 @@
 
 class MediaHolder extends Page {
 
-	private static $icon = 'silverstripe-media/images/listing.png';
-
-	private static $description = 'HOLDER FOR: News Page, Event, Publication, Media Release, Speech, Blog';
+	private static $description = '<strong>Holds:</strong> Blogs, Events, Media Releases, News, Publications, Speeches <strong>or Custom Media</strong>';
 
 	private static $has_one = array(
 		'MediaType' => 'MediaType'

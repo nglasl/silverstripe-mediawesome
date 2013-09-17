@@ -1,13 +1,11 @@
 <?php
 
-class MediaPage extends Page {
+class MediaPage extends SiteTree {
 
-	private static $icon = 'silverstripe-media/images/page.png';
-
-	private static $description = 'News Page, Event, Publication, Media Release, Speech, Blog';
+	private static $description = 'Blog, Event, Media Release, News, Publication, Speech <strong>or Custom Media</strong>';
 
 	private static $db = array(
-		'ExternalLink' => 'VARCHAR(255)',
+		'External' => 'VARCHAR(255)',
 		'Abstract' => 'TEXT',
 		'Date' => 'Datetime'
 	);
@@ -25,17 +23,17 @@ class MediaPage extends Page {
 	);
 
 	private static $many_many = array(
-		'Attachments' => 'File',
-		'Images' => 'Image'
+		'Images' => 'Image',
+		'Attachments' => 'File'
 	);
 
 	private static $can_be_root = false;
 
-	private static $allowed_children = "none";
+	private static $allowed_children = 'none';
 
 	private static $default_parent = 'MediaHolder';
 
-	private static $pageDefaults = array(
+	private static $page_defaults = array(
 		'NewsPage' => array(
 			'Author'
 		),
@@ -60,33 +58,36 @@ class MediaPage extends Page {
 		)
 	);
 
-	private static $customDefaults = array();
+	private static $custom_defaults = array(
+	);
 
-	public static function addDefaults($objects) {
+	public static function customise_defaults($objects) {
 
 		// merge nested array
 
 		if(is_array($objects)) {
 
 			// make sure we don't have an invalid entry
-			foreach($objects as $test) {
-				if(!is_array($test)) {
+
+			foreach($objects as $temporary) {
+				if(!is_array($temporary)) {
 					return;
 				}
 			}
 
-			$pages = array();
-			$merge = array();
-			foreach($objects as $page => $attribute) {
-				if(!in_array($page, $pages) && !array_key_exists($page, self::$customDefaults) && ($page !== 'MediaHolder')) {
-					$pages[] = $page;
-					$merge[$page] = $attribute;
+			// a manual array unique since that doesn't work with nested arrays
+
+			$output = array();
+			foreach($objects as $type => $attribute) {
+				if(!array_key_exists($type, self::$custom_defaults) && !array_key_exists($type, $output) && ($type !== 'MediaHolder')) {
+					$output[$type] = $attribute;
+
+					// add these new media types too
+
+					MediaType::add_default($type);
 				}
 			}
-			self::$customDefaults = array_merge(self::$customDefaults, $merge);
-
-			// add these new media types without requiring additional configuration
-			MediaType::addDefaults($pages);
+			self::$custom_defaults = array_merge(self::$custom_defaults, $output);
 		}
 	}
 
@@ -118,12 +119,12 @@ class MediaPage extends Page {
 			$type = $type->exists() ? $type->Title : null;
 
 			$combinedDefaults = array();
-			foreach(self::$customDefaults as $key => $default) {
-				if(!array_key_exists($key, self::$pageDefaults)) {
+			foreach(self::$custom_defaults as $key => $default) {
+				if(!array_key_exists($key, self::$page_defaults)) {
 					$combinedDefaults[$key] = $default;
 				}
 			}
-			$combinedDefaults = array_merge(self::$pageDefaults, $combinedDefaults);
+			$combinedDefaults = array_merge(self::$page_defaults, $combinedDefaults);
 
 			if(!$this->MediaAttributes()->exists()) {
 
@@ -164,7 +165,7 @@ class MediaPage extends Page {
 		$fields = parent::getCMSFields();
 
 		$fields->addFieldToTab('Root.Main', ReadonlyField::create('Type', 'Type', $this->MediaType()->Title), 'Title');
-		$fields->addFieldToTab('Root.Main', TextField::create('ExternalLink'), 'Title');
+		$fields->addFieldToTab('Root.Main', TextField::create('External', 'External Link'), 'Title');
 
 		$fields->addFieldToTab('Root.Main', $dateTimeField = new DatetimeField('Date'), 'Content');
 		$dateTimeField->getDateField()->setConfig('showcalendar', true);
