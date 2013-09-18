@@ -115,16 +115,21 @@ class MediaPage extends SiteTree {
 		// link this page to the parent media holder
 
 		$type = $this->getParent()->MediaType();
-		$this->MediaTypeID = $type->ID;
-		$type = $type->Title;
+		if($type->exists()) {
+			$this->MediaTypeID = $type->ID;
+			$type = $type->Title;
+		}
+		else {
+			$type = null;
+		}
 
-		$defaults = array();
+		$temporary = array();
 		foreach(self::$custom_defaults as $default => $attributes) {
 			if(!array_key_exists($default, self::$page_defaults)) {
-				$defaults[$default] = $attributes;
+				$temporary[$default] = $attributes;
 			}
 		}
-		$defaults = array_merge(self::$page_defaults, $defaults);
+		$defaults = array_merge(self::$page_defaults, $temporary);
 
 		// add existing attributes to a new media page
 
@@ -132,31 +137,18 @@ class MediaPage extends SiteTree {
 
 			// grab updated titles if they exist
 
-			$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($type) . "'");
+			$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($type) . "' AND MediaAttribute.LinkID = -1");
 			if($attributes->exists()) {
 
-				// prevent duplicates
+				// grab another of the same attribute with a link id of -1 (should only be one)
 
-				$cache = array();
 				foreach($attributes as $attribute) {
-					if(!in_array($attribute->Title, $cache)) {
-						$cache[] = $attribute->Title;
-
-						// grab another of the same attribute with a valid link id
-
-						foreach($attributes as $temporary) {
-							if(($temporary->Title === $attribute->Title) && ($temporary->LinkID !== -1)) {
-								$existing = $temporary->LinkID;
-								break;
-							}
-						}
-						$new = MediaAttribute::create();
-						$new->Title = $attribute->Title;
-						$new->LinkID = $existing ? $existing : -1;
-						$new->MediaPageID = $this->ID;
-						$this->MediaAttributes()->add($new);
-						$new->write();
-					}
+					$new = MediaAttribute::create();
+					$new->Title = $attribute->Title;
+					$new->LinkID = $attribute->ID;
+					$new->MediaPageID = $this->ID;
+					$this->MediaAttributes()->add($new);
+					$new->write();
 				}
 			}
 			else if(isset($defaults[$type])) {
@@ -165,12 +157,12 @@ class MediaPage extends SiteTree {
 
 					// initial write to generate a valid ID
 
-					$new->write();
+					//$new->write();
 
 					// now we set the appropriate fields and write
 
 					$new->Title = $attribute;
-					$new->LinkID = $new->ID;
+					$new->LinkID = -1;
 					$new->MediaPageID = $this->ID;
 					$this->MediaAttributes()->add($new);
 					$new->write();
@@ -185,12 +177,21 @@ class MediaPage extends SiteTree {
 
 		// make sure the media page type matches the parent media holder
 
-		$fields->addFieldToTab('Root.Main', ReadonlyField::create('Type', 'Type', $this->MediaType()->Title), 'Title');
-		$fields->addFieldToTab('Root.Main', TextField::create('External', 'External Link')->setRightTitle('An optional redirect URL to the media source.'), 'Content');
+		$fields->addFieldToTab('Root.Main', ReadonlyField::create(
+			'Type',
+			'Type',
+			$this->MediaType()->Title
+		), 'Title');
+		$fields->addFieldToTab('Root.Main', TextField::create(
+			'External',
+			'External Link'
+		)->setRightTitle('An optional redirect URL to the media source.'), 'Content');
 
 		// add and configure the date/time field
 
-		$fields->addFieldToTab('Root.Main', $date = DatetimeField::create('Date'), 'Content');
+		$fields->addFieldToTab('Root.Main', $date = DatetimeField::create(
+			'Date'
+		), 'Content');
 		$date->getDateField()->setConfig('showcalendar', true);
 
 		// add all the custom attribute fields
@@ -198,28 +199,42 @@ class MediaPage extends SiteTree {
 		if($this->MediaAttributes()->exists()) {
 			foreach($this->MediaAttributes() as $attribute) {
 				if(strripos($attribute->Title, 'Date') || strripos($attribute->Title, 'Time')) {
-					$fields->addFieldToTab('Root.Main', $date = DatetimeField::create("{$attribute->ID}_MediaAttribute", $attribute->Title, $attribute->Content), 'Content');
+					$fields->addFieldToTab('Root.Main', $date = DatetimeField::create(
+						"{$attribute->ID}_MediaAttribute",
+						$attribute->Title,
+						$attribute->Content
+					), 'Content');
 					$date->getDateField()->setConfig('showcalendar', true);
 				}
 				else {
-					$fields->addFieldToTab('Root.Main', TextField::create("{$attribute->ID}_MediaAttribute", $attribute->Title, $attribute->Content), 'Content');
+					$fields->addFieldToTab('Root.Main', TextField::create(
+						"{$attribute->ID}_MediaAttribute",
+						$attribute->Title,
+						$attribute->Content
+					), 'Content');
 				}
 			}
 		}
 
 		// add and configure the abstract field just before the main media content.
 
-		$fields->addfieldToTab('Root.Main', $abstract = TextareaField::create('Abstract'), 'Content');
+		$fields->addfieldToTab('Root.Main', $abstract = TextareaField::create(
+			'Abstract'
+		), 'Content');
 		$abstract->setRightTitle('A concise summary of the media.');
 		$abstract->setRows(6);
 
 		// add tabs for attachments and images
 
 		$type = strtolower($this->MediaType()->Title);
-		$fields->addFieldToTab('Root.Images', $images = UploadField::create('Images'));
+		$fields->addFieldToTab('Root.Images', $images = UploadField::create(
+			'Images'
+		));
 		$images->getValidator()->setAllowedExtensions(array('jpg', 'jpeg', 'png', 'gif', 'bmp'));
 		$images->setFolderName("media-{$type}-{$this->ID}/images");
-		$fields->addFieldToTab('Root.Attachments', $attachments = UploadField::create('Attachments'));
+		$fields->addFieldToTab('Root.Attachments', $attachments = UploadField::create(
+			'Attachments'
+		));
 		$attachments->setFolderName("media-{$type}-{$this->ID}/attachments");
 
 		return $fields;

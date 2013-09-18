@@ -44,7 +44,7 @@ class MediaAttribute extends DataObject {
 
 			// for a new attribute
 
-			if(($this->MediaPageID === 0) || (is_null($this->MediaPageID))) {
+			if($pages && (is_null($this->MediaPageID) || ($this->MediaPageID === 0))) {
 				foreach($pages as $key => $page) {
 					if($key === 0) {
 
@@ -68,7 +68,7 @@ class MediaAttribute extends DataObject {
 					}
 				}
 			}
-			else {
+			else if($pages) {
 
 				// the write flag is used here to avoid infinite recursion
 
@@ -89,6 +89,15 @@ class MediaAttribute extends DataObject {
 				}
 			}
 		}
+	}
+
+	public function validate() {
+		$result = parent::validate();
+
+		// make sure a new media attribute has been given a title
+
+		$this->Title ? $result->valid() : $result->error('Pls give title');
+		return $result;
 	}
 
 }

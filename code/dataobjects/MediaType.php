@@ -59,28 +59,23 @@ class MediaType extends DataObject {
 		// if no title has been set, allow creation of a new media type
 
 		if($this->Title) {
-			$fields->replaceField('Title', ReadonlyField::create('Title'));
+			$fields->replaceField('Title', ReadonlyField::create(
+				'Title'
+			));
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'MediaAttributesTitle',
 				"<div class='field'><label class='left'>Custom Attributes</label></div>"
 			));
 			if(MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'")->exists()) {
 
-				// get the list of type attributes available
+				// get the list of type attributes available and place them in a gridfield
 
-				$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'");
-
-				// manually group the results
-
-				$cache = array();
-				$output = ArrayList::create();
-				foreach($attributes as $attribute) {
-					if(!in_array($attribute->Title, $cache)) {
-						$cache[] = $attribute->Title;
-						$output->push($attribute);
-					}
-				}
-				$fields->addFieldToTab('Root.Main', $gridfield = GridField::create('MediaAttributes', 'Custom Attributes', $output, GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction'))->setModelClass('MediaAttribute'));
+				$fields->addFieldToTab('Root.Main', GridField::create(
+					'MediaAttributes',
+					'Custom Attributes',
+					MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "' AND MediaAttribute.LinkID = -1"),
+					GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
+				)->setModelClass('MediaAttribute'));
 			}
 			else {
 

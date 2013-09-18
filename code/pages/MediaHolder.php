@@ -21,13 +21,26 @@ class MediaHolder extends Page {
 
 		// make the type read only if a child exists
 
-		($this->allChildren()->exists() && $this->MediaType()) ?
-			$fields->addFieldToTab('Root.Main', ReadonlyField::create('Media', 'Media Type', $this->MediaType()->Title), 'Title') :
-			$fields->addFieldToTab('Root.Main', DropdownField::create('MediaTypeID', 'Media Type', MediaType::get()->map()), 'Title');
+		($this->allChildren()->where("ClassName != 'MediaHolder'")->exists() && $this->MediaType()->exists()) ?
+			$fields->addFieldToTab('Root.Main', ReadonlyField::create(
+				'Media',
+				'Media Type',
+				$this->MediaType()->Title
+			), 'Title') :
+			$fields->addFieldToTab('Root.Main', DropdownField::create(
+				'MediaTypeID',
+				'Media Type',
+				MediaType::get()->map()
+			), 'Title');
 
 		// allow addition of custom media types
 
-		$fields->addFieldToTab('Root.MediaTypes', GridField::create('MediaTypes', 'Media Types', MediaType::get(), GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')));
+		$fields->addFieldToTab('Root.MediaTypes', GridField::create(
+			'MediaTypes',
+			'Media Types',
+			MediaType::get(),
+			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
+		)->setModelClass('MediaType'));
 		return $fields;
 	}
 
