@@ -59,4 +59,10 @@ class MediaHolder extends Page {
 
 class MediaHolder_Controller extends Page_Controller {
 
+	// check if there is another media holder within this media holder
+
+	public function checkMediaHolder() {
+		return $this->allChildren()->where("ClassName = 'MediaHolder'");
+	}
+
 }

@@ -40,7 +40,7 @@ class MediaAttribute extends DataObject {
 		$result = preg_match('#MediaTypes/item/[0-9]*/#', $url, $matches);
 		if($result) {
 			$ID = preg_replace('#[^0-9]#', '', $matches[0]);
-			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.ID = " . Convert::raw2sql($ID));
+			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where('MediaType.ID = ' . Convert::raw2sql($ID));
 
 			// for a new attribute
 

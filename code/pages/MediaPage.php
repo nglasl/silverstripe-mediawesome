@@ -101,6 +101,18 @@ class MediaPage extends SiteTree {
 			$this->Date = SS_Datetime::now()->Format('Y-m-d H:i:s');
 		}
 
+		// clean up an external url, making sure it exists/is available
+
+		if($this->External) {
+			if(stripos($this->External, 'http') === false) {
+				$this->External = 'http://' . $this->External;
+			}
+			$file_headers = @get_headers($this->External);
+			if(!$file_headers || strripos($file_headers[0], '404 Not Found')) {
+				$this->External = null;
+			}
+		}
+
 		// save each custom attribute field
 
 		foreach($this->record as $name => $value) {
