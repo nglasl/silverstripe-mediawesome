@@ -1,7 +1,7 @@
-# Mediawesome (Dynamic Media Holders)
+# MediAwesome (Dynamic Media Holders)
 
-	A module for SilverStripe which allows creation of a flexible media holder for
-	media pages with customisable type (blogs, events, news).
+	A module for SilverStripe which allows creation of a flexible media holder and media pages
+	with customisable type (blogs, events, news).
 
 ## Requirement
 
@@ -53,7 +53,7 @@ private static $page_defaults = array(
 
 ```php
 MediaPage::customise_defaults(array(
-	'MediaName' => array(
+	'MediaType' => array(
 		'AttributeName'
 	)
 ));
@@ -61,7 +61,7 @@ MediaPage::customise_defaults(array(
 
 ### Media Types
 
-Minimises the number of manageable CMS items, where media holder children will inherit the current media type.
+Minimises the number of manageable CMS items, where media pages will inherit the current holder type. It is also possible to have a media holder full of additional media holders.
 
 ### Dynamic Attributes
 
