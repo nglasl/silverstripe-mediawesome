@@ -30,7 +30,7 @@ class MediaHolder extends Page {
 			$fields->addFieldToTab('Root.Main', DropdownField::create(
 				'MediaTypeID',
 				'Media Type',
-				MediaType::get()->map()
+				array_merge(array(0 => ''), MediaType::get()->map()->toArray())
 			), 'Title');
 
 		// allow addition of custom media types
@@ -44,25 +44,20 @@ class MediaHolder extends Page {
 		return $fields;
 	}
 
-	public function onBeforeWrite() {
+	// check if there is another media holder within this media holder
 
-		parent::onBeforeWrite();
-
-		// make sure the media holder has a type if media pages are to be created under it.
-
-		if(is_null($this->MediaTypeID) || ($this->MediaTypeID === 0)) {
-			$this->MediaTypeID = MediaType::get_one('MediaType')->ID;
-		}
+	public function checkMediaHolder() {
+		return $this->allChildren()->where("ClassName = 'MediaHolder'");
 	}
 
 }
 
 class MediaHolder_Controller extends Page_Controller {
 
-	// check if there is another media holder within this media holder
+	// retrieve a paginated list of children for the template
 
-	public function checkMediaHolder() {
-		return $this->allChildren()->where("ClassName = 'MediaHolder'");
+	public function getPaginatedChildren($limit = 5) {
+		return PaginatedList::create($this->data()->allChildren()->reverse(), $this->getRequest())->setPageLength($limit);
 	}
 
 }

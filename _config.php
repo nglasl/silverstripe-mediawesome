@@ -13,7 +13,7 @@ MediaType::apply_required_extensions();
 /*
  * EXAMPLE: Adding default pages and their attributes.
  *
- * MediaPage::addDefaults(array(
+ * MediaPage::customise_defaults(array(
  *	'Type' => array(
  *		'Attribute1',
  *		'Attribute2'

@@ -10,7 +10,7 @@
 				</div>
 			<% end_loop %>
 		<% else %>
-			<% loop allChildren.limit(5).reverse %>
+			<% loop getPaginatedChildren %>
 				<div>
 					<h4><strong><a href='<% if $External %>{$External}<% else %>{$Link}<% end_if %>'>{$Title}</a></strong></h4>
 					<div><em>{$Date.Nice}</em></div>
@@ -20,6 +20,23 @@
 					<br>
 				</div>
 			<% end_loop %>
+			<% if getPaginatedChildren.MoreThanOnePage %>
+				<div>
+					<% if getPaginatedChildren.NotFirstPage %>
+						<span><a href='{$getPaginatedChildren.PrevLink}'>Previous</a></span>
+					<% end_if %>
+					<% loop getPaginatedChildren.Pages %>
+						<% if $CurrentBool %>
+							<span>{$PageNum}</span>
+						<% else %>
+							<span><a href='{$Link}'>{$PageNum}</a></span>
+						<% end_if %>
+					<% end_loop %>
+					<% if getPaginatedChildren.NotLastPage %>
+						<span><a href='{$getPaginatedChildren.NextLink}'>Next</a></span>
+					<% end_if %>
+				</div>
+			<% end_if %>
 		<% end_if %>
 	</div>
 <% else %>

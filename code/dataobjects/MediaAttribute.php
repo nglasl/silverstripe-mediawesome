@@ -3,6 +3,7 @@
 class MediaAttribute extends DataObject {
 
 	private static $db = array(
+		'OriginalTitle' => 'VARCHAR(255)',
 		'Title' => 'VARCHAR(255)',
 		'Content' => 'HTMLTEXT',
 		'LinkID' => 'INT'
@@ -22,6 +23,7 @@ class MediaAttribute extends DataObject {
 
 		// we only want to allow change of the title which will be globally applied to all attributes
 
+		$fields->removeByName('OriginalTitle');
 		$fields->removeByName('Content');
 		$fields->removeByName('LinkID');
 		$fields->removeByName('MediaPageID');
@@ -31,6 +33,12 @@ class MediaAttribute extends DataObject {
 	public function onBeforeWrite() {
 
 		parent::onBeforeWrite();
+
+		// set the original title for future reference if it is changed
+
+		if(is_null($this->OriginalTitle)) {
+			$this->OriginalTitle = $this->Title;
+		}
 
 		// grab the media type id which will be used to update all attributes against this type
 
@@ -96,8 +104,14 @@ class MediaAttribute extends DataObject {
 
 		// make sure a new media attribute has been given a title
 
-		$this->Title ? $result->valid() : $result->error('Pls give title');
+		$this->Title ? $result->valid() : $result->error('Title required.');
 		return $result;
+	}
+
+	// in case getattribute is called inside a template without accessing variables directly
+
+	public function forTemplate() {
+		return "{$this->Title}: {$this->Content}";
 	}
 
 }

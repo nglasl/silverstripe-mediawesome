@@ -5,7 +5,7 @@ class MediaPage extends SiteTree {
 	private static $description = 'Blog, Event, Media Release, News, Publication, Speech <strong>or Custom Media</strong>';
 
 	private static $db = array(
-		'External' => 'VARCHAR(255)',
+		'ExternalLink' => 'VARCHAR(255)',
 		'Abstract' => 'TEXT',
 		'Date' => 'Datetime'
 	);
@@ -32,6 +32,8 @@ class MediaPage extends SiteTree {
 	private static $allowed_children = 'none';
 
 	private static $default_parent = 'MediaHolder';
+
+	// any custom attributes for existing media types will be stored in here rather than custom defaults
 
 	private static $page_defaults = array(
 		'Blog' => array(
@@ -79,7 +81,7 @@ class MediaPage extends SiteTree {
 
 			$output = array();
 			foreach($objects as $type => $attribute) {
-				if(!array_key_exists($type, self::$custom_defaults) && !array_key_exists($type, $output) && ($type !== 'MediaHolder')) {
+				if(!isset(self::$custom_defaults[$type]) && !isset($output[$type]) && ($type !== 'MediaHolder')) {
 					$output[$type] = $attribute;
 
 					// add these new media types too
@@ -103,13 +105,13 @@ class MediaPage extends SiteTree {
 
 		// clean up an external url, making sure it exists/is available
 
-		if($this->External) {
-			if(stripos($this->External, 'http') === false) {
-				$this->External = 'http://' . $this->External;
+		if($this->ExternalLink) {
+			if(stripos($this->ExternalLink, 'http') === false) {
+				$this->ExternalLink = 'http://' . $this->ExternalLink;
 			}
-			$file_headers = @get_headers($this->External);
+			$file_headers = @get_headers($this->ExternalLink);
 			if(!$file_headers || strripos($file_headers[0], '404 Not Found')) {
-				$this->External = null;
+				$this->ExternalLink = null;
 			}
 		}
 
@@ -126,58 +128,64 @@ class MediaPage extends SiteTree {
 
 		// link this page to the parent media holder
 
-		$type = $this->getParent()->MediaType();
-		if($type->exists()) {
-			$this->MediaTypeID = $type->ID;
-			$type = $type->Title;
-		}
-		else {
-			$type = null;
-		}
-
-		$temporary = array();
-		foreach(self::$custom_defaults as $default => $attributes) {
-			if(!array_key_exists($default, self::$page_defaults)) {
-				$temporary[$default] = $attributes;
+		$parent = $this->getParent();
+		if($parent) {
+			$type = $parent->MediaType();
+			if($type->exists()) {
+				$this->MediaTypeID = $type->ID;
+				$type = $type->Title;
 			}
-		}
-		$defaults = array_merge(self::$page_defaults, $temporary);
+			else {
+				$existing = MediaType::get_one('MediaType');
+				$parent->MediaTypeID = $existing->ID;
+				$parent->write();
+				$this->MediaTypeID = $existing->ID;
+				$type = $existing->Title;
+			}
 
-		// add existing attributes to a new media page
-
-		if(!$this->MediaAttributes()->exists()) {
-
-			// grab updated titles if they exist
-
-			$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($type) . "' AND MediaAttribute.LinkID = -1");
-			if($attributes->exists()) {
-
-				// grab another of the same attribute with a link id of -1 (should only be one)
-
-				foreach($attributes as $attribute) {
-					$new = MediaAttribute::create();
-					$new->Title = $attribute->Title;
-					$new->LinkID = $attribute->ID;
-					$new->MediaPageID = $this->ID;
-					$this->MediaAttributes()->add($new);
-					$new->write();
+			$temporary = array();
+			foreach(self::$custom_defaults as $default => $attributes) {
+				if(isset(self::$page_defaults[$default])) {
+					self::$page_defaults[$default] = array_unique(array_merge(self::$page_defaults[$default], $attributes));
+				}
+				else {
+					$temporary[$default] = $attributes;
 				}
 			}
-			else if(isset($defaults[$type])) {
-				foreach($defaults[$type] as $attribute) {
-					$new = MediaAttribute::create();
+			$defaults = array_merge(self::$page_defaults, $temporary);
 
-					// initial write to generate a valid ID
+			// add existing attributes to a new media page
 
-					//$new->write();
+			if(!$this->MediaAttributes()->exists()) {
 
-					// now we set the appropriate fields and write
+				// grab updated titles if they exist
 
-					$new->Title = $attribute;
-					$new->LinkID = -1;
-					$new->MediaPageID = $this->ID;
-					$this->MediaAttributes()->add($new);
-					$new->write();
+				$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($type) . "' AND MediaAttribute.LinkID = -1");
+				if($attributes->exists()) {
+
+					// grab another of the same attribute with a link id of -1 (should only be one)
+
+					foreach($attributes as $attribute) {
+						$new = MediaAttribute::create();
+						$new->Title = $attribute->Title;
+						$new->LinkID = $attribute->ID;
+						$new->MediaPageID = $this->ID;
+						$this->MediaAttributes()->add($new);
+						$new->write();
+					}
+				}
+				else if(isset($defaults[$type])) {
+					foreach($defaults[$type] as $attribute) {
+
+						// create this brand new attribute
+
+						$new = MediaAttribute::create();
+						$new->Title = $attribute;
+						$new->LinkID = -1;
+						$new->MediaPageID = $this->ID;
+						$this->MediaAttributes()->add($new);
+						$new->write();
+					}
 				}
 			}
 		}
@@ -195,8 +203,7 @@ class MediaPage extends SiteTree {
 			$this->MediaType()->Title
 		), 'Title');
 		$fields->addFieldToTab('Root.Main', TextField::create(
-			'External',
-			'External Link'
+			'ExternalLink'
 		)->setRightTitle('An optional redirect URL to the media source.'), 'Content');
 
 		// add and configure the date/time field
@@ -210,7 +217,7 @@ class MediaPage extends SiteTree {
 
 		if($this->MediaAttributes()->exists()) {
 			foreach($this->MediaAttributes() as $attribute) {
-				if(strripos($attribute->Title, 'Date') || strripos($attribute->Title, 'Time')) {
+				if(strripos($attribute->Title, 'Time') || strripos($attribute->Title, 'Date') || stripos($attribute->Title, 'When')) {
 					$fields->addFieldToTab('Root.Main', $date = DatetimeField::create(
 						"{$attribute->ID}_MediaAttribute",
 						$attribute->Title,
@@ -252,8 +259,29 @@ class MediaPage extends SiteTree {
 		return $fields;
 	}
 
+	// get an attribute for a template using the original title in case it has been changed/updated
+
+	public function getAttribute($title) {
+		foreach($this->MediaAttributes() as $attribute) {
+			if($attribute->OriginalTitle === $title) {
+
+				// return the attribute object so any variables may be accessed.
+
+				return $attribute;
+			}
+		}
+	}
+
 }
 
 class MediaPage_Controller extends Page_Controller {
+
+	public function index() {
+
+		// if a custom template for the specific page type has been defined, use this
+
+		$type = $this->data()->MediaType();
+		return $this->renderWith(array(($type->exists() ? str_replace(' ', '', $type->Title) : null), $this->data()->ClassName, 'Page'));
+	}
 
 }

@@ -47,7 +47,7 @@ class MediaType extends DataObject {
 				$type = MediaType::create();
 				$type->Title = $default;
 				$type->write();
-				DB::alteration_message("$default Media Type", 'created');
+				DB::alteration_message("{$default} Media Type", 'created');
 			}
 		}
 	}
@@ -96,7 +96,7 @@ class MediaType extends DataObject {
 
 		// make sure a new media type has been given a title
 
-		$this->Title ? $result->valid() : $result->error('Pls give title');
+		$this->Title ? $result->valid() : $result->error('Title required.');
 		return $result;
 	}
 
