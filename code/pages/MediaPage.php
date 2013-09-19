@@ -204,7 +204,7 @@ class MediaPage extends SiteTree {
 		), 'Title');
 		$fields->addFieldToTab('Root.Main', TextField::create(
 			'ExternalLink'
-		)->setRightTitle('An optional redirect URL to the media source.'), 'Content');
+		)->setRightTitle('An optional redirect URL to the media source.'), 'URLSegment');
 
 		// add and configure the date/time field
 
@@ -218,20 +218,21 @@ class MediaPage extends SiteTree {
 		if($this->MediaAttributes()->exists()) {
 			foreach($this->MediaAttributes() as $attribute) {
 				if(strripos($attribute->Title, 'Time') || strripos($attribute->Title, 'Date') || stripos($attribute->Title, 'When')) {
-					$fields->addFieldToTab('Root.Main', $date = DatetimeField::create(
+					$fields->addFieldToTab('Root.Main', $custom = DatetimeField::create(
 						"{$attribute->ID}_MediaAttribute",
 						$attribute->Title,
 						$attribute->Content
 					), 'Content');
-					$date->getDateField()->setConfig('showcalendar', true);
+					$custom->getDateField()->setConfig('showcalendar', true);
 				}
 				else {
-					$fields->addFieldToTab('Root.Main', TextField::create(
+					$fields->addFieldToTab('Root.Main', $custom = TextField::create(
 						"{$attribute->ID}_MediaAttribute",
 						$attribute->Title,
 						$attribute->Content
 					), 'Content');
 				}
+				$custom->setRightTitle('Custom ' . strtolower($this->MediaType()->Title) . ' attribute.');
 			}
 		}
 

@@ -114,4 +114,10 @@ class MediaAttribute extends DataObject {
 		return "{$this->Title}: {$this->Content}";
 	}
 
+	// prevent deletion of media attributes
+
+	public function canDelete($member = null) {
+		return false;
+	}
+
 }

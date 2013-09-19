@@ -100,4 +100,10 @@ class MediaType extends DataObject {
 		return $result;
 	}
 
+	// prevent deletion of media types
+
+	public function canDelete($member = null) {
+		return false;
+	}
+
 }
