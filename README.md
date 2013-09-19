@@ -1,4 +1,4 @@
-# Media-wesome (Dynamic Media Holders)
+# Mediawesome (Dynamic Media Holders)
 
 	A module for SilverStripe which allows creation of a flexible media holder and media pages
 	with customisable type (blogs, events, news).
