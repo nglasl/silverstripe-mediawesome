@@ -21,7 +21,7 @@ class MediaHolder extends Page {
 
 		// make the type read only if a child exists
 
-		($this->allChildren()->where("ClassName != 'MediaHolder'")->exists() && $this->MediaType()->exists()) ?
+		($this->AllChildren()->where("ClassName != 'MediaHolder'")->exists() && $this->MediaType()->exists()) ?
 			$fields->addFieldToTab('Root.Main', ReadonlyField::create(
 				'Media',
 				'Media Type',
@@ -47,7 +47,7 @@ class MediaHolder extends Page {
 	// check if there is another media holder within this media holder
 
 	public function checkMediaHolder() {
-		return $this->allChildren()->where("ClassName = 'MediaHolder'");
+		return $this->AllChildren()->where("ClassName = 'MediaHolder'");
 	}
 
 }
@@ -57,7 +57,7 @@ class MediaHolder_Controller extends Page_Controller {
 	// retrieve a paginated list of children for the template
 
 	public function getPaginatedChildren($limit = 5) {
-		return PaginatedList::create($this->data()->allChildren()->reverse(), $this->getRequest())->setPageLength($limit);
+		return PaginatedList::create($this->data()->AllChildren()->reverse(), $this->getRequest())->setPageLength($limit);
 	}
 
 }
