@@ -282,7 +282,7 @@ class MediaPage_Controller extends Page_Controller {
 		// if a custom template for the specific page type has been defined, use this
 
 		$type = $this->data()->MediaType();
-		return $this->renderWith(array(($type->exists() ? str_replace(' ', '', $type->Title) : null), $this->data()->ClassName, 'Page'));
+		return $this->renderWith(array(($type->exists() ? "{$this->data()->ClassName}_" . str_replace(' ', '', $type->Title) : $this->data()->ClassName), 'Page'));
 	}
 
 }

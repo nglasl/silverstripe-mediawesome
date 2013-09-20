@@ -69,7 +69,7 @@ The attributes for a specific media type may be customised through the CMS by us
 
 ### Smart Templating
 
-Custom templates may be defined for your media type (`Blog.ss` for a type Blog). It is also possible to reference a custom attribute directly through a custom template:
+Custom templates may be defined for your media type (`MediaPage_Blog.ss` for a type Blog). It is also possible to reference a custom attribute directly through a custom template:
 
 ```php
 $getAttribute(Author)
