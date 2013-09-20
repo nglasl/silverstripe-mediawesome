@@ -106,4 +106,18 @@ class MediaType extends DataObject {
 		return false;
 	}
 
+	// allow a content author access to manage these media types
+
+	public function canView($member = null) {
+		return Permission::check('SITETREE_REORGANISE', 'any', $member);
+	}
+
+	public function canEdit($member = null) {
+		return Permission::check('SITETREE_REORGANISE', 'any', $member);
+	}
+
+	public function canCreate($member = null) {
+		return Permission::check('SITETREE_REORGANISE', 'any', $member);
+	}
+
 }

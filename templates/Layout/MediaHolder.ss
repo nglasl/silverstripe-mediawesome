@@ -12,7 +12,7 @@
 		<% else %>
 			<% loop getPaginatedChildren %>
 				<div>
-					<h4><strong><a href='<% if $External %>{$External}<% else %>{$Link}<% end_if %>'>{$Title}</a></strong></h4>
+					<h4><strong><a href='<% if $External %>{$External}<% else_if not $Content && Attachments.count == 1 %>$Attachments.first.Link<% else %>{$Link}<% end_if %>'>{$Title}</a></strong></h4>
 					<div><em>{$Date.Nice}</em></div>
 					<% if $Abstract %>
 						<div>{$Abstract}</div>

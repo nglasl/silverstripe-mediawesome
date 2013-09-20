@@ -204,7 +204,7 @@ class MediaPage extends SiteTree {
 		), 'Title');
 		$fields->addFieldToTab('Root.Main', TextField::create(
 			'ExternalLink'
-		)->setRightTitle('An optional redirect URL to the media source.'), 'URLSegment');
+		)->setRightTitle('An <strong>optional</strong> redirect URL to the media source'), 'URLSegment');
 
 		// add and configure the date/time field
 
@@ -232,7 +232,7 @@ class MediaPage extends SiteTree {
 						$attribute->Content
 					), 'Content');
 				}
-				$custom->setRightTitle('Custom ' . strtolower($this->MediaType()->Title) . ' attribute.');
+				$custom->setRightTitle('Custom <strong>' . strtolower($this->MediaType()->Title) . '</strong> attribute');
 			}
 		}
 
@@ -241,7 +241,7 @@ class MediaPage extends SiteTree {
 		$fields->addfieldToTab('Root.Main', $abstract = TextareaField::create(
 			'Abstract'
 		), 'Content');
-		$abstract->setRightTitle('A concise summary of the media.');
+		$abstract->setRightTitle('A concise summary of the content');
 		$abstract->setRows(6);
 
 		// add tabs for attachments and images
