@@ -57,7 +57,7 @@ class MediaPage extends SiteTree {
 		'Speech' => array(
 			'Speaker',
 			'Location'
-		),
+		)
 	);
 
 	private static $custom_defaults = array(
@@ -256,6 +256,10 @@ class MediaPage extends SiteTree {
 			'Attachments'
 		));
 		$attachments->setFolderName("media-{$type}-{$this->ID}/attachments");
+
+		// allow customisation of the cms fields displayed
+
+		$this->extend('updateCMSFields', $fields);
 
 		return $fields;
 	}

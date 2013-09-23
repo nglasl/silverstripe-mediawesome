@@ -27,6 +27,11 @@ class MediaAttribute extends DataObject {
 		$fields->removeByName('Content');
 		$fields->removeByName('LinkID');
 		$fields->removeByName('MediaPageID');
+
+		// allow customisation of the cms fields displayed
+
+		$this->extend('updateCMSFields', $fields);
+
 		return $fields;
 	}
 
@@ -86,7 +91,7 @@ class MediaAttribute extends DataObject {
 
 							// link each attribute against the owner attribute for title edit purposes
 
-							if($attribute->LinkID == $this->ID) {
+							if(($attribute->LinkID == $this->ID) && ($attribute->Title !== $this->Title)) {
 								self::$writeFlag = true;
 								$attribute->Title = $this->Title;
 								$attribute->write();
@@ -105,6 +110,11 @@ class MediaAttribute extends DataObject {
 		// make sure a new media attribute has been given a title
 
 		$this->Title ? $result->valid() : $result->error('Title required.');
+
+		// allow validation extension
+
+		$this->extend('validate', $result);
+
 		return $result;
 	}
 

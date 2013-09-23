@@ -41,6 +41,11 @@ class MediaHolder extends Page {
 			MediaType::get(),
 			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
 		)->setModelClass('MediaType'));
+
+		// allow customisation of the cms fields displayed
+
+		$this->extend('updateCMSFields', $fields);
+
 		return $fields;
 	}
 

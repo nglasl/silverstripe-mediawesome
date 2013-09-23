@@ -88,6 +88,11 @@ class MediaType extends DataObject {
 				));
 			}
 		}
+
+		// allow customisation of the cms fields displayed
+
+		$this->extend('updateCMSFields', $fields);
+
 		return $fields;
 	}
 
@@ -97,6 +102,11 @@ class MediaType extends DataObject {
 		// make sure a new media type has been given a title
 
 		$this->Title ? $result->valid() : $result->error('Title required.');
+
+		// allow validation extension
+
+		$this->extend('validate', $result);
+
 		return $result;
 	}
 
