@@ -59,6 +59,14 @@ class MediaHolder extends Page {
 
 class MediaHolder_Controller extends Page_Controller {
 
+	public function index() {
+
+		// if a custom template for the specific holder type has been defined, use this
+
+		$type = $this->data()->MediaType();
+		return $this->renderWith(array(($type->exists() ? "{$this->data()->ClassName}_" . str_replace(' ', '', $type->Title) : null), $this->data()->ClassName, 'Page'));
+	}
+
 	// retrieve a paginated list of children for the template
 
 	public function getPaginatedChildren($limit = 5) {
