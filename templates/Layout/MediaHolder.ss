@@ -1,4 +1,5 @@
 <h1>{$Title}</h1>
+<p>{$Content}</p>
 <% if AllChildren %>
 	<div>
 		<% if checkMediaHolder %>
