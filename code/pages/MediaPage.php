@@ -44,19 +44,11 @@ class MediaPage extends SiteTree {
 			'End Time',
 			'Location'
 		),
-		'Media Release' => array(
-			'Contact Name',
-			'Contact Number'
-		),
 		'News' => array(
 			'Author'
 		),
 		'Publication' => array(
 			'Author'
-		),
-		'Speech' => array(
-			'Speaker',
-			'Location'
 		)
 	);
 
@@ -298,7 +290,13 @@ class MediaPage_Controller extends Page_Controller {
 		// if a custom template for the specific page type has been defined, use this
 
 		$type = $this->data()->MediaType();
-		return $this->renderWith(array(($type->exists() ? "{$this->data()->ClassName}_" . str_replace(' ', '', $type->Title) : null), $this->data()->ClassName, 'Page'));
+		$templates = array();
+		if($type->exists()) {
+			$templates[] = "{$this->data()->ClassName}_" . str_replace(' ', '', $type->Title);
+		}
+		$templates[] = $this->data()->ClassName;
+		$templates[] = 'Page';
+		return $this->renderWith($templates);
 	}
 
 }

@@ -9,10 +9,8 @@ class MediaType extends DataObject {
 	private static $page_defaults = array(
 		'Blog',
 		'Event',
-		'Media Release',
 		'News',
-		'Publication',
-		'Speech'
+		'Publication'
 	);
 
 	private static $custom_defaults = array(
