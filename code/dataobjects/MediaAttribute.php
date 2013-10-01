@@ -144,4 +144,10 @@ class MediaAttribute extends DataObject {
 		return Permission::check('SITETREE_REORGANISE', 'any', $member);
 	}
 
+	// used by the template to reference an attribute for styling purposes
+
+	public function templateClass() {
+		return strtolower($this->OriginalTitle);
+	}
+
 }
