@@ -202,6 +202,18 @@ class MediaPage extends SiteTree {
 			'Type',
 			$this->MediaType()->Title
 		), 'Title');
+
+		// display a notification if the media holder has mixed children
+
+		$parent = $this->getParent();
+		if($parent && $parent->checkMediaHolder()->exists()) {
+			Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
+			$fields->addFieldToTab('Root.Main', LiteralField::create(
+				'MediaNotification',
+				"<p class='mediawesome notification'><strong>Mixed {$this->MediaType()->Title} Holder</strong></p>"
+			), 'Type');
+		}
+
 		$fields->addFieldToTab('Root.Main', TextField::create(
 			'ExternalLink'
 		)->setRightTitle('An <strong>optional</strong> redirect URL to the media source'), 'URLSegment');
