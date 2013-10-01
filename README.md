@@ -1,6 +1,4 @@
-```php
-# mediawesome
-```
+# `mediawesome`
 ### Dynamic Media Pages
 
 	A module for SilverStripe which allows creation of a flexible media holder and media pages
