@@ -75,7 +75,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 	// retrieve a paginated list of children for the template
 
-	public function getPaginatedChildren($limit = 5, $reverse = false) {
+	public function getPaginatedChildren($limit = 5, $reverse = true) {
 		$children = $this->data()->AllChildren();
 		if($reverse) {
 			$children = $children->reverse();
