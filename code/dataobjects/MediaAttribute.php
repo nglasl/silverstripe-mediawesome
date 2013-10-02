@@ -133,15 +133,20 @@ class MediaAttribute extends DataObject {
 	// allow a content author access to manage these media attributes
 
 	public function canView($member = null) {
-		return Permission::check('SITETREE_REORGANISE', 'any', $member);
+		return true;
 	}
 
 	public function canEdit($member = null) {
-		return Permission::check('SITETREE_REORGANISE', 'any', $member);
+		return $this->checkPermissions($member);
 	}
 
 	public function canCreate($member = null) {
-		return Permission::check('SITETREE_REORGANISE', 'any', $member);
+		return $this->checkPermissions($member);
+	}
+
+	public function checkPermissions($member = null) {
+		$configuration = SiteConfig::current_site_config();
+		return Permission::check($configuration->MediaAccess, 'any', $member);
 	}
 
 	// used by the template to reference an attribute for styling purposes

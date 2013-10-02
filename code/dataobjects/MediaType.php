@@ -25,7 +25,7 @@ class MediaType extends DataObject {
 
 	public static function apply_required_extensions() {
 
-		Object::add_extension('SiteConfig', 'SiteConfigAccessExtension');
+		Object::add_extension('SiteConfig', 'SiteConfigMediaAccessExtension');
 		Object::add_extension('Page', 'PageChildrenExtension');
 		Config::inst()->update('MediaHolder', 'icon', MEDIAWESOME_PATH . '/images/holder.png');
 		Config::inst()->update('MediaPage', 'icon', MEDIAWESOME_PATH . '/images/page.png');
@@ -69,11 +69,12 @@ class MediaType extends DataObject {
 
 				// get the list of type attributes available and place them in a gridfield
 
+				$configuration = ($this->checkPermissions() === false) ? GridFieldConfig_RecordViewer::create() : GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction');
 				$fields->addFieldToTab('Root.Main', GridField::create(
 					'MediaAttributes',
 					'Custom Attributes',
 					MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "' AND MediaAttribute.LinkID = -1"),
-					GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
+					$configuration
 				)->setModelClass('MediaAttribute'));
 			}
 			else {
@@ -118,15 +119,20 @@ class MediaType extends DataObject {
 	// allow a content author access to manage these media types
 
 	public function canView($member = null) {
-		return Permission::check('SITETREE_REORGANISE', 'any', $member);
+		return true;
 	}
 
 	public function canEdit($member = null) {
-		return Permission::check('SITETREE_REORGANISE', 'any', $member);
+		return $this->checkPermissions($member);
 	}
 
 	public function canCreate($member = null) {
-		return Permission::check('SITETREE_REORGANISE', 'any', $member);
+		return $this->checkPermissions($member);
+	}
+
+	public function checkPermissions($member = null) {
+		$configuration = SiteConfig::current_site_config();
+		return Permission::check($configuration->MediaAccess, 'any', $member);
 	}
 
 }

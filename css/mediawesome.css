@@ -18,3 +18,8 @@ p.mediawesome.notification {
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 }
+
+#MediaAccess .optionset li {
+	float: none;
+	width: auto;
+}
