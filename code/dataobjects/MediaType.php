@@ -25,6 +25,7 @@ class MediaType extends DataObject {
 
 	public static function apply_required_extensions() {
 
+		Object::add_extension('SiteConfig', 'SiteConfigAccessExtension');
 		Object::add_extension('Page', 'PageChildrenExtension');
 		Config::inst()->update('MediaHolder', 'icon', MEDIAWESOME_PATH . '/images/holder.png');
 		Config::inst()->update('MediaPage', 'icon', MEDIAWESOME_PATH . '/images/page.png');
