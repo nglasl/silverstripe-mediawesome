@@ -5,8 +5,8 @@ class MediaPage extends SiteTree {
 	private static $description = 'Blog, Event, Media Release, News, Publication, Speech <strong>or Custom Media</strong>';
 
 	private static $db = array(
-		'ExternalLink' => 'VARCHAR(255)',
-		'Abstract' => 'TEXT',
+		'ExternalLink' => 'Varchar(255)',
+		'Abstract' => 'Text',
 		'Date' => 'Datetime'
 	);
 

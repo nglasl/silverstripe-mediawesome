@@ -8,11 +8,7 @@
 class SiteConfigMediaAccessExtension extends DataExtension {
 
 	private static $db = array(
-		'MediaAccess' => 'VARCHAR(255)'
-	);
-
-	private static $defaults = array(
-		'MediaAccess' => 'ADMIN'
+		'MediaAccess' => "Enum('ADMIN, SITETREE_EDIT_ALL', 'ADMIN')"
 	);
 
 	public function updateCMSFields(FieldList $fields) {

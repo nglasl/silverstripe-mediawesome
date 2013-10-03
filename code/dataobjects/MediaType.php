@@ -3,7 +3,7 @@
 class MediaType extends DataObject {
 
 	private static $db = array(
-		'Title' => 'VARCHAR(255)'
+		'Title' => 'Varchar(255)'
 	);
 
 	private static $page_defaults = array(

@@ -3,10 +3,10 @@
 class MediaAttribute extends DataObject {
 
 	private static $db = array(
-		'OriginalTitle' => 'VARCHAR(255)',
-		'Title' => 'VARCHAR(255)',
-		'Content' => 'HTMLTEXT',
-		'LinkID' => 'INT'
+		'OriginalTitle' => 'Varchar(255)',
+		'Title' => 'Varchar(255)',
+		'Content' => 'HTMLText',
+		'LinkID' => 'Int'
 	);
 
 	private static $has_one = array(
