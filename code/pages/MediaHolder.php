@@ -35,12 +35,11 @@ class MediaHolder extends Page {
 
 		// allow addition of custom media types
 
-		$configuration = ($this->checkPermissions() === false) ? GridFieldConfig_RecordViewer::create() : GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction');
 		$fields->addFieldToTab('Root.MediaTypes', GridField::create(
 			'MediaTypes',
 			'Media Types',
 			MediaType::get(),
-			$configuration
+			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
 		)->setModelClass('MediaType'));
 
 		// allow customisation of the cms fields displayed
@@ -48,11 +47,6 @@ class MediaHolder extends Page {
 		$this->extend('updateCMSFields', $fields);
 
 		return $fields;
-	}
-
-	public function checkPermissions($member = null) {
-		$configuration = SiteConfig::current_site_config();
-		return Permission::check($configuration->MediaAccess, 'any', $member);
 	}
 
 	// check if there is another media holder within this media holder

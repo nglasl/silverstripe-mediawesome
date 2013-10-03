@@ -123,7 +123,7 @@ class MediaType extends DataObject {
 	}
 
 	public function canEdit($member = null) {
-		return $this->checkPermissions($member);
+		return true;
 	}
 
 	public function canCreate($member = null) {
