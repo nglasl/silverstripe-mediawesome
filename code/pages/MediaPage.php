@@ -255,11 +255,11 @@ class MediaPage extends SiteTree {
 			'Images'
 		));
 		$images->getValidator()->setAllowedExtensions(array('jpg', 'jpeg', 'png', 'gif', 'bmp'));
-		$images->setFolderName("media-{$type}-{$this->ID}/images");
+		$images->setFolderName("media-{$type}/{$this->ID}/images");
 		$fields->addFieldToTab('Root.Attachments', $attachments = UploadField::create(
 			'Attachments'
 		));
-		$attachments->setFolderName("media-{$type}-{$this->ID}/attachments");
+		$attachments->setFolderName("media-{$type}/{$this->ID}/attachments");
 
 		// allow customisation of the cms fields displayed
 
