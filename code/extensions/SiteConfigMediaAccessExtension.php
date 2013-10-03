@@ -18,7 +18,7 @@ class SiteConfigMediaAccessExtension extends DataExtension {
 	public function updateCMSFields(FieldList $fields) {
 
 		$permissions = array(
-			'ADMIN' => 'Administrators <strong>and</strong> Developers',
+			'ADMIN' => 'Administrators and Developers',
 			'SITETREE_EDIT_ALL' => 'Content Authors'
 		);
 		Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
@@ -26,7 +26,7 @@ class SiteConfigMediaAccessExtension extends DataExtension {
 			$fields->addFieldToTab('Root.Access', $options = ReadonlyField::create(
 				'Media',
 				'Who can customise media?',
-				strip_tags($permissions[$this->owner->MediaAccess])
+				$permissions[$this->owner->MediaAccess]
 			));
 		}
 		else {
