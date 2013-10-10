@@ -99,9 +99,13 @@ class MediaType extends DataObject {
 	public function validate() {
 		$result = parent::validate();
 
-		// make sure a new media type has been given a title
+		// make sure a new media type has been given a title and doesn't already exist
 
-		$this->Title ? $result->valid() : $result->error('Title required.');
+		!$this->Title ?
+			$result->error('Title required!') :
+			MediaType::get_one('MediaType', "ID != " . Convert::raw2sql($this->ID) . " AND Title = '" . Convert::raw2sql($this->Title) . "'") ?
+				$result->error('Type already exists!') :
+				$result->valid();
 
 		// allow validation extension
 

@@ -107,9 +107,9 @@ class MediaAttribute extends DataObject {
 	public function validate() {
 		$result = parent::validate();
 
-		// make sure a new media attribute has been given a title
+		// make sure a media attribute has been given a title
 
-		$this->Title ? $result->valid() : $result->error('Title required.');
+		$this->Title ? $result->valid() : $result->error('Title required!');
 
 		// allow validation extension
 

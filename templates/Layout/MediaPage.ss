@@ -31,5 +31,14 @@
 					<div><a href='{$Link}'>{$Title}</a></div>
 				<% end_loop %>
 		</div>
+		<br>
+	<% end_if %>
+	<% if Tags %>
+		<div class='media-page-tags'>
+			<em><strong>Tags:</strong></em>
+				<% loop Tags %>
+					<span><em>{$Title}</em></span>
+				<% end_loop %>
+		</div>
 	<% end_if %>
 </div>

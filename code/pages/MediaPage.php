@@ -24,7 +24,8 @@ class MediaPage extends SiteTree {
 
 	private static $many_many = array(
 		'Images' => 'Image',
-		'Attachments' => 'File'
+		'Attachments' => 'File',
+		'Tags' => 'MediaTag'
 	);
 
 	private static $can_be_root = false;
@@ -217,6 +218,19 @@ class MediaPage extends SiteTree {
 		), 'Content');
 		$date->getDateField()->setConfig('showcalendar', true);
 
+		// add the tags field
+
+		$tags = MediaTag::get()->map()->toArray();
+		$fields->addFieldToTab('Root.Main', $tagsList = ListboxField::create(
+			'Tags',
+			'Tags',
+			$tags
+		), 'Content');
+		$tagsList->setMultiple(true);
+		if(!$tags) {
+			$tagsList->setAttribute('disabled', 'true');
+		}
+
 		// add all the custom attribute fields
 
 		if($this->MediaAttributes()->exists()) {
@@ -227,6 +241,7 @@ class MediaPage extends SiteTree {
 						$attribute->Title,
 						$attribute->Content
 					), 'Content');
+					$custom->getDateField()->setConfig('min', date('Y-m-d', strtotime('-1 week')));
 					$custom->getDateField()->setConfig('showcalendar', true);
 				}
 				else {

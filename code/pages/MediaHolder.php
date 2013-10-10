@@ -42,6 +42,15 @@ class MediaHolder extends Page {
 			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
 		)->setModelClass('MediaType'));
 
+		// allow addition of custom media tags
+
+		$fields->addFieldToTab('Root.MediaTags', GridField::create(
+			'MediaTags',
+			'Media Tags',
+			MediaTag::get(),
+			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
+		)->setModelClass('MediaTag'));
+
 		// allow customisation of the cms fields displayed
 
 		$this->extend('updateCMSFields', $fields);
