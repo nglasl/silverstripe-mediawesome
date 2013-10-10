@@ -1,5 +1,10 @@
 <div class='media-page-container'>
 	<h1>{$Title}</strong></h1>
+	<% if Images.First %>
+		<p class='media-page-main-image'>
+			<span><a href='$Images.First.Link'>{$Images.First.CroppedImage(200, 200)}</a></span>
+		</p>
+	<% end_if %>
 	<div class='media-page-date'><em>{$Date.Nice}</em></div>
 	<div class='media-page-attributes'>
 		<% loop MediaAttributes %>
@@ -10,10 +15,12 @@
 		<br>
 	</div>
 	{$Content}
-	<% if Images %>
+	<% if Images.Count > 1 %>
 		<p class='media-page-images'>
 			<% loop Images %>
-				<span><a href='$Link'>{$CroppedImage(100, 100)}</a></span>
+				<% if not First %>
+					<span><a href='$Link'>{$CroppedImage(100, 100)}</a></span>
+				<% end_if %>
 			<% end_loop %>
 		</p>
 	<% end_if %>
