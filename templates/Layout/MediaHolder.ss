@@ -14,8 +14,8 @@
 			<% else %>
 				<% loop getPaginatedChildren %>
 					<div class='media-page'>
-						<h4><strong><a href='<% if $External %>{$External}<% else_if not $Content && Attachments.count == 1 %>$Attachments.first.Link<% else %>{$Link}<% end_if %>'>{$Title}</a></strong></h4>
-						<div class='media-date'><em>{$Date.Nice}</em></div>
+						<h4><strong><a href='<% if $ExternalLink %>{$ExternalLink}<% else_if not $Content && Attachments.count == 1 %>$Attachments.first.Link<% else %>{$Link}<% end_if %>'<% if $ExternalLink %> target='_blank'<% end_if %>>{$Title}</a></strong></h4>
+						<p class='media-date'><em>{$Date.Date}</em></p>
 						<% if $Abstract %>
 							<div class='media-abstract'>{$Abstract}</div>
 						<% end_if %>
