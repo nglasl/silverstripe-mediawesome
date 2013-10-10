@@ -241,7 +241,6 @@ class MediaPage extends SiteTree {
 						$attribute->Title,
 						$attribute->Content
 					), 'Content');
-					$custom->getDateField()->setConfig('min', date('Y-m-d', strtotime('-1 week')));
 					$custom->getDateField()->setConfig('showcalendar', true);
 				}
 				else {
