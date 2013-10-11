@@ -68,10 +68,6 @@ class MediaHolder extends Page {
 
 class MediaHolder_Controller extends Page_Controller {
 
-	private static $allowed_actions = array(
-		'filter'
-	);
-
 	public function index() {
 
 		// if a custom template for the specific holder type has been defined, use this
@@ -86,14 +82,7 @@ class MediaHolder_Controller extends Page_Controller {
 		return $this->renderWith($templates);
 	}
 
-	// filter a paginated list of children and render this with the media holder template
-
-	public function filter() {
-		$children = $this->getPaginatedChildren();
-		return $children;
-	}
-
-	// retrieve a paginated list of children for your template
+	// retrieve a paginated list of children for your template, with optional filters
 
 	public function getPaginatedChildren($limit = 5, $sort = 'Date', $order = 'DESC') {
 
@@ -112,13 +101,13 @@ class MediaHolder_Controller extends Page_Controller {
 		$for = $this->getRequest()->getVar('for');
 		$from = $this->getRequest()->getVar('from');
 
-		// apply the applicable filter which has been selected
+		// apply the applicable filters which have been selected
 
 		$children = MediaPage::get()->where('ParentID = ' . Convert::raw2sql($this->data()->ID));
 		if($tag) {
 			$children = $children->filter('Tags.Title:ExactMatch', $tag);
 		}
-		else if($for) {
+		if($for) {
 			$children = $children->where("Date = '" . Convert::raw2sql($for) . "'");
 		}
 		else if($from) {

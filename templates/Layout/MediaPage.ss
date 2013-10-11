@@ -37,7 +37,7 @@
 		<div class='media-page-tags'>
 			<em><strong>Tags:</strong></em>
 				<% loop Tags %>
-					<span><em>{$Title}</em></span>
+					<span><a href='{$Up.getParent.Link}?tag={$Title}'><em>{$Title}</em></a></span>
 				<% end_loop %>
 		</div>
 	<% end_if %>
