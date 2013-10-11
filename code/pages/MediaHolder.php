@@ -68,6 +68,10 @@ class MediaHolder extends Page {
 
 class MediaHolder_Controller extends Page_Controller {
 
+	private static $allowed_actions = array(
+		'filter'
+	);
+
 	public function index() {
 
 		// if a custom template for the specific holder type has been defined, use this
@@ -82,12 +86,46 @@ class MediaHolder_Controller extends Page_Controller {
 		return $this->renderWith($templates);
 	}
 
-	// retrieve a paginated list of children for the template
+	// filter a paginated list of children and render this with the media holder template
+
+	public function filter() {
+		$children = $this->getPaginatedChildren();
+		return $children;
+	}
+
+	// retrieve a paginated list of children for your template
 
 	public function getPaginatedChildren($limit = 5, $sort = 'Date', $order = 'DESC') {
-		$children = MediaPage::get()->where('ParentID = ' . Convert::raw2sql($this->data()->ID))->sort("{$sort} {$order}");
+
+		// if a custom filter has occurred, these attributes will take precedence
+
+		if($limitVar = $this->getRequest()->getVar('limit')) {
+			$limit = $limitVar;
+		}
+		if($sortVar = $this->getRequest()->getVar('sort')) {
+			$sort = $sortVar;
+		}
+		if($orderVar = $this->getRequest()->getVar('order')) {
+			$order = $orderVar;
+		}
+		$tag = $this->getRequest()->getVar('tag');
+		$for = $this->getRequest()->getVar('for');
+		$from = $this->getRequest()->getVar('from');
+
+		// apply the applicable filter which has been selected
+
+		$children = MediaPage::get()->where('ParentID = ' . Convert::raw2sql($this->data()->ID));
+		if($tag) {
+			$children = $children->filter('Tags.Title:ExactMatch', $tag);
+		}
+		else if($for) {
+			$children = $children->where("Date = '" . Convert::raw2sql($for) . "'");
+		}
+		else if($from) {
+			$children = $children->where("Date >= '" . Convert::raw2sql($from) . "'");
+		}
 		return PaginatedList::create(
-			$children,
+			$children->sort(Convert::raw2sql($sort) . ' ' . Convert::raw2sql($order)),
 			$this->getRequest()
 		)->setPageLength($limit);
 	}
