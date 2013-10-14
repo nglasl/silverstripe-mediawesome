@@ -68,6 +68,12 @@ class MediaHolder extends Page {
 
 class MediaHolder_Controller extends Page_Controller {
 
+	private static $allowed_actions = array(
+		'dateFilterForm',
+		'dateFilter',
+		'clearFilter'
+	);
+
 	public function index() {
 
 		// if a custom template for the specific holder type has been defined, use this
@@ -97,26 +103,92 @@ class MediaHolder_Controller extends Page_Controller {
 		if($orderVar = $this->getRequest()->getVar('order')) {
 			$order = $orderVar;
 		}
-		$tag = $this->getRequest()->getVar('tag');
-		$for = $this->getRequest()->getVar('for');
 		$from = $this->getRequest()->getVar('from');
+		$tag = $this->getRequest()->getVar('tag');
 
 		// apply the applicable filters which have been selected
 
 		$children = MediaPage::get()->where('ParentID = ' . Convert::raw2sql($this->data()->ID));
+		if($from) {
+			$children = $children->where("Date >= '" . Convert::raw2sql($from) . " 00:00:00'");
+		}
 		if($tag) {
 			$children = $children->filter('Tags.Title:ExactMatch', $tag);
-		}
-		if($for) {
-			$children = $children->where("Date = '" . Convert::raw2sql($for) . "'");
-		}
-		else if($from) {
-			$children = $children->where("Date >= '" . Convert::raw2sql($from) . "'");
 		}
 		return PaginatedList::create(
 			$children->sort(Convert::raw2sql($sort) . ' ' . Convert::raw2sql($order)),
 			$this->getRequest()
 		)->setPageLength($limit);
+	}
+
+	public function dateFilterForm() {
+
+		// display the form to allow filtering from a specified date
+
+		$children = MediaPage::get()->where('ParentID = ' . Convert::raw2sql($this->data()->ID));
+		$form = Form::create(
+			$this,
+			'dateFilterForm',
+			FieldList::create(
+				DateField::create(
+					'from',
+					''
+				)->setConfig('showcalendar', true)->setConfig('min', $children->min('Date'))->setConfig('max', $children->max('Date'))->setAttribute('placeholder', 'From'),
+				HiddenField::create(
+					'tag'
+				)
+			),
+			FieldList::create(
+				FormAction::create(
+					'dateFilter',
+					'Filter'
+				),
+				FormAction::create(
+					'clearFilter',
+					'Clear'
+				)
+			)
+		);
+
+		// if there is an existing filter, display this in the form
+
+		$form->setFormMethod('get');
+		$form->loadDataFrom($this->getRequest()->getVars());
+
+		// remove validation if a clear has been triggered
+
+		if($this->getRequest()->getVar('action_clearFilter')) {
+			$form->unsetValidator();
+		}
+		return $form;
+	}
+
+	public function dateFilter() {
+
+		// apply the from filter, keeping the set tag filter
+
+		$from = $this->getRequest()->getVar('from');
+		$tag = $this->getRequest()->getVar('tag');
+		$link = $this->AbsoluteLink();
+		$separator = '?';
+		if($from) {
+			$parser = new DateTime($from);
+			$link = HTTP::setGetVar('from', $parser->Format('Y-m-d'), $link, $separator);
+			$separator = '&';
+		}
+		if($tag) {
+			$link = HTTP::setGetVar('tag', $tag, $link, $separator);
+		}
+		$this->redirect($link);
+	}
+
+	public function clearFilter() {
+
+		// reset the form filter, keeping any remaining tag filters applied
+
+		$tag = $this->getRequest()->getVar('tag');
+		$link = $tag ? HTTP::setGetVar('tag', $tag, $this->AbsoluteLink(), '?') : $this->AbsoluteLink();
+		$this->redirect($link);
 	}
 
 }
