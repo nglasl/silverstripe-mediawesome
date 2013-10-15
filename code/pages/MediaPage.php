@@ -1,8 +1,13 @@
 <?php
 
+/**
+ *	Displays customised media content relating to the parent holder media type.
+ *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ */
+
 class MediaPage extends SiteTree {
 
-	private static $description = 'Blog, Event, Media Release, News, Publication, Speech <strong>or Custom Media</strong>';
+	private static $description = 'Blog, Event, News, Publication <strong>or Custom Media</strong>';
 
 	private static $db = array(
 		'ExternalLink' => 'Varchar(255)',

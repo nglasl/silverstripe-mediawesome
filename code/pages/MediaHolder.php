@@ -1,5 +1,10 @@
 <?php
 
+/**
+ *	Displays media holder/page children with optional date/tag filters.
+ *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ */
+
 class MediaHolder extends Page {
 
 	private static $description = '<strong>Holds:</strong> Blogs, Events, Media Releases, News, Publications, Speeches <strong>or Custom Media</strong>';

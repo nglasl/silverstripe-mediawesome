@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Extension to configure custom media permissions.
+ *	Mediawesome extension which allows permission configuration for media customisation.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 

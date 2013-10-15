@@ -1,5 +1,10 @@
 <?php
 
+/**
+ *	Mediawesome CMS media page tag.
+ *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ */
+
 class MediaTag extends DataObject {
 
 	private static $db = array(

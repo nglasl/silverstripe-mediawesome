@@ -1,5 +1,10 @@
 <?php
 
+/**
+ *	Mediawesome CMS media type attribute.
+ *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ */
+
 class MediaAttribute extends DataObject {
 
 	private static $db = array(

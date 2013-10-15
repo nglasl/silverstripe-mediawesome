@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Extension to validate media page and holder placement.
+ *	Mediawesome extension which validates media holder/page tree placement.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
