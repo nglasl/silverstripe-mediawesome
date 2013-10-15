@@ -11,6 +11,10 @@ class MediaType extends DataObject {
 		'Title' => 'Varchar(255)'
 	);
 
+	/**
+	 *	The default media types.
+	 */
+
 	private static $page_defaults = array(
 		'Blog',
 		'Event',
@@ -18,8 +22,16 @@ class MediaType extends DataObject {
 		'Publication'
 	);
 
+	/**
+	 *	The custom default media types.
+	 */
+
 	private static $custom_defaults = array(
 	);
+
+	/**
+	 *	Apply all Mediawesome required extensions.
+	 */
 
 	public static function apply_required_extensions() {
 
@@ -29,12 +41,22 @@ class MediaType extends DataObject {
 		Config::inst()->update('MediaPage', 'icon', MEDIAWESOME_PATH . '/images/page.png');
 	}
 
+	/**
+	 *	Add a custom default media type with no attributes.
+	 *
+	 *	@parameter <{MEDIA_TYPE}> string
+	 */
+
 	public static function add_default($type) {
 
 		//merge any new media type customisation
 
 		self::$custom_defaults[] = $type;
 	}
+
+	/**
+	 *	The process to automatically construct any default media types, executed on project build.
+	 */
 
 	public function requireDefaultRecords() {
 
@@ -56,30 +78,65 @@ class MediaType extends DataObject {
 		}
 	}
 
-	// allow a content author access to manage these media types
+	/**
+	 *	Allow access for CMS users viewing media types.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
 
 	public function canView($member = null) {
 		return true;
 	}
 
+	/**
+	 *	Allow access for CMS users editing media types since nothing can be changed.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
+
 	public function canEdit($member = null) {
 		return true;
 	}
+
+	/**
+	 *	Determine access for the current CMS user creating media types.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
 
 	public function canCreate($member = null) {
 		return $this->checkPermissions($member);
 	}
 
-	// prevent deletion of media types
+	/**
+	 *	Restrict access for CMS users deleting media type attributes.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
 
 	public function canDelete($member = null) {
 		return false;
 	}
 
+	/**
+	 *	Determine access for the current CMS user from the site configuration media customisation permissions.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
+
 	public function checkPermissions($member = null) {
 		$configuration = SiteConfig::current_site_config();
 		return Permission::check($configuration->MediaAccess, 'any', $member);
 	}
+
+	/**
+	 *	Display appropriate CMS media type fields.
+	 */
 
 	public function getCMSFields() {
 
@@ -125,6 +182,10 @@ class MediaType extends DataObject {
 
 		return $fields;
 	}
+
+	/**
+	 *	Confirm that the current media type is valid.
+	 */
 
 	public function validate() {
 		$result = parent::validate();

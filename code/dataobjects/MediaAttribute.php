@@ -18,34 +18,71 @@ class MediaAttribute extends DataObject {
 		'MediaPage' => 'MediaPage'
 	);
 
-	// used to avoid infinite recursion when writing inside the onbeforewrite
+	/**
+	 *	Flag a write occurrence to prevent infinite recursion.
+	 */
 
 	private static $writeFlag = false;
 
-	// allow a content author access to manage these media attributes
+	/**
+	 *	Allow access for CMS users viewing media type attributes.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
 
 	public function canView($member = null) {
 		return true;
 	}
 
+	/**
+	 *	Determine access for the current CMS user editing media type attributes.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
+
 	public function canEdit($member = null) {
 		return $this->checkPermissions($member);
 	}
+
+	/**
+	 *	Determine access for the current CMS user editing media type attributes.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
 
 	public function canCreate($member = null) {
 		return $this->checkPermissions($member);
 	}
 
-	// prevent deletion of media attributes
+	/**
+	 *	Restrict access for CMS users deleting media type attributes.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
 
 	public function canDelete($member = null) {
 		return false;
 	}
 
+	/**
+	 *	Determine access for the current CMS user from the site configuration media customisation permissions.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
+
 	public function checkPermissions($member = null) {
 		$configuration = SiteConfig::current_site_config();
 		return Permission::check($configuration->MediaAccess, 'any', $member);
 	}
+
+	/**
+	 *	Display appropriate CMS media type attribute fields.
+	 */
 
 	public function getCMSFields() {
 
@@ -65,6 +102,10 @@ class MediaAttribute extends DataObject {
 		return $fields;
 	}
 
+	/**
+	 *	Confirm that the current media type attribute is valid.
+	 */
+
 	public function validate() {
 		$result = parent::validate();
 
@@ -78,6 +119,10 @@ class MediaAttribute extends DataObject {
 
 		return $result;
 	}
+
+	/**
+	 *	Assign this media type attribute to each media page of the respective type.
+	 */
 
 	public function onBeforeWrite() {
 
@@ -148,13 +193,21 @@ class MediaAttribute extends DataObject {
 		}
 	}
 
-	// used by the template to reference an attribute for styling purposes
+	/**
+	 *	Permanently reference an attribute name, even if it has been changed through the CMS.
+	 *
+	 *	@return string
+	 */
 
 	public function templateClass() {
 		return strtolower($this->OriginalTitle);
 	}
 
-	// in case getattribute is called inside a template without accessing variables directly
+	/**
+	 *	The default rendition of an attribute object for templates.
+	 *
+	 *	@return string
+	 */
 
 	public function forTemplate() {
 		return "{$this->Title}: {$this->Content}";

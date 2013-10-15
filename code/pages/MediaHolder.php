@@ -20,6 +20,10 @@ class MediaHolder extends Page {
 
 	private static $description = '<strong>Holds:</strong> Blogs, Events, Media Releases, News, Publications, Speeches <strong>or Custom Media</strong>';
 
+	/**
+	 *	Display appropriate CMS media holder fields.
+	 */
+
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
@@ -63,7 +67,9 @@ class MediaHolder extends Page {
 		return $fields;
 	}
 
-	// check if there is another media holder within this media holder
+	/**
+	 *	Retrieve any media holder children.
+	 */
 
 	public function checkMediaHolder() {
 		return $this->AllChildren()->where("ClassName = 'MediaHolder'");
@@ -79,6 +85,11 @@ class MediaHolder_Controller extends Page_Controller {
 		'clearFilter'
 	);
 
+	/**
+	 *	Render this media holder with a custom template if one exists.
+	 *	NOTE: They have the name format <MediaHolder_News> for example.
+	 */
+
 	public function index() {
 
 		// if a custom template for the specific holder type has been defined, use this
@@ -93,7 +104,14 @@ class MediaHolder_Controller extends Page_Controller {
 		return $this->renderWith($templates);
 	}
 
-	// retrieve a paginated list of children for your template, with optional filters
+	/**
+	 *	Retrieve a paginated list of media holder/page children for your template, with optional URL date/tag filters.
+	 *
+	 *	@parameter <{LIMIT_PER_PAGE}> integer
+	 *	@parameter <{FIELD_SORT}> string
+	 *	@parameter <{SORT_DIRECTION}> string
+	 *	@return paginatedlist
+	 */
 
 	public function getPaginatedChildren($limit = 5, $sort = 'Date', $order = 'DESC') {
 
@@ -125,6 +143,12 @@ class MediaHolder_Controller extends Page_Controller {
 			$this->getRequest()
 		)->setPageLength($limit);
 	}
+
+	/**
+	 *	A simple form to allow date filtering from a specified date.
+	 *
+	 *	@return form
+	 */
 
 	public function dateFilterForm() {
 
@@ -168,6 +192,10 @@ class MediaHolder_Controller extends Page_Controller {
 		return $form;
 	}
 
+	/**
+	 *	The method to filter from the specified date using the URL.
+	 */
+
 	public function dateFilter() {
 
 		// apply the from filter, keeping the set tag filter
@@ -184,8 +212,12 @@ class MediaHolder_Controller extends Page_Controller {
 		if($tag) {
 			$link = HTTP::setGetVar('tag', $tag, $link, $separator);
 		}
-		$this->redirect($link);
+		return $this->redirect($link);
 	}
+
+	/**
+	 *	The method to clear the specified date filter using the URL.
+	 */
 
 	public function clearFilter() {
 
@@ -193,7 +225,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 		$tag = $this->getRequest()->getVar('tag');
 		$link = $tag ? HTTP::setGetVar('tag', $tag, $this->AbsoluteLink(), '?') : $this->AbsoluteLink();
-		$this->redirect($link);
+		return $this->redirect($link);
 	}
 
 }

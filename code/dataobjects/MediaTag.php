@@ -11,23 +11,53 @@ class MediaTag extends DataObject {
 		'Title' => 'Varchar(255)'
 	);
 
+	/**
+	 *	Allow access for CMS users viewing media page tags.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
+
 	public function canView($member = null) {
 		return true;
 	}
+
+	/**
+	 *	Allow access for CMS users editing media page tags.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
 
 	public function canEdit($member = null) {
 		return true;
 	}
 
+	/**
+	 *	Allow access for CMS users creating media page tags.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
+
 	public function canCreate($member = null) {
 		return true;
 	}
 
-	// prevent deletion of media tags
+	/**
+	 *	Restrict access for CMS users deleting media page tags.
+	 *
+	 *	@parameter <{CURRENT_MEMBER}> member
+	 *	@return boolean
+	 */
 
 	public function canDelete($member = null) {
 		return false;
 	}
+
+	/**
+	 *	Confirm that the current media page tag is valid.
+	 */
 
 	public function validate() {
 		$result = parent::validate();

@@ -7,9 +7,17 @@
 
 class SiteConfigMediaAccessExtension extends DataExtension {
 
+	/**
+	 *	Append an additional media permission field to the site configuration.
+	 */
+
 	private static $db = array(
 		'MediaAccess' => "Enum('ADMIN, SITETREE_EDIT_ALL', 'ADMIN')"
 	);
+
+	/**
+	 *	Allow configuration of media customisation permissions.
+	 */
 
 	public function updateCMSFields(FieldList $fields) {
 

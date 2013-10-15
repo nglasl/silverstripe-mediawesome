@@ -39,7 +39,9 @@ class MediaPage extends SiteTree {
 
 	private static $description = 'Blog, Event, News, Publication <strong>or Custom Media</strong>';
 
-	// any custom attributes for existing media types will be stored in here rather than custom defaults
+	/**
+	 *	The default media types and their respective attributes.
+	 */
 
 	private static $page_defaults = array(
 		'Blog' => array(
@@ -58,8 +60,18 @@ class MediaPage extends SiteTree {
 		)
 	);
 
+	/**
+	 *	The custom default media types and their respective attributes.
+	 */
+
 	private static $custom_defaults = array(
 	);
+
+	/**
+	 *	Add default media types with respective attributes.
+	 *
+	 *	@parameter <{MEDIA_TYPES_AND_ATTRIBUTES}> array(array(string))
+	 */
 
 	public static function customise_defaults($objects) {
 
@@ -90,6 +102,10 @@ class MediaPage extends SiteTree {
 			self::$custom_defaults = array_merge(self::$custom_defaults, $output);
 		}
 	}
+
+	/**
+	 *	Display appropriate CMS media page fields.
+	 */
 
 	public function getCMSFields() {
 
@@ -189,6 +205,10 @@ class MediaPage extends SiteTree {
 		return $fields;
 	}
 
+	/**
+	 *	Confirm an external link is valid, link this media page type to the parent holder and update any existing media type attribute references.
+	 */
+
 	public function onBeforeWrite() {
 
 		parent::onBeforeWrite();
@@ -287,7 +307,11 @@ class MediaPage extends SiteTree {
 		}
 	}
 
-	// get an attribute for a template using the original title in case it has been changed/updated
+	/**
+	 *	Permanently retrieve an attribute for a template, even if it has been changed through the CMS.
+	 *
+	 *	@return string
+	 */
 
 	public function getAttribute($title) {
 		foreach($this->MediaAttributes() as $attribute) {
@@ -303,6 +327,11 @@ class MediaPage extends SiteTree {
 }
 
 class MediaPage_Controller extends Page_Controller {
+
+	/**
+	 *	Render this media page with a custom template if one exists.
+	 *	NOTE: They have the name format <MediaPage_News> for example.
+	 */
 
 	public function index() {
 

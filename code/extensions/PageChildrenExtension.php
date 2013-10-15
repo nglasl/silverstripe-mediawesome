@@ -7,6 +7,10 @@
 
 class PageChildrenExtension extends DataExtension {
 
+	/**
+	 *	Restrict page children to page, so media can't be incorrectly assigned.
+	 */
+
 	private static $allowed_children = array(
 		'Page'
 	);
