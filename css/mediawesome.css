@@ -21,13 +21,12 @@ p.mediawesome.notification {
 
 #MediaAccess ul.optionset li {
 	float: none;
-	width: auto;
-}
-
-#MediaAccess ul.optionset li input {
-	margin-top: 0;
 }
 
 #MediaAccess ul.optionset li input, #MediaAccess ul.optionset li label {
 	vertical-align: middle;
+}
+
+#MediaAccess ul.optionset li input {
+	margin-top: 0;
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Media specific configuration settings.
+ *	Mediawesome specific configuration settings.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -10,14 +10,23 @@ if(!defined('MEDIAWESOME_PATH')) {
 }
 MediaType::apply_required_extensions();
 
-/*
- * EXAMPLE: Adding default pages and their attributes.
+/**
  *
- * MediaPage::customise_defaults(array(
- *	'Type' => array(
- *		'Attribute1',
- *		'Attribute2'
- *	)
- * ));
+ *	EXAMPLE: Creating default media types with respective attributes.
+ *
+ *	@parameter <{MEDIA_TYPES_AND_ATTRIBUTES}> array(array(string))
+ *
+ *	MediaPage::customise_defaults(array(
+ *		'<Media Type>' => array(
+ *			'<Attribute>',
+ *			'<Attribute>',
+ *			'<Attribute>'
+ *		),
+ *		'<Media Type>' => array(
+ *			'<Attribute>',
+ *			'<Attribute>',
+ *			'<Attribute>'
+ *		)
+ *	));
  *
  */
