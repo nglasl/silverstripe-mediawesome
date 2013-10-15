@@ -21,19 +21,19 @@ class MediaType extends DataObject {
 	private static $custom_defaults = array(
 	);
 
-	public static function add_default($type) {
-
-		//merge any new media type customisation
-
-		self::$custom_defaults[] = $type;
-	}
-
 	public static function apply_required_extensions() {
 
 		Object::add_extension('SiteConfig', 'SiteConfigMediaAccessExtension');
 		Object::add_extension('Page', 'PageChildrenExtension');
 		Config::inst()->update('MediaHolder', 'icon', MEDIAWESOME_PATH . '/images/holder.png');
 		Config::inst()->update('MediaPage', 'icon', MEDIAWESOME_PATH . '/images/page.png');
+	}
+
+	public static function add_default($type) {
+
+		//merge any new media type customisation
+
+		self::$custom_defaults[] = $type;
 	}
 
 	public function requireDefaultRecords() {
@@ -54,6 +54,31 @@ class MediaType extends DataObject {
 				DB::alteration_message("{$default} Media Type", 'created');
 			}
 		}
+	}
+
+	// allow a content author access to manage these media types
+
+	public function canView($member = null) {
+		return true;
+	}
+
+	public function canEdit($member = null) {
+		return true;
+	}
+
+	public function canCreate($member = null) {
+		return $this->checkPermissions($member);
+	}
+
+	// prevent deletion of media types
+
+	public function canDelete($member = null) {
+		return false;
+	}
+
+	public function checkPermissions($member = null) {
+		$configuration = SiteConfig::current_site_config();
+		return Permission::check($configuration->MediaAccess, 'any', $member);
 	}
 
 	public function getCMSFields() {
@@ -117,31 +142,6 @@ class MediaType extends DataObject {
 		$this->extend('validate', $result);
 
 		return $result;
-	}
-
-	// prevent deletion of media types
-
-	public function canDelete($member = null) {
-		return false;
-	}
-
-	// allow a content author access to manage these media types
-
-	public function canView($member = null) {
-		return true;
-	}
-
-	public function canEdit($member = null) {
-		return true;
-	}
-
-	public function canCreate($member = null) {
-		return $this->checkPermissions($member);
-	}
-
-	public function checkPermissions($member = null) {
-		$configuration = SiteConfig::current_site_config();
-		return Permission::check($configuration->MediaAccess, 'any', $member);
 	}
 
 }

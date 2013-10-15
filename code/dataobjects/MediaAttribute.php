@@ -22,6 +22,31 @@ class MediaAttribute extends DataObject {
 
 	private static $writeFlag = false;
 
+	// allow a content author access to manage these media attributes
+
+	public function canView($member = null) {
+		return true;
+	}
+
+	public function canEdit($member = null) {
+		return $this->checkPermissions($member);
+	}
+
+	public function canCreate($member = null) {
+		return $this->checkPermissions($member);
+	}
+
+	// prevent deletion of media attributes
+
+	public function canDelete($member = null) {
+		return false;
+	}
+
+	public function checkPermissions($member = null) {
+		$configuration = SiteConfig::current_site_config();
+		return Permission::check($configuration->MediaAccess, 'any', $member);
+	}
+
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
@@ -38,6 +63,20 @@ class MediaAttribute extends DataObject {
 		$this->extend('updateCMSFields', $fields);
 
 		return $fields;
+	}
+
+	public function validate() {
+		$result = parent::validate();
+
+		// make sure a media attribute has been given a title
+
+		$this->Title ? $result->valid() : $result->error('Title required!');
+
+		// allow validation extension
+
+		$this->extend('validate', $result);
+
+		return $result;
 	}
 
 	public function onBeforeWrite() {
@@ -109,55 +148,16 @@ class MediaAttribute extends DataObject {
 		}
 	}
 
-	public function validate() {
-		$result = parent::validate();
+	// used by the template to reference an attribute for styling purposes
 
-		// make sure a media attribute has been given a title
-
-		$this->Title ? $result->valid() : $result->error('Title required!');
-
-		// allow validation extension
-
-		$this->extend('validate', $result);
-
-		return $result;
+	public function templateClass() {
+		return strtolower($this->OriginalTitle);
 	}
 
 	// in case getattribute is called inside a template without accessing variables directly
 
 	public function forTemplate() {
 		return "{$this->Title}: {$this->Content}";
-	}
-
-	// prevent deletion of media attributes
-
-	public function canDelete($member = null) {
-		return false;
-	}
-
-	// allow a content author access to manage these media attributes
-
-	public function canView($member = null) {
-		return true;
-	}
-
-	public function canEdit($member = null) {
-		return $this->checkPermissions($member);
-	}
-
-	public function canCreate($member = null) {
-		return $this->checkPermissions($member);
-	}
-
-	public function checkPermissions($member = null) {
-		$configuration = SiteConfig::current_site_config();
-		return Permission::check($configuration->MediaAccess, 'any', $member);
-	}
-
-	// used by the template to reference an attribute for styling purposes
-
-	public function templateClass() {
-		return strtolower($this->OriginalTitle);
 	}
 
 }

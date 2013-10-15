@@ -11,6 +11,24 @@ class MediaTag extends DataObject {
 		'Title' => 'Varchar(255)'
 	);
 
+	public function canView($member = null) {
+		return true;
+	}
+
+	public function canEdit($member = null) {
+		return true;
+	}
+
+	public function canCreate($member = null) {
+		return true;
+	}
+
+	// prevent deletion of media tags
+
+	public function canDelete($member = null) {
+		return false;
+	}
+
 	public function validate() {
 		$result = parent::validate();
 
@@ -28,24 +46,6 @@ class MediaTag extends DataObject {
 		$this->extend('validate', $result);
 
 		return $result;
-	}
-
-	// prevent deletion of media tags
-
-	public function canDelete($member = null) {
-		return false;
-	}
-
-	public function canView($member = null) {
-		return true;
-	}
-
-	public function canEdit($member = null) {
-		return true;
-	}
-
-	public function canCreate($member = null) {
-		return true;
 	}
 	
 }
