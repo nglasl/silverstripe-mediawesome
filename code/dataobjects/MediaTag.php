@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Mediawesome CMS media page tag.
+ *	Mediawesome CMS tag for a media page.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -12,7 +12,7 @@ class MediaTag extends DataObject {
 	);
 
 	/**
-	 *	Allow access for CMS users viewing media page tags.
+	 *	Allow access for CMS users viewing tags.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -23,7 +23,7 @@ class MediaTag extends DataObject {
 	}
 
 	/**
-	 *	Allow access for CMS users editing media page tags.
+	 *	Allow access for CMS users editing tags.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -34,7 +34,7 @@ class MediaTag extends DataObject {
 	}
 
 	/**
-	 *	Allow access for CMS users creating media page tags.
+	 *	Allow access for CMS users creating tags.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -45,7 +45,7 @@ class MediaTag extends DataObject {
 	}
 
 	/**
-	 *	Restrict access for CMS users deleting media page tags.
+	 *	Restrict access for CMS users deleting tags.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -56,7 +56,7 @@ class MediaTag extends DataObject {
 	}
 
 	/**
-	 *	Confirm that the current media page tag is valid.
+	 *	Confirm that the current tag is valid.
 	 */
 
 	public function validate() {
@@ -77,5 +77,5 @@ class MediaTag extends DataObject {
 
 		return $result;
 	}
-	
+
 }

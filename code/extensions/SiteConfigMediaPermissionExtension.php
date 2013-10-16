@@ -1,22 +1,22 @@
 <?php
 
 /**
- *	Mediawesome extension which allows permission configuration for media customisation.
+ *	Mediawesome extension which allows permission configuration for customisation of media.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
-class SiteConfigMediaAccessExtension extends DataExtension {
+class SiteConfigMediaPermissionExtension extends DataExtension {
 
 	/**
 	 *	Append an additional media permission field to the site configuration.
 	 */
 
 	private static $db = array(
-		'MediaAccess' => "Enum('ADMIN, SITETREE_EDIT_ALL', 'ADMIN')"
+		'MediaPermission' => "Enum('ADMIN, SITETREE_EDIT_ALL', 'ADMIN')"
 	);
 
 	/**
-	 *	Allow configuration of media customisation permissions.
+	 *	Allow permission configuration for customisation of media.
 	 */
 
 	public function updateCMSFields(FieldList $fields) {
@@ -30,12 +30,12 @@ class SiteConfigMediaAccessExtension extends DataExtension {
 			$fields->addFieldToTab('Root.Access', $options = ReadonlyField::create(
 				'Media',
 				'Who can customise media?',
-				$permissions[$this->owner->MediaAccess]
+				$permissions[$this->owner->MediaPermission]
 			));
 		}
 		else {
 			$fields->addFieldToTab('Root.Access', $options = OptionsetField::create(
-				'MediaAccess',
+				'MediaPermission',
 				'Who can customise media?',
 				$permissions
 			));

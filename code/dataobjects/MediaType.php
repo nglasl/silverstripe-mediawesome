@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Mediawesome CMS media type.
+ *	Mediawesome CMS type/category of media.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -35,14 +35,15 @@ class MediaType extends DataObject {
 
 	public static function apply_required_extensions() {
 
-		Object::add_extension('SiteConfig', 'SiteConfigMediaAccessExtension');
+		Object::add_extension('SiteConfig', 'SiteConfigMediaPermissionExtension');
 		Object::add_extension('Page', 'PageChildrenExtension');
 		Config::inst()->update('MediaHolder', 'icon', MEDIAWESOME_PATH . '/images/holder.png');
 		Config::inst()->update('MediaPage', 'icon', MEDIAWESOME_PATH . '/images/page.png');
 	}
 
 	/**
-	 *	Add a custom default media type with no attributes.
+	 *	Apply a custom default media type with no respective attributes.
+	 *	NOTE: Refer to the project configuration example.
 	 *
 	 *	@parameter <{MEDIA_TYPE}> string
 	 */
@@ -90,7 +91,7 @@ class MediaType extends DataObject {
 	}
 
 	/**
-	 *	Allow access for CMS users editing media types since nothing can be changed.
+	 *	Allow access for CMS users editing media types.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -112,7 +113,7 @@ class MediaType extends DataObject {
 	}
 
 	/**
-	 *	Restrict access for CMS users deleting media type attributes.
+	 *	Restrict access for CMS users deleting media types.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -123,7 +124,7 @@ class MediaType extends DataObject {
 	}
 
 	/**
-	 *	Determine access for the current CMS user from the site configuration media customisation permissions.
+	 *	Determine access for the current CMS user from the site configuration permissions.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -131,11 +132,11 @@ class MediaType extends DataObject {
 
 	public function checkPermissions($member = null) {
 		$configuration = SiteConfig::current_site_config();
-		return Permission::check($configuration->MediaAccess, 'any', $member);
+		return Permission::check($configuration->MediaPermission, 'any', $member);
 	}
 
 	/**
-	 *	Display appropriate CMS media type fields.
+	 *	Display the respective CMS media type attributes.
 	 */
 
 	public function getCMSFields() {

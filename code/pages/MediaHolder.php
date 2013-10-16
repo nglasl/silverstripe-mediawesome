@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Displays media holder/page children with optional date/tag filters.
+ *	Displays media holder/page children, with optional date/tag filters.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -21,7 +21,7 @@ class MediaHolder extends Page {
 	private static $description = '<strong>Holds:</strong> Blogs, Events, Media Releases, News, Publications, Speeches <strong>or Custom Media</strong>';
 
 	/**
-	 *	Display appropriate CMS media holder fields.
+	 *	Allow selection and customisation of CMS media types/tags.
 	 */
 
 	public function getCMSFields() {
@@ -69,6 +69,8 @@ class MediaHolder extends Page {
 
 	/**
 	 *	Retrieve any media holder children.
+	 *
+	 *	@return data list
 	 */
 
 	public function checkMediaHolder() {
@@ -86,8 +88,7 @@ class MediaHolder_Controller extends Page_Controller {
 	);
 
 	/**
-	 *	Render this media holder with a custom template if one exists.
-	 *	NOTE: They have the name format <MediaHolder_News> for example.
+	 *	Determine the template for this media holder.
 	 */
 
 	public function index() {
@@ -105,12 +106,12 @@ class MediaHolder_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Retrieve a paginated list of media holder/page children for your template, with optional URL date/tag filters.
+	 *	Retrieve a paginated list of media holder/page children for your template, with optional date/tag filters parsed from the GET request.
 	 *
-	 *	@parameter <{LIMIT_PER_PAGE}> integer
-	 *	@parameter <{FIELD_SORT}> string
+	 *	@parameter <{MEDIA_PER_PAGE}> integer
+	 *	@parameter <{SORT_FIELD}> string
 	 *	@parameter <{SORT_DIRECTION}> string
-	 *	@return paginatedlist
+	 *	@return paginated list
 	 */
 
 	public function getPaginatedChildren($limit = 5, $sort = 'Date', $order = 'DESC') {
@@ -145,7 +146,7 @@ class MediaHolder_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	A simple form to allow date filtering from a specified date.
+	 *	Retrieve a simple date filter form.
 	 *
 	 *	@return form
 	 */
@@ -193,7 +194,7 @@ class MediaHolder_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	The method to filter from the specified date using the URL.
+	 *	Retrieve media page children from the filtered date.
 	 */
 
 	public function dateFilter() {
@@ -216,7 +217,7 @@ class MediaHolder_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	The method to clear the specified date filter using the URL.
+	 *	Retrieve all media page children.
 	 */
 
 	public function clearFilter() {

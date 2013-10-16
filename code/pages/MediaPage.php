@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Displays customised media content relating to the parent holder media type.
+ *	Displays customised media content relating to the respective media type.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -68,7 +68,7 @@ class MediaPage extends SiteTree {
 	);
 
 	/**
-	 *	Add default media types with respective attributes.
+	 *	Apply custom default media types with respective attributes, or additional attributes to existing default media types.
 	 *
 	 *	@parameter <{MEDIA_TYPES_AND_ATTRIBUTES}> array(array(string))
 	 */
@@ -104,7 +104,7 @@ class MediaPage extends SiteTree {
 	}
 
 	/**
-	 *	Display appropriate CMS media page fields.
+	 *	Display the appropriate CMS media page fields and respective media type attributes.
 	 */
 
 	public function getCMSFields() {
@@ -206,7 +206,7 @@ class MediaPage extends SiteTree {
 	}
 
 	/**
-	 *	Confirm an external link is valid, link this media page type to the parent holder and update any existing media type attribute references.
+	 *	Apply the parent holder media type and update any respective media type attributes.
 	 */
 
 	public function onBeforeWrite() {
@@ -308,9 +308,9 @@ class MediaPage extends SiteTree {
 	}
 
 	/**
-	 *	Permanently retrieve an attribute for a template, even if it has been changed through the CMS.
+	 *	Retrieve the current attribute for use in templates.
 	 *
-	 *	@return string
+	 *	@return media attribute
 	 */
 
 	public function getAttribute($title) {
@@ -329,8 +329,7 @@ class MediaPage extends SiteTree {
 class MediaPage_Controller extends Page_Controller {
 
 	/**
-	 *	Render this media page with a custom template if one exists.
-	 *	NOTE: They have the name format <MediaPage_News> for example.
+	 *	Determine the template for this media holder.
 	 */
 
 	public function index() {

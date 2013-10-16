@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Mediawesome CMS media type attribute.
+ *	Mediawesome CMS attribute for a media type.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
@@ -25,7 +25,7 @@ class MediaAttribute extends DataObject {
 	private static $writeFlag = false;
 
 	/**
-	 *	Allow access for CMS users viewing media type attributes.
+	 *	Allow access for CMS users viewing attributes.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -36,7 +36,7 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	Determine access for the current CMS user editing media type attributes.
+	 *	Determine access for the current CMS user editing attributes.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -47,7 +47,7 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	Determine access for the current CMS user editing media type attributes.
+	 *	Determine access for the current CMS user creating attributes.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -58,7 +58,7 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	Restrict access for CMS users deleting media type attributes.
+	 *	Restrict access for CMS users deleting attributes.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -69,7 +69,7 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	Determine access for the current CMS user from the site configuration media customisation permissions.
+	 *	Determine access for the current CMS user from the site configuration permissions.
 	 *
 	 *	@parameter <{CURRENT_MEMBER}> member
 	 *	@return boolean
@@ -77,11 +77,11 @@ class MediaAttribute extends DataObject {
 
 	public function checkPermissions($member = null) {
 		$configuration = SiteConfig::current_site_config();
-		return Permission::check($configuration->MediaAccess, 'any', $member);
+		return Permission::check($configuration->MediaPermission, 'any', $member);
 	}
 
 	/**
-	 *	Display appropriate CMS media type attribute fields.
+	 *	Display the appropriate CMS attribute fields.
 	 */
 
 	public function getCMSFields() {
@@ -103,7 +103,7 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	Confirm that the current media type attribute is valid.
+	 *	Confirm that the current attribute is valid.
 	 */
 
 	public function validate() {
@@ -121,7 +121,7 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	Assign this media type attribute to each media page of the respective type.
+	 *	Assign the current attribute to each media page of the respective type.
 	 */
 
 	public function onBeforeWrite() {
@@ -194,7 +194,7 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	Permanently reference an attribute name, even if it has been changed through the CMS.
+	 *	Retrieve a class name of the current attribute for use in templates.
 	 *
 	 *	@return string
 	 */
@@ -204,7 +204,7 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	The default rendition of an attribute object for templates.
+	 *	Retrieve the title and content of the current attribute for use in templates.
 	 *
 	 *	@return string
 	 */

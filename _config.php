@@ -12,7 +12,7 @@ MediaType::apply_required_extensions();
 
 /**
  *
- *	EXAMPLE: Creating default media types with respective attributes.
+ *	EXAMPLE: Apply custom default media types with respective attributes, or additional attributes to existing default media types.
  *
  *	@parameter <{MEDIA_TYPES_AND_ATTRIBUTES}> array(array(string))
  *
