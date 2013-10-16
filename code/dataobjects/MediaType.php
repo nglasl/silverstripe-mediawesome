@@ -43,7 +43,7 @@ class MediaType extends DataObject {
 
 	/**
 	 *	Apply a custom default media type with no respective attributes.
-	 *	NOTE: Refer to the project configuration example.
+	 *	NOTE: Refer to the module configuration example.
 	 *
 	 *	@parameter <{MEDIA_TYPE}> string
 	 */
