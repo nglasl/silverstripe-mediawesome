@@ -18,7 +18,7 @@ class MediaHolder extends Page {
 
 	private static $default_child = 'MediaPage';
 
-	private static $description = '<strong>Holds:</strong> Blogs, Events, Media Releases, News, Publications, Speeches <strong>or Custom Media</strong>';
+	private static $description = '<strong>Holds:</strong> Blogs, Events, News, Publications <strong>or Custom Media</strong>';
 
 	/**
 	 *	Allow selection and customisation of CMS media types/tags.
@@ -139,6 +139,11 @@ class MediaHolder_Controller extends Page_Controller {
 		if($tag) {
 			$children = $children->filter('Tags.Title:ExactMatch', $tag);
 		}
+
+		// allow filter customisation of the children returned
+
+		$this->extend('updatePaginatedChildren', $children);
+
 		return PaginatedList::create(
 			$children->sort(Convert::raw2sql($sort) . ' ' . Convert::raw2sql($order)),
 			$this->getRequest()
@@ -190,11 +195,16 @@ class MediaHolder_Controller extends Page_Controller {
 		if($this->getRequest()->getVar('action_clearFilter')) {
 			$form->unsetValidator();
 		}
+
+		// allow customisation of the form filters
+
+		$this->extend('updateFilterForm', $form);
+
 		return $form;
 	}
 
 	/**
-	 *	Retrieve media page children from the filtered date.
+	 *	Request media page children from the filtered date.
 	 */
 
 	public function dateFilter() {
@@ -213,11 +223,16 @@ class MediaHolder_Controller extends Page_Controller {
 		if($tag) {
 			$link = HTTP::setGetVar('tag', $tag, $link, $separator);
 		}
+
+		// allow customisation of the form filters
+
+		$this->extend('updateFilter', $link);
+
 		return $this->redirect($link);
 	}
 
 	/**
-	 *	Retrieve all media page children.
+	 *	Request all media page children.
 	 */
 
 	public function clearFilter() {
