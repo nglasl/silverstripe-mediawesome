@@ -26,6 +26,9 @@ class SiteConfigMediaPermissionExtension extends DataExtension {
 			'SITETREE_EDIT_ALL' => 'Content Authors'
 		);
 		Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
+
+		// Confirm that the current CMS user has permission.
+
 		if(Permission::check('EDIT_SITECONFIG') === false) {
 			$fields->addFieldToTab('Root.Access', $options = ReadonlyField::create(
 				'Media',
@@ -34,6 +37,9 @@ class SiteConfigMediaPermissionExtension extends DataExtension {
 			));
 		}
 		else {
+
+			// Display the permission configuration.
+
 			$fields->addFieldToTab('Root.Access', $options = OptionsetField::create(
 				'MediaPermission',
 				'Who can customise media?',

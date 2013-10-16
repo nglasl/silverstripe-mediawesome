@@ -37,6 +37,9 @@ class MediaType extends DataObject {
 
 		Object::add_extension('SiteConfig', 'SiteConfigMediaPermissionExtension');
 		Object::add_extension('Page', 'PageChildrenExtension');
+
+		// Update the current media holder/page images.
+
 		Config::inst()->update('MediaHolder', 'icon', MEDIAWESOME_PATH . '/images/holder.png');
 		Config::inst()->update('MediaPage', 'icon', MEDIAWESOME_PATH . '/images/page.png');
 	}
@@ -50,25 +53,23 @@ class MediaType extends DataObject {
 
 	public static function add_default($type) {
 
-		//merge any new media type customisation
-
 		self::$custom_defaults[] = $type;
 	}
 
 	/**
-	 *	The process to automatically construct any default media types, executed on project build.
+	 *	The process to automatically create any default media types, executed on project build.
 	 */
 
 	public function requireDefaultRecords() {
 
 		parent::requireDefaultRecords();
 
-		// create the default example types provided, along with any custom definitions
+		// Merge the default and custom default media types.
 
 		$defaults = array_unique(array_merge(self::$page_defaults, self::$custom_defaults));
 		foreach($defaults as $default) {
 
-			// make sure one doesn't already exist
+			// Confirm that this media type doesn't already exist before creating it.
 
 			if(!MediaType::get_one('MediaType', "Title = '" . Convert::raw2sql($default) . "'")) {
 				$type = MediaType::create();
@@ -87,6 +88,7 @@ class MediaType extends DataObject {
 	 */
 
 	public function canView($member = null) {
+
 		return true;
 	}
 
@@ -98,6 +100,7 @@ class MediaType extends DataObject {
 	 */
 
 	public function canEdit($member = null) {
+
 		return true;
 	}
 
@@ -109,6 +112,7 @@ class MediaType extends DataObject {
 	 */
 
 	public function canCreate($member = null) {
+
 		return $this->checkPermissions($member);
 	}
 
@@ -120,6 +124,7 @@ class MediaType extends DataObject {
 	 */
 
 	public function canDelete($member = null) {
+
 		return false;
 	}
 
@@ -131,6 +136,9 @@ class MediaType extends DataObject {
 	 */
 
 	public function checkPermissions($member = null) {
+
+		// Retrieve the current site configuration permissions for customisation of media.
+
 		$configuration = SiteConfig::current_site_config();
 		return Permission::check($configuration->MediaPermission, 'any', $member);
 	}
@@ -142,10 +150,10 @@ class MediaType extends DataObject {
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
-
-		// if no title has been set, allow creation of a new media type
-
 		if($this->Title) {
+
+			// Display the title as read only.
+
 			$fields->replaceField('Title', ReadonlyField::create(
 				'Title'
 			));
@@ -153,10 +161,10 @@ class MediaType extends DataObject {
 				'MediaAttributesTitle',
 				"<div class='field'><label class='left'>Custom Attributes</label></div>"
 			));
+
+			// Allow customisation of media type attributes if a respective media page exists, depending on the current CMS user permissions.
+
 			if(MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'")->exists()) {
-
-				// get the list of type attributes available and place them in a gridfield
-
 				$configuration = ($this->checkPermissions() === false) ? GridFieldConfig_RecordViewer::create() : GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction');
 				$fields->addFieldToTab('Root.Main', GridField::create(
 					'MediaAttributes',
@@ -167,7 +175,7 @@ class MediaType extends DataObject {
 			}
 			else {
 
-				// Display a notification that a media page should first be created.
+				// Display a notification that a respective media page should be created.
 
 				Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
 				$fields->addFieldToTab('Root.Main', LiteralField::create(
@@ -177,10 +185,9 @@ class MediaType extends DataObject {
 			}
 		}
 
-		// allow customisation of the cms fields displayed
+		// Allow extension customisation.
 
 		$this->extend('updateCMSFields', $fields);
-
 		return $fields;
 	}
 
@@ -189,9 +196,10 @@ class MediaType extends DataObject {
 	 */
 
 	public function validate() {
+
 		$result = parent::validate();
 
-		// make sure a new media type has been given a title and doesn't already exist
+		// Confirm that the current media type has been given a title and doesn't already exist.
 
 		!$this->Title ?
 			$result->error('Title required!') :
@@ -199,10 +207,9 @@ class MediaType extends DataObject {
 				$result->error('Type already exists!') :
 				$result->valid();
 
-		// allow validation extension
+		// Allow extension customisation.
 
 		$this->extend('validate', $result);
-
 		return $result;
 	}
 

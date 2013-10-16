@@ -19,6 +19,7 @@ class MediaTag extends DataObject {
 	 */
 
 	public function canView($member = null) {
+
 		return true;
 	}
 
@@ -30,6 +31,7 @@ class MediaTag extends DataObject {
 	 */
 
 	public function canEdit($member = null) {
+
 		return true;
 	}
 
@@ -41,6 +43,7 @@ class MediaTag extends DataObject {
 	 */
 
 	public function canCreate($member = null) {
+
 		return true;
 	}
 
@@ -52,6 +55,7 @@ class MediaTag extends DataObject {
 	 */
 
 	public function canDelete($member = null) {
+
 		return false;
 	}
 
@@ -60,9 +64,10 @@ class MediaTag extends DataObject {
 	 */
 
 	public function validate() {
+
 		$result = parent::validate();
 
-		// make sure a media tag has been given a title and doesn't already exist
+		// Confirm that the current tag has been given a title and doesn't already exist.
 
 		$this->Title = strtolower($this->Title);
 		!$this->Title ?
@@ -71,10 +76,9 @@ class MediaTag extends DataObject {
 				$result->error('Tag already exists!') :
 				$result->valid();
 
-		// allow validation extension
+		// Allow extension customisation.
 
 		$this->extend('validate', $result);
-
 		return $result;
 	}
 

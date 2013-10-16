@@ -28,7 +28,7 @@ class MediaHolder extends Page {
 
 		$fields = parent::getCMSFields();
 
-		// make the type read only if a child exists
+		// Display the media type as read only if media page children exist.
 
 		($this->AllChildren()->where("ClassName != 'MediaHolder'")->exists() && $this->MediaType()->exists()) ?
 			$fields->addFieldToTab('Root.Main', ReadonlyField::create(
@@ -42,7 +42,7 @@ class MediaHolder extends Page {
 				array_merge(array(0 => ''), MediaType::get()->map()->toArray())
 			), 'Title');
 
-		// allow addition of custom media types
+		// Allow customisation of media types, depending on the current CMS user permissions.
 
 		$fields->addFieldToTab('Root.MediaTypes', GridField::create(
 			'MediaTypes',
@@ -51,7 +51,7 @@ class MediaHolder extends Page {
 			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
 		)->setModelClass('MediaType'));
 
-		// allow addition of custom media tags
+		// Allow customisation of media tags.
 
 		$fields->addFieldToTab('Root.MediaTags', GridField::create(
 			'MediaTags',
@@ -60,10 +60,9 @@ class MediaHolder extends Page {
 			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
 		)->setModelClass('MediaTag'));
 
-		// allow customisation of the cms fields displayed
+		// Allow extension customisation.
 
 		$this->extend('updateCMSFields', $fields);
-
 		return $fields;
 	}
 
@@ -74,6 +73,7 @@ class MediaHolder extends Page {
 	 */
 
 	public function checkMediaHolder() {
+
 		return $this->AllChildren()->where("ClassName = 'MediaHolder'");
 	}
 
@@ -93,7 +93,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 	public function index() {
 
-		// if a custom template for the specific holder type has been defined, use this
+		// Use a custom media type holder template if one exists.
 
 		$type = $this->data()->MediaType();
 		$templates = array();
@@ -116,7 +116,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 	public function getPaginatedChildren($limit = 5, $sort = 'Date', $order = 'DESC') {
 
-		// if a custom filter has occurred, these attributes will take precedence
+		// Retrieve custom request filters.
 
 		if($limitVar = $this->getRequest()->getVar('limit')) {
 			$limit = $limitVar;
@@ -130,7 +130,7 @@ class MediaHolder_Controller extends Page_Controller {
 		$from = $this->getRequest()->getVar('from');
 		$tag = $this->getRequest()->getVar('tag');
 
-		// apply the applicable filters which have been selected
+		// Apply custom request filters to media page children.
 
 		$children = MediaPage::get()->where('ParentID = ' . Convert::raw2sql($this->data()->ID));
 		if($from) {
@@ -140,10 +140,9 @@ class MediaHolder_Controller extends Page_Controller {
 			$children = $children->filter('Tags.Title:ExactMatch', $tag);
 		}
 
-		// allow filter customisation of the children returned
+		// Allow extension customisation.
 
 		$this->extend('updatePaginatedChildren', $children);
-
 		return PaginatedList::create(
 			$children->sort(Convert::raw2sql($sort) . ' ' . Convert::raw2sql($order)),
 			$this->getRequest()
@@ -158,7 +157,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 	public function dateFilterForm() {
 
-		// display the form to allow filtering from a specified date
+		// Display a form that allows filtering from a specified date.
 
 		$children = MediaPage::get()->where('ParentID = ' . Convert::raw2sql($this->data()->ID));
 		$form = Form::create(
@@ -184,22 +183,21 @@ class MediaHolder_Controller extends Page_Controller {
 				)
 			)
 		);
-
-		// if there is an existing filter, display this in the form
-
 		$form->setFormMethod('get');
+
+		// Display existing request filters.
+
 		$form->loadDataFrom($this->getRequest()->getVars());
 
-		// remove validation if a clear has been triggered
+		// Remove validation if clear has been triggered.
 
 		if($this->getRequest()->getVar('action_clearFilter')) {
 			$form->unsetValidator();
 		}
 
-		// allow customisation of the form filters
+		// Allow extension customisation.
 
 		$this->extend('updateFilterForm', $form);
-
 		return $form;
 	}
 
@@ -209,7 +207,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 	public function dateFilter() {
 
-		// apply the from filter, keeping the set tag filter
+		// Apply the from date filter.
 
 		$from = $this->getRequest()->getVar('from');
 		$tag = $this->getRequest()->getVar('tag');
@@ -220,13 +218,18 @@ class MediaHolder_Controller extends Page_Controller {
 			$link = HTTP::setGetVar('from', $parser->Format('Y-m-d'), $link, $separator);
 			$separator = '&';
 		}
+
+		// Preserve the tag filter if one exists.
+
 		if($tag) {
 			$link = HTTP::setGetVar('tag', $tag, $link, $separator);
 		}
 
-		// allow customisation of the form filters
+		// Allow extension customisation.
 
 		$this->extend('updateFilter', $link);
+
+		// Request the filtered paginated children.
 
 		return $this->redirect($link);
 	}
@@ -237,10 +240,13 @@ class MediaHolder_Controller extends Page_Controller {
 
 	public function clearFilter() {
 
-		// reset the form filter, keeping any remaining tag filters applied
+		// Clear the from date filter, and preserve the tag filter if one exists.
 
 		$tag = $this->getRequest()->getVar('tag');
 		$link = $tag ? HTTP::setGetVar('tag', $tag, $this->AbsoluteLink(), '?') : $this->AbsoluteLink();
+
+		// Request the paginated children.
+
 		return $this->redirect($link);
 	}
 

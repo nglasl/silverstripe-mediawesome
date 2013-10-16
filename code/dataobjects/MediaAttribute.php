@@ -32,6 +32,7 @@ class MediaAttribute extends DataObject {
 	 */
 
 	public function canView($member = null) {
+
 		return true;
 	}
 
@@ -43,6 +44,7 @@ class MediaAttribute extends DataObject {
 	 */
 
 	public function canEdit($member = null) {
+
 		return $this->checkPermissions($member);
 	}
 
@@ -54,6 +56,7 @@ class MediaAttribute extends DataObject {
 	 */
 
 	public function canCreate($member = null) {
+
 		return $this->checkPermissions($member);
 	}
 
@@ -65,6 +68,7 @@ class MediaAttribute extends DataObject {
 	 */
 
 	public function canDelete($member = null) {
+
 		return false;
 	}
 
@@ -76,6 +80,9 @@ class MediaAttribute extends DataObject {
 	 */
 
 	public function checkPermissions($member = null) {
+
+		// Retrieve the current site configuration permissions for customisation of media.
+
 		$configuration = SiteConfig::current_site_config();
 		return Permission::check($configuration->MediaPermission, 'any', $member);
 	}
@@ -87,18 +94,17 @@ class MediaAttribute extends DataObject {
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
-
-		// we only want to allow change of the title which will be globally applied to all attributes
-
 		$fields->removeByName('OriginalTitle');
+
+		// Remove the attribute fields relating to an individual media page.
+
 		$fields->removeByName('Content');
 		$fields->removeByName('LinkID');
 		$fields->removeByName('MediaPageID');
 
-		// allow customisation of the cms fields displayed
+		// Allow extension customisation.
 
 		$this->extend('updateCMSFields', $fields);
-
 		return $fields;
 	}
 
@@ -107,16 +113,16 @@ class MediaAttribute extends DataObject {
 	 */
 
 	public function validate() {
+
 		$result = parent::validate();
 
-		// make sure a media attribute has been given a title
+		// Confirm that the current attribute has been given a title.
 
 		$this->Title ? $result->valid() : $result->error('Title required!');
 
-		// allow validation extension
+		// Allow extension customisation.
 
 		$this->extend('validate', $result);
-
 		return $result;
 	}
 
@@ -128,29 +134,28 @@ class MediaAttribute extends DataObject {
 
 		parent::onBeforeWrite();
 
-		// set the original title for future reference if it is changed
+		// Set the original title of the current attribute for use in templates.
 
 		if(is_null($this->OriginalTitle)) {
 			$this->OriginalTitle = $this->Title;
 		}
 
-		// grab the media type id which will be used to update all attributes against this type
+		// Retrieve the respective media type for updating all attribute references.
 
-		$params = Controller::curr()->getRequest()->requestVars();
-		$url = $params['url'];
+		$parameters = Controller::curr()->getRequest()->requestVars();
 		$matches = array();
-		$result = preg_match('#MediaTypes/item/[0-9]*/#', $url, $matches);
+		$result = preg_match('#MediaTypes/item/[0-9]*/#', $parameters['url'], $matches);
 		if($result) {
 			$ID = preg_replace('#[^0-9]#', '', $matches[0]);
 			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where('MediaType.ID = ' . Convert::raw2sql($ID));
 
-			// for a new attribute
+			// Apply this new attribute to existing media pages of the respective type.
 
 			if($pages && (is_null($this->MediaPageID) || ($this->MediaPageID === 0))) {
 				foreach($pages as $key => $page) {
 					if($key === 0) {
 
-						// set the current attribute fields since this is currently being written
+						// Apply the current attribute to the first media page.
 
 						self::$writeFlag = true;
 						$this->LinkID = -1;
@@ -159,7 +164,7 @@ class MediaAttribute extends DataObject {
 					}
 					else {
 
-						// create a new attribute matching the instantiated one, and assign it to each media page of the corresponding type
+						// Create a new attribute for remaining media pages.
 
 						$new = MediaAttribute::create();
 						$new->Title = $this->Title;
@@ -170,17 +175,23 @@ class MediaAttribute extends DataObject {
 					}
 				}
 			}
+
+			// Apply the changes from this attribute to existing media pages of the respective type.
+
 			else if($pages) {
 
-				// the write flag is used here to avoid infinite recursion
+				// Confirm that a write occurrence doesn't already exist.
 
 				if(!self::$writeFlag) {
 					foreach($pages as $page) {
 						foreach($page->MediaAttributes() as $attribute) {
 
-							// link each attribute against the owner attribute for title edit purposes
+							// Confirm that each attribute is linked to the original attribute.
 
 							if(($attribute->LinkID == $this->ID) && ($attribute->Title !== $this->Title)) {
+
+								// Apply the changes from this attribute.
+
 								self::$writeFlag = true;
 								$attribute->Title = $this->Title;
 								$attribute->write();
@@ -200,6 +211,7 @@ class MediaAttribute extends DataObject {
 	 */
 
 	public function templateClass() {
+
 		return strtolower($this->OriginalTitle);
 	}
 
@@ -210,6 +222,7 @@ class MediaAttribute extends DataObject {
 	 */
 
 	public function forTemplate() {
+
 		return "{$this->Title}: {$this->Content}";
 	}
 

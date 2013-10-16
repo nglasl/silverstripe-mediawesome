@@ -75,30 +75,30 @@ class MediaPage extends SiteTree {
 
 	public static function customise_defaults($objects) {
 
-		// merge nested array
+		// Confirm that the parameter is valid.
 
 		if(is_array($objects)) {
-
-			// make sure we don't have an invalid entry
-
 			foreach($objects as $temporary) {
 				if(!is_array($temporary)) {
 					return;
 				}
 			}
 
-			// a manual array unique since that doesn't work with nested arrays
+			// Apply an array unique for the nested array.
 
 			$output = array();
 			foreach($objects as $type => $attribute) {
 				if(!isset(self::$custom_defaults[$type]) && !isset($output[$type]) && ($type !== 'MediaHolder')) {
 					$output[$type] = $attribute;
 
-					// add these new media types too
+					// Apply the custom default media types.
 
 					MediaType::add_default($type);
 				}
 			}
+
+			// Apply the custom default media types with respective attributes.
+
 			self::$custom_defaults = array_merge(self::$custom_defaults, $output);
 		}
 	}
@@ -314,11 +314,12 @@ class MediaPage extends SiteTree {
 	 */
 
 	public function getAttribute($title) {
+
 		foreach($this->MediaAttributes() as $attribute) {
+
+			// Retrieve the original title for comparison.
+
 			if($attribute->OriginalTitle === $title) {
-
-				// return the attribute object so any variables may be accessed.
-
 				return $attribute;
 			}
 		}
@@ -334,7 +335,7 @@ class MediaPage_Controller extends Page_Controller {
 
 	public function index() {
 
-		// if a custom template for the specific page type has been defined, use this
+		// Use a custom media type page template if one exists.
 
 		$type = $this->data()->MediaType();
 		$templates = array();
