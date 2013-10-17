@@ -77,17 +77,21 @@ These may be changed through the site configuration by an administrator.
 * Select `Settings`
 * Select `Access`
 
+These will restrict customisation of media types and attributes.
+
 ### Smart Templating
 
 Custom media type templates may be defined for your media holder/page:
 
 `MediaHolder_Blog.ss` or `MediaPage_Blog.ss`
 
-Reference a custom media attribute from a template:
+Retrieve a specific media page attribute for use in templates.:
 
 ```php
-$getAttribute(Author)
+$getAttribute('Author')
 ```
+
+Filter form functionality, extendable.
 
 ## Maintainer Contact
 

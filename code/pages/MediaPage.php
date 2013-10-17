@@ -308,8 +308,9 @@ class MediaPage extends SiteTree {
 	}
 
 	/**
-	 *	Retrieve the current attribute for use in templates.
+	 *	Retrieve a specific attribute for use in templates.
 	 *
+	 *	@parameter <{ATTRIBUTE}> string
 	 *	@return media attribute
 	 */
 
