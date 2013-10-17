@@ -1,7 +1,7 @@
 # mediawesome
 
-	A module for SilverStripe which will allow creation of dynamic media holders/pages with CMS
-	customisable types and attributes (blogs, events, news, publications).
+	A module for SilverStripe which will allow creation of dynamic media holders/pages with CMS customisable
+	types and attributes (blogs, events, news, publications).
 
 ## Requirement
 
@@ -40,7 +40,7 @@ array(
 );
 ```
 
-Applying custom default media types with respective attributes, or additional attributes to existing default media types.
+Applying custom default media types with respective attributes, or additional attributes to existing default media types. These may also be added through the CMS, depending on the current CMS user permissions.
 
 ```php
 MediaPage::customise_defaults(array(
