@@ -79,6 +79,16 @@ These may be changed through the site configuration by an administrator.
 
 Customisation of media types and their respective attributes will be restricted.
 
+### Filtering Media Pages
+
+A media holder request may have optional date/tag filters, which are extendable by developers.
+
+Retrieve the date filter form in the media holder template:
+
+```php
+$dateFilterForm
+```
+
 ### Smart Templating
 
 Custom media type templates may be defined for your media holder/page:
@@ -94,16 +104,6 @@ $getAttribute('Author')
 To see examples, look at the default templates:
 
 `MediaHolder.ss` and `MediaPage.ss`
-
-### Filtering Media Pages
-
-A media holder request may have optional date/tag filters, which are extendable by developers.
-
-Retrieve the date filter form in the media holder template:
-
-```php
-$dateFilterForm
-```
 
 ## Maintainer Contact
 
