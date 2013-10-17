@@ -85,7 +85,7 @@ Custom media type templates may be defined for your media holder/page:
 
 `MediaHolder_Blog.ss` or `MediaPage_Blog.ss`
 
-Retrieve a specific media page attribute for use in templates:
+Retrieve a specific media page attribute in templates:
 
 ```php
 $getAttribute('Author')
@@ -95,9 +95,15 @@ $getAttribute('Author')
 
 A media holder request may have optional date/tag filters, which are extendable by developers.
 
+Retrieve the date filter form in templates:
+
+```php
+$dateFilterForm
+```
+
 To see templating examples, look at:
 
-`MediaHolder.ss` or `MediaPage.ss`
+`MediaHolder.ss` and `MediaPage.ss`
 
 ## Maintainer Contact
 
