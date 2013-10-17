@@ -111,7 +111,7 @@ class MediaPage extends SiteTree {
 
 		$fields = parent::getCMSFields();
 
-		// make sure the media page type matches the parent media holder
+		// Display the media type as read only.
 
 		$fields->addFieldToTab('Root.Main', ReadonlyField::create(
 			'Type',
@@ -119,7 +119,7 @@ class MediaPage extends SiteTree {
 			$this->MediaType()->Title
 		), 'Title');
 
-		// display a notification if the media holder has mixed children
+		// Display a notification that the parent holder contains mixed children.
 
 		$parent = $this->getParent();
 		if($parent && $parent->checkMediaHolder()->exists()) {
@@ -130,19 +130,15 @@ class MediaPage extends SiteTree {
 			), 'Type');
 		}
 
+		// Display the remaining media page fields and tags.
+
 		$fields->addFieldToTab('Root.Main', TextField::create(
 			'ExternalLink'
 		)->setRightTitle('An <strong>optional</strong> redirect URL to the media source'), 'URLSegment');
-
-		// add and configure the date/time field
-
 		$fields->addFieldToTab('Root.Main', $date = DatetimeField::create(
 			'Date'
 		), 'Content');
 		$date->getDateField()->setConfig('showcalendar', true);
-
-		// add the tags field
-
 		$tags = MediaTag::get()->map()->toArray();
 		$fields->addFieldToTab('Root.Main', $tagsList = ListboxField::create(
 			'Tags',
@@ -154,11 +150,14 @@ class MediaPage extends SiteTree {
 			$tagsList->setAttribute('disabled', 'true');
 		}
 
-		// add all the custom attribute fields
+		// Allow customisation of media type attribute content respective to the current page.
 
 		if($this->MediaAttributes()->exists()) {
 			foreach($this->MediaAttributes() as $attribute) {
 				if(strripos($attribute->Title, 'Time') || strripos($attribute->Title, 'Date') || stripos($attribute->Title, 'When')) {
+
+					// Display an attribute as a date time field where appropriate.
+
 					$fields->addFieldToTab('Root.Main', $custom = DatetimeField::create(
 						"{$attribute->ID}_MediaAttribute",
 						$attribute->Title,
@@ -177,7 +176,7 @@ class MediaPage extends SiteTree {
 			}
 		}
 
-		// add and configure the abstract field just before the main media content.
+		// Display an abstract field for content summarisation.
 
 		$fields->addfieldToTab('Root.Main', $abstract = TextareaField::create(
 			'Abstract'
@@ -185,7 +184,7 @@ class MediaPage extends SiteTree {
 		$abstract->setRightTitle('A concise summary of the content');
 		$abstract->setRows(6);
 
-		// add tabs for attachments and images
+		// Allow customisation of images and attachments.
 
 		$type = strtolower($this->MediaType()->Title);
 		$fields->addFieldToTab('Root.Images', $images = UploadField::create(
@@ -198,10 +197,9 @@ class MediaPage extends SiteTree {
 		));
 		$attachments->setFolderName("media-{$type}/{$this->ID}/attachments");
 
-		// allow customisation of the cms fields displayed
+		// Allow extension customisation.
 
 		$this->extend('updateCMSFields', $fields);
-
 		return $fields;
 	}
 
@@ -213,13 +211,13 @@ class MediaPage extends SiteTree {
 
 		parent::onBeforeWrite();
 
-		// give this page a default date if not set
+		// Set the default media page date to the current time.
 
 		if(is_null($this->Date)) {
 			$this->Date = SS_Datetime::now()->Format('Y-m-d H:i:s');
 		}
 
-		// clean up an external url, making sure it exists/is available
+		// Confirm that the external link exists.
 
 		if($this->ExternalLink) {
 			if(stripos($this->ExternalLink, 'http') === false) {
@@ -231,7 +229,7 @@ class MediaPage extends SiteTree {
 			}
 		}
 
-		// save each custom attribute field
+		// Apply the changes from each media type attribute.
 
 		foreach($this->record as $name => $value) {
 			if(strrpos($name, 'MediaAttribute')) {
@@ -242,7 +240,7 @@ class MediaPage extends SiteTree {
 			}
 		}
 
-		// link this page to the parent media holder
+		// Apply the parent holder media type.
 
 		$parent = $this->getParent();
 		if($parent) {
@@ -259,6 +257,8 @@ class MediaPage extends SiteTree {
 				$type = $existing->Title;
 			}
 
+			// Merge the default and custom default media types and their respective attributes.
+
 			$temporary = array();
 			foreach(self::$custom_defaults as $default => $attributes) {
 				if(isset(self::$page_defaults[$default])) {
@@ -270,18 +270,18 @@ class MediaPage extends SiteTree {
 			}
 			$defaults = array_merge(self::$page_defaults, $temporary);
 
-			// add existing attributes to a new media page
+			// Apply existing attributes to a new media page.
 
 			if(!$this->MediaAttributes()->exists()) {
 
-				// grab updated titles if they exist
+				// Retrieve existing attributes for the respective media type.
 
 				$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($type) . "' AND MediaAttribute.LinkID = -1");
 				if($attributes->exists()) {
-
-					// grab another of the same attribute with a link id of -1 (should only be one)
-
 					foreach($attributes as $attribute) {
+
+						// Create a new attribute for each one found.
+
 						$new = MediaAttribute::create();
 						$new->Title = $attribute->Title;
 						$new->LinkID = $attribute->ID;
@@ -290,11 +290,11 @@ class MediaPage extends SiteTree {
 						$new->write();
 					}
 				}
+
+				// Create a new attribute for each default and custom default media type found.
+
 				else if(isset($defaults[$type])) {
 					foreach($defaults[$type] as $attribute) {
-
-						// create this brand new attribute
-
 						$new = MediaAttribute::create();
 						$new->Title = $attribute;
 						$new->LinkID = -1;
