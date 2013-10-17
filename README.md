@@ -40,7 +40,7 @@ array(
 );
 ```
 
-Apply custom default media types with respective attributes, or additional attributes to existing default media types.
+Apply custom default media types with respective attributes, or additional attributes to existing default types.
 
 ```php
 MediaPage::customise_defaults(array(
@@ -93,7 +93,11 @@ $getAttribute('Author')
 
 ### Filtering Media Pages
 
-Filter form functionality, extendable.
+A media holder request may have optional date/tag filters, which are extendable by developers.
+
+To see templating examples, look at:
+
+`MediaHolder.ss` or `MediaPage.ss`
 
 ## Maintainer Contact
 
