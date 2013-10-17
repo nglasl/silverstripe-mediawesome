@@ -95,7 +95,7 @@ $getAttribute('Author')
 
 A media holder request may have optional date/tag filters, which are extendable by developers.
 
-Retrieve the date filter form in templates:
+Retrieve the date filter form in the media holder template:
 
 ```php
 $dateFilterForm
