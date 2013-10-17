@@ -91,6 +91,10 @@ Retrieve a specific media page attribute in templates:
 $getAttribute('Author')
 ```
 
+To see examples, look at the default templates:
+
+`MediaHolder.ss` and `MediaPage.ss`
+
 ### Filtering Media Pages
 
 A media holder request may have optional date/tag filters, which are extendable by developers.
@@ -100,10 +104,6 @@ Retrieve the date filter form in the media holder template:
 ```php
 $dateFilterForm
 ```
-
-To see templating examples, look at:
-
-`MediaHolder.ss` and `MediaPage.ss`
 
 ## Maintainer Contact
 
