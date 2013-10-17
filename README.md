@@ -70,14 +70,14 @@ These will be applied to new and existing media pages of the respective type.
 * Select a media holder.
 * Select `Media Tags`
 
-### Permissions
+### CMS Permissions
 
 These may be changed through the site configuration by an administrator.
 
 * Select `Settings`
 * Select `Access`
 
-These will restrict customisation of media types and attributes.
+Customisation of media types and their respective attributes will be restricted.
 
 ### Smart Templating
 
@@ -85,11 +85,13 @@ Custom media type templates may be defined for your media holder/page:
 
 `MediaHolder_Blog.ss` or `MediaPage_Blog.ss`
 
-Retrieve a specific media page attribute for use in templates.:
+Retrieve a specific media page attribute for use in templates:
 
 ```php
 $getAttribute('Author')
 ```
+
+### Filtering Media Pages
 
 Filter form functionality, extendable.
 
