@@ -63,20 +63,27 @@ These may be customised through the CMS, depending on the current user permissio
 * Select `Media Types`
 * Select the respective type.
 
-These will be applied to existing media pages of the respective type.
+These will be applied to new and existing media pages of the respective type.
 
-### Tags
+### Media Tags
 
 * Select a media holder.
 * Select `Media Tags`
 
 ### Permissions
 
-These may be changed through the site configuration, between administrators and content authors.
+These may be changed through the site configuration by an administrator.
+
+* Select `Settings`
+* Select `Access`
 
 ### Smart Templating
 
-Custom templates may be defined for your media type (`MediaPage_Blog.ss` for a type Blog). It is also possible to reference a custom attribute directly through a custom template:
+Custom media type templates may be defined for your media holder/page:
+
+`MediaHolder_Blog.ss` or `MediaPage_Blog.ss`
+
+Reference a custom media attribute from a template:
 
 ```php
 $getAttribute(Author)
