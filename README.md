@@ -40,7 +40,7 @@ array(
 );
 ```
 
-Applying custom default media types with respective attributes, or additional attributes to existing default media types.
+Apply custom default media types with respective attributes, or additional attributes to existing default media types.
 
 ```php
 MediaPage::customise_defaults(array(
@@ -55,13 +55,20 @@ These may also be added through the CMS, depending on the current user permissio
 * Select a media holder.
 * Select `Media Types`
 
-### Dynamic Attributes
+### Dynamic Media Attributes
 
-These may be added through the CMS, if a media page of the respective type exists.
+These may be customised through the CMS, depending on the current user permissions.
 
 * Select a media holder.
 * Select `Media Types`
 * Select the respective type.
+
+These will be applied to existing media pages of the respective type.
+
+### Tags
+
+* Select a media holder.
+* Select `Media Tags`
 
 ### Permissions
 
