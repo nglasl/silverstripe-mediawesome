@@ -57,7 +57,15 @@ These may also be added through the CMS, depending on the current user permissio
 
 ### Dynamic Attributes
 
-The attributes for a specific media type may be customised through the CMS by users, including the addition of new attributes (which will automatically be attached to all existing media pages of that type).
+These may be added through the CMS, if a media page of the respective type exists.
+
+* Select a media holder.
+* Select `Media Types`
+* Select the respective type.
+
+### Permissions
+
+These may be changed through the site configuration, between administrators and content authors.
 
 ### Smart Templating
 
@@ -66,10 +74,6 @@ Custom templates may be defined for your media type (`MediaPage_Blog.ss` for a t
 ```php
 $getAttribute(Author)
 ```
-
-### Permissions
-
-These may be changed through the site configuration, between administrators and content authors.
 
 ## Maintainer Contact
 
