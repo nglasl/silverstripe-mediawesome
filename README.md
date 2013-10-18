@@ -3,6 +3,8 @@
 	A module for SilverStripe which will allow creation of dynamic media holders/pages with CMS
 	customisable types and attributes (blogs, events, news, publications).
 
+https://slid.es/nglasl/mediawesome
+
 ## Requirement
 
 * SilverStripe 3.1.X
