@@ -110,7 +110,7 @@ class MediaHolder_Controller extends Page_Controller {
 	 *
 	 *	@parameter <{MEDIA_PER_PAGE}> integer
 	 *	@parameter <{SORT_FIELD}> string
-	 *	@parameter <{SORT_DIRECTION}> string
+	 *	@parameter <{SORT_ORDER}> string
 	 *	@return paginated list
 	 */
 
