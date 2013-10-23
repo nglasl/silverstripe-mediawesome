@@ -108,9 +108,11 @@ class MediaHolder_Controller extends Page_Controller {
 	/**
 	 *	Retrieve a paginated list of media holder/page children for your template, with optional date/tag filters parsed from the GET request.
 	 *
-	 *	@parameter <{MEDIA_PER_PAGE}> integer
-	 *	@parameter <{SORT_FIELD}> string
-	 *	@parameter <{SORT_ORDER}> string
+	 *	@parameter/@URLfilter <{MEDIA_PER_PAGE}> integer
+	 *	@parameter/@URLfilter <{SORT_FIELD}> string
+	 *	@parameter/@URLfilter <{SORT_ORDER}> string
+	 *	@URLfilter <{FROM_DATE}> date
+	 *	@URLfilter <{TAG_FILTER}> string
 	 *	@return paginated list
 	 */
 
