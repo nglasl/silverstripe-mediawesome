@@ -3,6 +3,8 @@
 	"description": "A module for SilverStripe which will allow creation of dynamic media holders/pages with CMS customisable types and attributes (blogs, events, news, publications).",
 	"type": "silverstripe-module",
 	"keywords": [
+		"silverstripe",
+		"media",
 		"custom",
 		"blog",
 		"event",
