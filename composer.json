@@ -1,0 +1,23 @@
+{
+	"name": "nglasl/silverstripe-mediawesome",
+	"description": "A module for SilverStripe which will allow creation of dynamic media holders/pages with CMS customisable types and attributes (blogs, events, news, publications).",
+	"type": "silverstripe-module",
+	"keywords": [
+		"silverstripe",
+		"media",
+		"blog",
+		"event",
+		"news",
+		"publication"
+	],
+	"homepage": "https://github.com/nglasl/silverstripe-mediawesome",
+	"license": "BSD-3-Clause",
+	"authors": [{
+		"name": "Nathan Glasl",
+		"email": "nathan@silverstripe.com.au"
+	}],
+	"require": {
+		"silverstripe/framework": "3.1.*",
+		"silverstripe/cms": "3.1.*"
+	}
+}
