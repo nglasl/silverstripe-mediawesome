@@ -8,7 +8,8 @@
 		"blog",
 		"event",
 		"news",
-		"publication"
+		"publication",
+		"custom"
 	],
 	"homepage": "https://github.com/nglasl/silverstripe-mediawesome",
 	"license": "BSD-3-Clause",
@@ -17,7 +18,7 @@
 		"email": "nathan@silverstripe.com.au"
 	}],
 	"require": {
-		"silverstripe/framework": "3.1.*",
-		"silverstripe/cms": "3.1.*"
+		"silverstripe/cms": "3.1.*",
+		"silverstripe/framework": "3.1.*"
 	}
 }
