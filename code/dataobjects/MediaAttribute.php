@@ -22,7 +22,7 @@ class MediaAttribute extends DataObject {
 	 *	Flag a write occurrence to prevent infinite recursion.
 	 */
 
-	private static $writeFlag = false;
+	private static $write_flag = false;
 
 	/**
 	 *	Allow access for CMS users viewing attributes.
@@ -157,7 +157,7 @@ class MediaAttribute extends DataObject {
 
 						// Apply the current attribute to the first media page.
 
-						self::$writeFlag = true;
+						self::$write_flag = true;
 						$this->LinkID = -1;
 						$this->MediaPageID = $page->ID;
 						$page->MediaAttributes()->add($this);
@@ -182,7 +182,7 @@ class MediaAttribute extends DataObject {
 
 				// Confirm that a write occurrence doesn't already exist.
 
-				if(!self::$writeFlag) {
+				if(!self::$write_flag) {
 					foreach($pages as $page) {
 						foreach($page->MediaAttributes() as $attribute) {
 
@@ -192,13 +192,13 @@ class MediaAttribute extends DataObject {
 
 								// Apply the changes from this attribute.
 
-								self::$writeFlag = true;
+								self::$write_flag = true;
 								$attribute->Title = $this->Title;
 								$attribute->write();
 							}
 						}
 					}
-					self::$writeFlag = false;
+					self::$write_flag = false;
 				}
 			}
 		}
