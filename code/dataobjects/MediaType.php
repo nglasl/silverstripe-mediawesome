@@ -203,7 +203,7 @@ class MediaType extends DataObject {
 
 		!$this->Title ?
 			$result->error('Title required!') :
-			MediaType::get_one('MediaType', "ID != " . Convert::raw2sql($this->ID) . " AND Title = '" . Convert::raw2sql($this->Title) . "'") ?
+			MediaType::get_one('MediaType', "ID != " . intval($this->ID) . " AND Title = '" . Convert::raw2sql($this->Title) . "'") ?
 				$result->error('Type already exists!') :
 				$result->valid();
 
