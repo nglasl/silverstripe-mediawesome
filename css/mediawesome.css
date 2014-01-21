@@ -23,7 +23,8 @@ p.mediawesome.notification {
 	float: none;
 }
 
-#MediaPermission ul.optionset li input, #MediaPermission ul.optionset li label {
+#MediaPermission ul.optionset li input,
+#MediaPermission ul.optionset li label {
 	vertical-align: middle;
 }
 
