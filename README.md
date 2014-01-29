@@ -1,11 +1,9 @@
-# mediawesome
+# [mediawesome](http://slid.es/nglasl/mediawesome)
 
 _**NOTE:** This branch is for development only._
 
 	A module for SilverStripe which will allow creation of dynamic media holders/pages with CMS
 	customisable types and attributes (blogs, events, news, publications).
-
-http://slid.es/nglasl/mediawesome
 
 ## Requirement
 
