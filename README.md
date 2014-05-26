@@ -1,4 +1,4 @@
-# [mediawesome](http://slid.es/nglasl/mediawesome)
+# [mediawesome](https://github.com/nglasl)
 
 _**NOTE:** This branch is for development only._
 
