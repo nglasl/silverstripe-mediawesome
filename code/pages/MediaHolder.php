@@ -72,7 +72,7 @@ class MediaHolder extends Page {
 	 *	@return data list
 	 */
 
-	public function checkMediaHolder() {
+	public function getCheckMediaHolder() {
 
 		return $this->AllChildren()->where("ClassName = 'MediaHolder'");
 	}
@@ -82,7 +82,7 @@ class MediaHolder extends Page {
 class MediaHolder_Controller extends Page_Controller {
 
 	private static $allowed_actions = array(
-		'dateFilterForm',
+		'getDateFilterForm',
 		'dateFilter',
 		'clearFilter'
 	);
@@ -157,14 +157,14 @@ class MediaHolder_Controller extends Page_Controller {
 	 *	@return form
 	 */
 
-	public function dateFilterForm() {
+	public function getDateFilterForm() {
 
 		// Display a form that allows filtering from a specified date.
 
 		$children = MediaPage::get()->where('ParentID = ' . intval($this->data()->ID));
 		$form = Form::create(
 			$this,
-			'dateFilterForm',
+			'getDateFilterForm',
 			FieldList::create(
 				DateField::create(
 					'from',

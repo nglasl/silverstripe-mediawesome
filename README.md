@@ -88,7 +88,7 @@ A media holder request may have optional date/tag filters, which are extendable 
 Retrieve the date filter form in the media holder template:
 
 ```php
-$dateFilterForm
+$DateFilterForm
 ```
 
 ### Smart Templating
@@ -100,7 +100,7 @@ Custom media type templates may be defined for your media holder/page:
 Retrieve a specific media page attribute in templates:
 
 ```php
-$getAttribute('Author')
+$Attribute('Author')
 ```
 
 To see examples, look at the default templates:

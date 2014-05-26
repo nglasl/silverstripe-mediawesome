@@ -3,8 +3,8 @@
 	<div class='media-holder-content'>{$Content}</div>
 	<% if AllChildren %>
 		<div class='media-holder-children'>
-			<% if checkMediaHolder %>
-				<% loop checkMediaHolder %>
+			<% if CheckMediaHolder %>
+				<% loop CheckMediaHolder %>
 					<div class='media-holder'>
 						<h4><a href='{$Link}'><strong>{$Title}</strong></a></h4>
 						<div>{$Content.Summary}</div>
@@ -12,7 +12,7 @@
 					</div>
 				<% end_loop %>
 			<% else %>
-				<% loop getPaginatedChildren %>
+				<% loop PaginatedChildren %>
 					<div class='media-page'>
 						<h4><a href='<% if $ExternalLink %>{$ExternalLink}<% else_if not $Content && $Attachments.count == 1 %>$Attachments.first.Link<% else %>{$Link}<% end_if %>'<% if $ExternalLink %> target='_blank'<% end_if %>><strong>{$Title}</strong></a></h4>
 						<p class='media-date'><em>{$Date.Format('M j, Y')}</em></p>
@@ -22,24 +22,24 @@
 						<br>
 					</div>
 				<% end_loop %>
-				<% if getPaginatedChildren.MoreThanOnePage %>
+				<% if PaginatedChildren.MoreThanOnePage %>
 					<div class='media-pagination'>
-						<% if getPaginatedChildren.NotFirstPage %>
-							<span class='media-pagination-previous'><a href='{$getPaginatedChildren.PrevLink}'>&laquo;&nbsp;Previous</a></span>
+						<% if PaginatedChildren.NotFirstPage %>
+							<span class='media-pagination-previous'><a href='{$PaginatedChildren.PrevLink}'>&laquo;&nbsp;Previous</a></span>
 						<% end_if %>
-						<% loop getPaginatedChildren.Pages %>
+						<% loop PaginatedChildren.Pages %>
 							<% if $CurrentBool %>
 								<span class='media-pagination-number current'>{$PageNum}</span>
 							<% else %>
 								<span class='media-pagination-number'><a href='{$Link}'>{$PageNum}</a></span>
 							<% end_if %>
 						<% end_loop %>
-						<% if getPaginatedChildren.NotLastPage %>
-							<span class='media-pagination-next'><a href='{$getPaginatedChildren.NextLink}'>Next&nbsp;&raquo;</a></span>
+						<% if PaginatedChildren.NotLastPage %>
+							<span class='media-pagination-next'><a href='{$PaginatedChildren.NextLink}'>Next&nbsp;&raquo;</a></span>
 						<% end_if %>
 					</div>
 				<% end_if %>
-				<div class='media-filter'>{$dateFilterForm}</div>
+				<div class='media-filter'>{$DateFilterForm}</div>
 			<% end_if %>
 		</div>
 	<% else %>

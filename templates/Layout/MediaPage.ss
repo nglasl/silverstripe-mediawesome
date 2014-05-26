@@ -9,7 +9,7 @@
 	<div class='media-page-attributes'>
 		<% loop $MediaAttributes %>
 			<% if $Content %>
-				<div class='media-page-attribute {$templateClass}'><em><strong>{$Title}: </strong>{$Content}</em></div>
+				<div class='media-page-attribute {$TemplateClass}'><em><strong>{$Title}: </strong>{$Content}</em></div>
 			<% end_if %>
 		<% end_loop %>
 		<br>
