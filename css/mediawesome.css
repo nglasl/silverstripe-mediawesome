@@ -19,6 +19,8 @@ p.mediawesome.notification {
 	border-radius: 5px;
 }
 
+/* Correcting some core layout issues. */
+
 #MediaPermission ul.optionset li {
 	float: none;
 }
