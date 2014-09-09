@@ -1,7 +1,7 @@
 <?php
 
 /**
- *	Mediawesome specific configuration settings.
+ *	The mediawesome specific configuration settings.
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
