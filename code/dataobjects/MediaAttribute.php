@@ -104,7 +104,7 @@ class MediaAttribute extends DataObject {
 
 		// Allow extension customisation.
 
-		$this->extend('updateCMSFields', $fields);
+		$this->extend('updateMediaAttributeCMSFields', $fields);
 		return $fields;
 	}
 
@@ -122,7 +122,7 @@ class MediaAttribute extends DataObject {
 
 		// Allow extension customisation.
 
-		$this->extend('validate', $result);
+		$this->extend('validateMediaAttribute', $result);
 		return $result;
 	}
 

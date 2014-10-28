@@ -62,7 +62,7 @@ class MediaHolder extends Page {
 
 		// Allow extension customisation.
 
-		$this->extend('updateCMSFields', $fields);
+		$this->extend('updateMediaHolderCMSFields', $fields);
 		return $fields;
 	}
 

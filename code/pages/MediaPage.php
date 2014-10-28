@@ -199,7 +199,7 @@ class MediaPage extends SiteTree {
 
 		// Allow extension customisation.
 
-		$this->extend('updateCMSFields', $fields);
+		$this->extend('updateMediaPageCMSFields', $fields);
 		return $fields;
 	}
 

@@ -74,7 +74,7 @@ class MediaTag extends DataObject {
 
 		// Allow extension customisation.
 
-		$this->extend('validate', $result);
+		$this->extend('validateMediaTag', $result);
 		return $result;
 	}
 

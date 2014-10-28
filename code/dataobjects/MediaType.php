@@ -187,7 +187,7 @@ class MediaType extends DataObject {
 
 		// Allow extension customisation.
 
-		$this->extend('updateCMSFields', $fields);
+		$this->extend('updateMediaTypeCMSFields', $fields);
 		return $fields;
 	}
 
@@ -205,7 +205,7 @@ class MediaType extends DataObject {
 
 		// Allow extension customisation.
 
-		$this->extend('validate', $result);
+		$this->extend('validateMediaType', $result);
 		return $result;
 	}
 
