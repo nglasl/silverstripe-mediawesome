@@ -136,7 +136,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Apply custom request filters to media page children.
 
-		$children = MediaPage::get()->where('ParentID = ' . intval($this->data()->ID));
+		$children = MediaPage::get()->where('ParentID = ' . (int)$this->data()->ID);
 		if($from) {
 			$children = $children->where("Date >= '" . Convert::raw2sql($from) . " 00:00:00'");
 		}
@@ -163,7 +163,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Display a form that allows filtering from a specified date.
 
-		$children = MediaPage::get()->where('ParentID = ' . intval($this->data()->ID));
+		$children = MediaPage::get()->where('ParentID = ' . (int)$this->data()->ID);
 		$form = Form::create(
 			$this,
 			'getDateFilterForm',

@@ -147,7 +147,7 @@ class MediaAttribute extends DataObject {
 		$result = preg_match('#MediaTypes/item/[0-9]*/#', $parameters['url'], $matches);
 		if($result) {
 			$ID = preg_replace('#[^0-9]#', '', $matches[0]);
-			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where('MediaType.ID = ' . intval($ID));
+			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where('MediaType.ID = ' . (int)$ID);
 
 			// Apply this new attribute to existing media pages of the respective type.
 

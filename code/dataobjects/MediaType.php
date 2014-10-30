@@ -201,7 +201,7 @@ class MediaType extends DataObject {
 
 		// Confirm that the current media type has been given a title and doesn't already exist.
 
-		!$this->Title ? $result->error('Title required!') : (MediaType::get_one('MediaType', "ID != " . intval($this->ID) . " AND Title = '" . Convert::raw2sql($this->Title) . "'") ? $result->error('Type already exists!') : $result->valid());
+		!$this->Title ? $result->error('Title required!') : (MediaType::get_one('MediaType', "ID != " . (int)$this->ID . " AND Title = '" . Convert::raw2sql($this->Title) . "'") ? $result->error('Type already exists!') : $result->valid());
 
 		// Allow extension customisation.
 
