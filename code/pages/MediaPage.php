@@ -336,8 +336,6 @@ class MediaPage_Controller extends Page_Controller {
 
 	public function index() {
 
-		parent::index();
-
 		// Use a custom media type page template if one exists.
 
 		$type = $this->data()->MediaType();

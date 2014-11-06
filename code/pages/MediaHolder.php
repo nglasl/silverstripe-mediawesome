@@ -93,8 +93,6 @@ class MediaHolder_Controller extends Page_Controller {
 
 	public function index() {
 
-		parent::index();
-
 		// Use a custom media type holder template if one exists.
 
 		$type = $this->data()->MediaType();
