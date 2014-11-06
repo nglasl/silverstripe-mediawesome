@@ -1,10 +1,10 @@
 <div class='media-holder-container'>
 	<h1>{$Title}</h1>
 	<div class='media-holder-content'>{$Content}</div>
-	<% if AllChildren %>
+	<% if $AllChildren %>
 		<div class='media-holder-children'>
-			<% if CheckMediaHolder %>
-				<% loop CheckMediaHolder %>
+			<% if $CheckMediaHolder %>
+				<% loop $CheckMediaHolder %>
 					<div class='media-holder'>
 						<h4><a href='{$Link}'><strong>{$Title}</strong></a></h4>
 						<div>{$Content.Summary}</div>
@@ -12,7 +12,7 @@
 					</div>
 				<% end_loop %>
 			<% else %>
-				<% loop PaginatedChildren %>
+				<% loop $PaginatedChildren %>
 					<div class='media-page'>
 						<h4><a href='<% if $ExternalLink %>{$ExternalLink}<% else_if not $Content && $Attachments.count == 1 %>$Attachments.first.Link<% else %>{$Link}<% end_if %>'<% if $ExternalLink %> target='_blank'<% end_if %>><strong>{$Title}</strong></a></h4>
 						<p class='media-date'><em>{$Date.Format('M j, Y')}</em></p>
@@ -22,19 +22,19 @@
 						<br>
 					</div>
 				<% end_loop %>
-				<% if PaginatedChildren.MoreThanOnePage %>
+				<% if $PaginatedChildren.MoreThanOnePage %>
 					<div class='media-pagination'>
-						<% if PaginatedChildren.NotFirstPage %>
+						<% if $PaginatedChildren.NotFirstPage %>
 							<span class='media-pagination-previous'><a href='{$PaginatedChildren.PrevLink}'>&laquo;&nbsp;Previous</a></span>
 						<% end_if %>
-						<% loop PaginatedChildren.Pages %>
+						<% loop $PaginatedChildren.Pages %>
 							<% if $CurrentBool %>
 								<span class='media-pagination-number current'>{$PageNum}</span>
 							<% else %>
 								<span class='media-pagination-number'><a href='{$Link}'>{$PageNum}</a></span>
 							<% end_if %>
 						<% end_loop %>
-						<% if PaginatedChildren.NotLastPage %>
+						<% if $PaginatedChildren.NotLastPage %>
 							<span class='media-pagination-next'><a href='{$PaginatedChildren.NextLink}'>Next&nbsp;&raquo;</a></span>
 						<% end_if %>
 					</div>

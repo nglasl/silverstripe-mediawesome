@@ -15,10 +15,10 @@
 		<br>
 	</div>
 	<div class='media-page-content'>{$Content}</div>
-	<% if $Images.Count > 1 %>
+	<% if $Images.count > 1 %>
 		<p class='media-page-images'>
 			<% loop $Images %>
-				<% if not first %>
+				<% if not $first %>
 					<span><a href='{$Link}'>{$CroppedImage(100, 100)}</a></span>
 				<% end_if %>
 			<% end_loop %>
