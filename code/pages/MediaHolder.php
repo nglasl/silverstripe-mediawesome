@@ -138,7 +138,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 		$children = MediaPage::get()->where('ParentID = ' . (int)$this->data()->ID);
 		if($from) {
-			$children = $children->where("Date >= '" . Convert::raw2sql($from) . " 00:00:00'");
+			$children = $children->where("Date >= '" . Convert::raw2sql("{$from} 00:00:00") . "'");
 		}
 		if($tag) {
 			$children = $children->filter('Tags.Title:ExactMatch', $tag);
