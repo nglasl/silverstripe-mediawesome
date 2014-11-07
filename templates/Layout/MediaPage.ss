@@ -39,4 +39,5 @@
 			<% end_loop %>
 		</div>
 	<% end_if %>
+	{$Form}
 </div>
