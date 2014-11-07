@@ -1,0 +1,9 @@
+---
+name: mediawesome-extensions
+---
+SiteConfig:
+  extensions:
+    - 'SiteConfigMediaPermissionExtension'
+Page:
+  extensions:
+    - 'PageChildrenExtension'

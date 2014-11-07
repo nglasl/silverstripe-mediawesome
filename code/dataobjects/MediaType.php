@@ -33,10 +33,7 @@ class MediaType extends DataObject {
 	 *	Apply all Mediawesome required extensions.
 	 */
 
-	public static function apply_required_extensions() {
-
-		Object::add_extension('SiteConfig', 'SiteConfigMediaPermissionExtension');
-		Object::add_extension('Page', 'PageChildrenExtension');
+	public static function apply_requirements() {
 
 		// Update the current media holder/page images.
 

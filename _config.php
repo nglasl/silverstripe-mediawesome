@@ -8,7 +8,7 @@
 if(!defined('MEDIAWESOME_PATH')) {
 	define('MEDIAWESOME_PATH', rtrim(basename(dirname(__FILE__))));
 }
-MediaType::apply_required_extensions();
+MediaType::apply_requirements();
 
 /**
  *
