@@ -150,6 +150,12 @@ class MediaHolder_Controller extends Page_Controller {
 			$this->getRequest()
 		)->setPageLength($limit);
 	}
+	
+	// Helper to allow PaginatedChildren() from template with parameters
+
+	public function PaginatedChildren($limit = 5, $sort = 'Date', $order = 'DESC'){
+		return $this->getPaginatedChildren($limit, $sort, $order);
+	}
 
 	/**
 	 *	Retrieve a simple date filter form.
