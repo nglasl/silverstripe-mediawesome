@@ -152,6 +152,24 @@ class MediaHolder_Controller extends Page_Controller {
 	}
 
 	/**
+	 *	Retrieve a paginated list of media holder/page children for your template, with optional date/tag filters parsed from the GET request.
+	 *
+	 *	@parameter/@URLfilter <{MEDIA_PER_PAGE}> integer
+	 *	@parameter/@URLfilter <{SORT_FIELD}> string
+	 *	@parameter/@URLfilter <{SORT_ORDER}> string
+	 *	@URLfilter <{FROM_DATE}> date
+	 *	@URLfilter <{TAG_FILTER}> string
+	 *	@return paginated list
+	 */
+
+	public function PaginatedChildren($limit = 5, $sort = 'Date', $order = 'DESC') {
+
+		// This provides consistency when it comes to defining parameters from the template.
+
+		return $this->getPaginatedChildren($limit, $sort, $order);
+	}
+
+	/**
 	 *	Retrieve a simple date filter form.
 	 *
 	 *	@return form
