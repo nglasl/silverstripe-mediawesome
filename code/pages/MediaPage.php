@@ -326,6 +326,20 @@ class MediaPage extends SiteTree {
 		}
 	}
 
+	/**
+	 *	Retrieve a specific attribute for use in templates.
+	 *
+	 *	@parameter <{ATTRIBUTE}> string
+	 *	@return media attribute
+	 */
+
+	public function Attribute($title) {
+
+		// This provides consistency when it comes to defining parameters from the template.
+
+		return $this->getAttribute($title);
+	}
+
 }
 
 class MediaPage_Controller extends Page_Controller {
