@@ -1,4 +1,4 @@
-# [mediawesome](https://github.com/nglasl)
+# [mediawesome](https://packagist.org/packages/nglasl/silverstripe-mediawesome)
 
 _The current release is **1.0.3**_
 
