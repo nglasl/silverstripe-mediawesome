@@ -172,12 +172,12 @@ class MediaType extends DataObject {
 			}
 			else {
 
-				// Display a notification that a respective media page should be created.
+				// Display a notice that respective media pages should first be created.
 
 				Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
 				$fields->addFieldToTab('Root.Main', LiteralField::create(
-					'MediaNotification',
-					"<p class='mediawesome notification'><strong>No {$this->Title} Pages Found</strong></p>"
+					'MediaNotice',
+					"<p class='mediawesome notice'><strong>No {$this->Title} Pages Found</strong></p>"
 				));
 			}
 		}
