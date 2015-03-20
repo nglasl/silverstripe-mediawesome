@@ -359,6 +359,7 @@ class MediaPage_Controller extends Page_Controller {
 		}
 		$templates[] = $this->data()->ClassName;
 		$templates[] = 'Page';
+		$this->extend('updateTemplates', $templates);
 		return $this->renderWith($templates);
 	}
 

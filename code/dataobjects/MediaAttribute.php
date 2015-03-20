@@ -223,7 +223,7 @@ class MediaAttribute extends DataObject {
 
 	public function forTemplate() {
 
-		return "{$this->Title}: {$this->Content}";
+		return ltrim(preg_replace('/[A-Z]+[^A-Z]/', ' $0', $this->Title)) . ": {$this->Content}";
 	}
 
 }
