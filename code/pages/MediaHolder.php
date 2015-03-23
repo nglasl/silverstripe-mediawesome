@@ -44,18 +44,21 @@ class MediaHolder extends Page {
 
 		// Allow customisation of media types, depending on the current CMS user permissions.
 
-		$fields->addFieldToTab('Root.MediaTypes', GridField::create(
-			'MediaTypes',
-			'Media Types',
+		$fields->findOrMakeTab('Root.ManageMedia.TypesAttributes', 'Types and Attributes');
+		$fields->findOrMakeTab('Root.ManageMedia')->setTitle('Manage ALL Media');
+		$fields->addFieldToTab('Root.ManageMedia.TypesAttributes', GridField::create(
+			'TypesAttributes',
+			'Types and Attributes',
 			MediaType::get(),
 			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
 		)->setModelClass('MediaType'));
 
-		// Allow customisation of media tags.
+		// Allow customisation of media categories and tags.
 
-		$fields->addFieldToTab('Root.MediaTags', GridField::create(
-			'MediaTags',
-			'Media Tags',
+		$fields->findOrMakeTab('Root.ManageMedia.CategoriesTags', 'Categories and Tags');
+		$fields->addFieldToTab('Root.ManageMedia.CategoriesTags', GridField::create(
+			'CategoriesTags',
+			'Categories and Tags',
 			MediaTag::get(),
 			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
 		)->setModelClass('MediaTag'));

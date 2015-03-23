@@ -24,6 +24,7 @@ class MediaPage extends SiteTree {
 	private static $many_many = array(
 		'Images' => 'Image',
 		'Attachments' => 'File',
+		'Categories' => 'MediaTag',
 		'Tags' => 'MediaTag'
 	);
 
@@ -130,7 +131,7 @@ class MediaPage extends SiteTree {
 			), 'Type');
 		}
 
-		// Display the remaining media page fields and tags.
+		// Allow customisation of categories and tags respective to the current page.
 
 		$fields->addFieldToTab('Root.Main', TextField::create(
 			'ExternalLink'
@@ -140,13 +141,19 @@ class MediaPage extends SiteTree {
 		), 'Content');
 		$date->getDateField()->setConfig('showcalendar', true);
 		$tags = MediaTag::get()->map()->toArray();
-		$fields->addFieldToTab('Root.Main', $tagsList = ListboxField::create(
+		$fields->findOrMakeTab('Root.CategoriesTags', 'Categories and Tags');
+		$fields->addFieldToTab('Root.CategoriesTags', $categoriesList = ListboxField::create(
+			'Categories',
+			'Categories',
+			$tags
+		)->setMultiple(true));
+		$fields->addFieldToTab('Root.CategoriesTags', $tagsList = ListboxField::create(
 			'Tags',
 			'Tags',
 			$tags
-		), 'Content');
-		$tagsList->setMultiple(true);
+		)->setMultiple(true));
 		if(!$tags) {
+			$categoriesList->setAttribute('disabled', 'true');
 			$tagsList->setAttribute('disabled', 'true');
 		}
 
@@ -187,12 +194,13 @@ class MediaPage extends SiteTree {
 		// Allow customisation of images and attachments.
 
 		$type = strtolower($this->MediaType()->Title);
-		$fields->addFieldToTab('Root.Images', $images = UploadField::create(
+		$fields->findOrMakeTab('Root.ImagesAttachments', 'Images and Attachments');
+		$fields->addFieldToTab('Root.ImagesAttachments', $images = UploadField::create(
 			'Images'
 		));
 		$images->getValidator()->setAllowedExtensions(array('jpg', 'jpeg', 'png', 'gif', 'bmp'));
 		$images->setFolderName("media-{$type}/{$this->ID}/images");
-		$fields->addFieldToTab('Root.Attachments', $attachments = UploadField::create(
+		$fields->addFieldToTab('Root.ImagesAttachments', $attachments = UploadField::create(
 			'Attachments'
 		));
 		$attachments->setFolderName("media-{$type}/{$this->ID}/attachments");

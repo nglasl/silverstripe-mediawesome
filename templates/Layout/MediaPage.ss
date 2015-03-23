@@ -5,7 +5,14 @@
 			<span><a href='$Images.first.Link'>{$Images.first.CroppedImage(200, 200)}</a></span>
 		</p>
 	<% end_if %>
-	<div class='media-page-date'><em>{$Date.Nice}</em></div>
+	<% if $Categories %>
+		<h3 class='media-page-categories'>
+			<% loop $Categories %>
+				<span><a href='{$Up.getParent.Link}?tag={$Title.URLATT}'>{$Title}</a></span>
+			<% end_loop %>
+		</h3>
+	<% end_if %>
+	<div class='media-page-date'><em>{$Date.Date}</em></div>
 	<div class='media-page-attributes'>
 		<% loop $MediaAttributes %>
 			<% if $Content %>
@@ -25,7 +32,8 @@
 		</p>
 	<% end_if %>
 	<% if $Attachments %>
-		<div class='media-page-attachments'><em><strong>Attachments:</strong></em>
+		<div class='media-page-attachments'>
+			<em><strong>Attachments:</strong></em>
 			<% loop $Attachments %>
 				<div><a href='{$Link}'>{$Title}</a></div>
 			<% end_loop %>
@@ -33,7 +41,8 @@
 		<br>
 	<% end_if %>
 	<% if $Tags %>
-		<div class='media-page-tags'><em><strong>Tags:</strong></em>
+		<div class='media-page-tags'>
+			<em><strong>Tags:</strong></em>
 			<% loop $Tags %>
 				<span><a href='{$Up.getParent.Link}?tag={$Title.URLATT}'><em>{$Title}</em></a></span>
 			<% end_loop %>
