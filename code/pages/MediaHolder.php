@@ -134,6 +134,7 @@ class MediaHolder_Controller extends Page_Controller {
 			$order = $orderVar;
 		}
 		$from = $this->getRequest()->getVar('from');
+		$category = $this->getRequest()->getVar('category');
 		$tag = $this->getRequest()->getVar('tag');
 
 		// Apply custom request filters to media page children.
@@ -141,6 +142,9 @@ class MediaHolder_Controller extends Page_Controller {
 		$children = MediaPage::get()->where('ParentID = ' . (int)$this->data()->ID);
 		if($from) {
 			$children = $children->where("Date >= '" . Convert::raw2sql("{$from} 00:00:00") . "'");
+		}
+		if($category) {
+			$children = $children->filter('Categories.Title:ExactMatch', $category);
 		}
 		if($tag) {
 			$children = $children->filter('Tags.Title:ExactMatch', $tag);
@@ -193,6 +197,9 @@ class MediaHolder_Controller extends Page_Controller {
 					''
 				)->setConfig('showcalendar', true)->setConfig('min', $children->min('Date'))->setConfig('max', $children->max('Date'))->setAttribute('placeholder', 'From'),
 				HiddenField::create(
+					'category'
+				),
+				HiddenField::create(
 					'tag'
 				)
 			),
@@ -234,7 +241,6 @@ class MediaHolder_Controller extends Page_Controller {
 		// Apply the from date filter.
 
 		$from = $this->getRequest()->getVar('from');
-		$tag = $this->getRequest()->getVar('tag');
 		$link = $this->AbsoluteLink();
 		$separator = '?';
 		if($from) {
@@ -243,8 +249,14 @@ class MediaHolder_Controller extends Page_Controller {
 			$separator = '&';
 		}
 
-		// Preserve the tag filter if one exists.
+		// Preserve the category/tag filters if they exist.
 
+		$category = $this->getRequest()->getVar('category');
+		$tag = $this->getRequest()->getVar('tag');
+		if($category) {
+			$link = HTTP::setGetVar('category', $category, $link, $separator);
+			$separator = '&';
+		}
 		if($tag) {
 			$link = HTTP::setGetVar('tag', $tag, $link, $separator);
 		}
@@ -264,10 +276,22 @@ class MediaHolder_Controller extends Page_Controller {
 
 	public function clearFilter() {
 
-		// Clear the from date filter, and preserve the tag filter if one exists.
+		// Clear the from date filter.
 
+		$link = $this->AbsoluteLink();
+		$separator = '?';
+
+		// Preserve the category/tag filters if they exist.
+
+		$category = $this->getRequest()->getVar('category');
 		$tag = $this->getRequest()->getVar('tag');
-		$link = $tag ? HTTP::setGetVar('tag', $tag, $this->AbsoluteLink(), '?') : $this->AbsoluteLink();
+		if($category) {
+			$link = HTTP::setGetVar('category', $category, $link, $separator);
+			$separator = '&';
+		}
+		if($tag) {
+			$link = HTTP::setGetVar('tag', $tag, $link, $separator);
+		}
 
 		// Request the paginated children.
 

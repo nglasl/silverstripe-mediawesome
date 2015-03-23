@@ -8,7 +8,7 @@
 	<% if $Categories %>
 		<h3 class='media-page-categories'>
 			<% loop $Categories %>
-				<span><a href='{$Up.getParent.Link}?tag={$Title.URLATT}'>{$Title}</a></span>
+				<span><a href='{$Up.getParent.Link}?category={$Title.URLATT}'>{$Title}</a></span>
 			<% end_loop %>
 		</h3>
 	<% end_if %>
