@@ -131,7 +131,7 @@ class MediaPage extends SiteTree {
 			), 'Type');
 		}
 
-		// Allow customisation of categories and tags respective to the current page.
+		// Display the remaining media page fields.
 
 		$fields->addFieldToTab('Root.Main', TextField::create(
 			'ExternalLink'
@@ -140,6 +140,9 @@ class MediaPage extends SiteTree {
 			'Date'
 		), 'Content');
 		$date->getDateField()->setConfig('showcalendar', true);
+
+		// Allow customisation of categories and tags respective to the current page.
+
 		$tags = MediaTag::get()->map()->toArray();
 		$fields->findOrMakeTab('Root.CategoriesTags', 'Categories and Tags');
 		$fields->addFieldToTab('Root.CategoriesTags', $categoriesList = ListboxField::create(
