@@ -87,7 +87,7 @@ class MediaHolder_Controller extends Page_Controller {
 	private static $allowed_actions = array(
 		'getDateFilterForm',
 		'dateFilter',
-		'clearFilter'
+		'clearFilters'
 	);
 
 	/**
@@ -223,7 +223,7 @@ class MediaHolder_Controller extends Page_Controller {
 					'Filter'
 				),
 				FormAction::create(
-					'clearFilter',
+					'clearFilters',
 					'Clear'
 				)
 			)
@@ -236,7 +236,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Remove validation if clear has been triggered.
 
-		if($this->getRequest()->getVar('action_clearFilter')) {
+		if($this->getRequest()->getVar('action_clearFilters')) {
 			$form->unsetValidator();
 		}
 
@@ -288,7 +288,7 @@ class MediaHolder_Controller extends Page_Controller {
 	 *	Request all media page children.
 	 */
 
-	public function clearFilter() {
+	public function clearFilters() {
 
 		// Clear any custom request filters.
 
