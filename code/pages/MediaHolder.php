@@ -290,26 +290,9 @@ class MediaHolder_Controller extends Page_Controller {
 
 	public function clearFilter() {
 
-		// Clear the from date filter.
+		// Clear any custom request filters.
 
-		$link = $this->AbsoluteLink();
-		$separator = '?';
-
-		// Preserve the category/tag filters if they exist.
-
-		$category = $this->getRequest()->getVar('category');
-		$tag = $this->getRequest()->getVar('tag');
-		if($category) {
-			$link = HTTP::setGetVar('category', $category, $link, $separator);
-			$separator = '&';
-		}
-		if($tag) {
-			$link = HTTP::setGetVar('tag', $tag, $link, $separator);
-		}
-
-		// Request the paginated children.
-
-		return $this->redirect($link);
+		return $this->redirect($this->AbsoluteLink());
 	}
 
 }
