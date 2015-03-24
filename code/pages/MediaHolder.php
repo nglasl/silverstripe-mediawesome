@@ -143,11 +143,25 @@ class MediaHolder_Controller extends Page_Controller {
 		if($from) {
 			$children = $children->where("Date >= '" . Convert::raw2sql("{$from} 00:00:00") . "'");
 		}
+
+		// Determine both category and tag result sets separately, since they both share a database table.
+
+		$temporary = $children;
 		if($category) {
-			$children = $children->filter('Categories.Title:ExactMatch', $category);
+			$children = $categoryChildren = $temporary->filter('Categories.Title', $category);
 		}
 		if($tag) {
-			$children = $children->filter('Tags.Title:ExactMatch', $tag);
+			$children = $tagChildren = $temporary->filter('Tags.Title', $tag);
+		}
+
+		// Merge both category and tag result sets.
+
+		if($category && $tag) {
+			$intersection = array_uintersect($categoryChildren->toArray(), $tagChildren->toArray(), function($first, $second) {
+
+				return $first->ID - $second->ID;
+			});
+			$children = ArrayList::create($intersection);
 		}
 
 		// Allow extension customisation.
