@@ -55,22 +55,25 @@ MediaPage::customise_defaults(array(
 These may also be added through the CMS, depending on the current user permissions.
 
 * Select a media holder.
-* Select `Media Types`
+* Select `Manage ALL Media`
+* Select `Types and Attributes`
 
 ### Dynamic Media Attributes
 
 These may be customised through the CMS, depending on the current user permissions.
 
 * Select a media holder.
-* Select `Media Types`
+* Select `Manage ALL Media`
+* Select `Types and Attributes`
 * Select the respective type.
 
 These will be applied to new and existing media pages of the respective type.
 
-### Media Tags
+### Media Categories and Tags
 
 * Select a media holder.
-* Select `Media Tags`
+* Select `Manage ALL Media`
+* Select `Categories and Tags`
 
 ### CMS Permissions
 
@@ -83,7 +86,7 @@ Customisation of media types and their respective attributes will be restricted.
 
 ### Filtering Media Pages
 
-A media holder request may have optional date/tag filters, which are extendable by developers.
+A media holder request may have optional date, category and tag filters, which are extendable by developers.
 
 Retrieve the date filter form in the media holder template:
 
