@@ -223,7 +223,13 @@ class MediaAttribute extends DataObject {
 
 	public function forTemplate() {
 
-		return ltrim(preg_replace('/[A-Z]+[^A-Z]/', ' $0', $this->Title)) . ": {$this->Content}";
+		// Add spaces between words, other characters and numbers.
+
+		return ltrim(preg_replace(array(
+			'/([A-Z][a-z]+)/',
+			'/([A-Z]{2,})/',
+			'/([_.0-9]+)/'
+		), ' $0', $this->Title))  . ": {$this->Content}";
 	}
 
 }
