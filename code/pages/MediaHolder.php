@@ -7,6 +7,10 @@
 
 class MediaHolder extends Page {
 
+	private static $db = array(
+		'URLFormatting' => "Enum('Y/m/d/, Y/m/, Y/, -', 'Y/m/d/')"
+	);
+
 	private static $has_one = array(
 		'MediaType' => 'MediaType'
 	);
@@ -41,6 +45,20 @@ class MediaHolder extends Page {
 				'Media Type',
 				array_merge(array(0 => ''), MediaType::get()->map()->toArray())
 			), 'Title');
+
+		// Allow customisation of the media URL format.
+
+		$formats = array(
+			'Y/m/d/' => 'year/month/day/media',
+			'Y/m/' => 'year/month/media',
+			'Y/' => 'year/media',
+			'-' => 'media'
+		);
+		$fields->insertBefore(DropdownField::create(
+			'URLFormatting',
+			'URL Formatting',
+			$formats
+		)->setRightTitle('The <strong>media</strong> URL format'), 'Content');
 
 		// Allow customisation of media types, depending on the current CMS user permissions.
 
@@ -85,6 +103,7 @@ class MediaHolder extends Page {
 class MediaHolder_Controller extends Page_Controller {
 
 	private static $allowed_actions = array(
+		'handleURL',
 		'getDateFilterForm',
 		'dateFilter',
 		'clearFilters'
@@ -116,6 +135,7 @@ class MediaHolder_Controller extends Page_Controller {
 	 *	@parameter/@URLfilter <{SORT_FIELD}> string
 	 *	@parameter/@URLfilter <{SORT_ORDER}> string
 	 *	@URLfilter <{FROM_DATE}> date
+	 *	@URLfilter <{CATEGORY_FILTER}> string
 	 *	@URLfilter <{TAG_FILTER}> string
 	 *	@return paginated list
 	 */
@@ -140,8 +160,20 @@ class MediaHolder_Controller extends Page_Controller {
 		// Apply custom request filters to media page children.
 
 		$children = MediaPage::get()->where('ParentID = ' . (int)$this->data()->ID);
+
+		// Validate the date request filter.
+
 		if($from) {
-			$children = $children->where("Date >= '" . Convert::raw2sql("{$from} 00:00:00") . "'");
+			$valid = true;
+			foreach(explode('-', $from) as $segment) {
+				if(!is_numeric($segment)) {
+					$valid = false;
+					break;
+				}
+			}
+			if($valid) {
+				$children = $children->where("Date >= '" . Convert::raw2sql("{$from} 00:00:00") . "'");
+			}
 		}
 
 		// Determine both category and tag result sets separately, since they both share a database table.
@@ -180,6 +212,7 @@ class MediaHolder_Controller extends Page_Controller {
 	 *	@parameter/@URLfilter <{SORT_FIELD}> string
 	 *	@parameter/@URLfilter <{SORT_ORDER}> string
 	 *	@URLfilter <{FROM_DATE}> date
+	 *	@URLfilter <{CATEGORY_FILTER}> string
 	 *	@URLfilter <{TAG_FILTER}> string
 	 *	@return paginated list
 	 */
@@ -189,6 +222,160 @@ class MediaHolder_Controller extends Page_Controller {
 		// This provides consistency when it comes to defining parameters from the template.
 
 		return $this->getPaginatedChildren($limit, $sort, $order);
+	}
+
+	/**
+	 *	Handle a formatted URL, parsing the year/month/day/media format, and directing towards any valid controller actions that may be defined.
+	 *	@URLparameter <{YEAR}> integer
+	 *	@URLparameter <{MONTH}> integer
+	 *	@URLparameter <{DAY}> integer
+	 *	@URLparameter <{MEDIA_URL_SEGMENT}> string
+	 *	@return ss http response
+	 */
+
+	public function handleURL() {
+
+		// Retrieve the formatted URL.
+
+		$request = $this->getRequest();
+		$URL = $request->param('URL');
+
+		// Determine whether a controller action resolves.
+
+		if($this->hasAction($URL) && $this->checkAccessAction($URL)) {
+			$output = $this->$URL($request);
+
+			// The current request URL has been successfully parsed.
+
+			while(!$request->allParsed()) {
+				$request->shift();
+			}
+			return $output;
+		}
+		else if(!is_numeric($URL)) {
+
+			// The controller action doesn't resolve.
+
+			return $this->httpError(404);
+		}
+
+		// Determine the formatted URL segments.
+
+		$segments = array(
+			$URL
+		);
+		$remaining = $request->remaining();
+		if($remaining) {
+			$remaining = explode('/', $remaining);
+
+			// Determine the media page child to display.
+
+			$child = null;
+			$action = null;
+
+			// Iterate the formatted URL segments.
+
+			$iteration = 1;
+			foreach($remaining as $segment) {
+				if(is_null($action)) {
+
+					// Update the current request.
+
+					$request->shift();
+					if($child) {
+
+						// Determine whether a controller action has been defined.
+
+						$action = $segment;
+					}
+					else {
+						if($iteration === 4) {
+
+							// The remaining URL doesn't match the month/day/media format.
+
+							return $this->httpError(404);
+						}
+
+						// Determine the media page child to display, using the URL segment and date.
+
+						$children = MediaPage::get()->filter(array(
+							'ParentID' => $this->data()->ID,
+							'URLSegment' => $segment
+						));
+						if(!empty($segments)) {
+							$children = $children->filter(array(
+								'Date:PartialMatch' => implode('-', $segments)
+							));
+						}
+						$child = $children->first();
+					}
+				}
+				$segments[] = $segment;
+				$iteration++;
+			}
+
+			// Retrieve the media page child controller, and determine whether an action resolves.
+
+			if($child) {
+				$controller = ModelAsController::controller_for($child);
+
+				// Determine whether a controller action resolves.
+
+				if(is_null($action)) {
+					return $controller;
+				}
+				else if($controller->hasAction($action) && $controller->checkAccessAction($action)) {
+					$output = $controller->$action($request);
+
+					// The current request URL has been successfully parsed.
+
+					while(!$request->allParsed()) {
+						$request->shift();
+					}
+					return $output;
+				}
+				else {
+
+					// The controller action doesn't resolve.
+
+					return $this->httpError(404);
+				}
+			}
+			else {
+
+				// Determine if the remaining URL doesn't match the year/month/day format.
+
+				$error = (count($segments) === 4);
+				foreach($remaining as $segment) {
+
+					// Determine if the remaining URL doesn't represent a valid date.
+
+					if(!is_numeric($segment)) {
+						$error = true;
+						break;
+					}
+				}
+				if($error) {
+					return $this->httpError(404);
+				}
+			}
+		}
+
+		// Retrieve the paginated children using the date filter segments.
+
+		$request = new SS_HTTPRequest('GET', $this->Link(), array(
+			'from' => implode('-', $segments)
+		));
+
+		// The new request URL doesn't require parsing.
+
+		while(!$request->allParsed()) {
+			$request->shift();
+		}
+
+		// Handle the new request URL.
+
+		return $this->handleRequest($request);
 	}
 
 	/**
@@ -206,7 +393,7 @@ class MediaHolder_Controller extends Page_Controller {
 			$this,
 			'getDateFilterForm',
 			FieldList::create(
-				DateField::create(
+				$date = DateField::create(
 					'from',
 					''
 				)->setConfig('showcalendar', true)->setConfig('min', $children->min('Date'))->setConfig('max', $children->max('Date'))->setAttribute('placeholder', 'From'),
@@ -234,6 +421,17 @@ class MediaHolder_Controller extends Page_Controller {
 
 		$form->loadDataFrom($this->getRequest()->getVars());
 
+		// Validate the date request filter, as this isn't captured on page request.
+
+		if($from = $this->getRequest()->getVar('from')) {
+			foreach(explode('-', $from) as $segment) {
+				if(!is_numeric($segment)) {
+					$date->setValue(null);
+					break;
+				}
+			}
+		}
+
 		// Remove validation if clear has been triggered.
 
 		if($this->getRequest()->getVar('action_clearFilters')) {
@@ -255,12 +453,14 @@ class MediaHolder_Controller extends Page_Controller {
 		// Apply the from date filter.
 
 		$from = $this->getRequest()->getVar('from');
-		$link = $this->AbsoluteLink();
+		$link = $this->Link();
 		$separator = '?';
 		if($from) {
-			$parser = new DateTime($from);
-			$link = HTTP::setGetVar('from', $parser->Format('Y-m-d'), $link, $separator);
-			$separator = '&';
+
+			// Determine the formatted URL to represent the request filter.
+
+			$date = new DateTime($from);
+			$link .= $date->Format('Y/m/d/');
 		}
 
 		// Preserve the category/tag filters if they exist.
@@ -292,7 +492,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Clear any custom request filters.
 
-		return $this->redirect($this->AbsoluteLink());
+		return $this->redirect($this->Link());
 	}
 
 }

@@ -319,6 +319,36 @@ class MediaPage extends SiteTree {
 	}
 
 	/**
+	 *	Determine the URL by using the media holder's defined URL format.
+	 */
+
+	public function Link($action = null) {
+
+		$parent = $this->getParent();
+		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting) : '';
+		$link = $parent->Link() . "{$date}{$this->URLSegment}/";
+		if($action) {
+			$link .= "{$action}/";
+		}
+		return $link;
+	}
+
+	/**
+	 *	Determine the absolute URL by using the media holder's defined URL format.
+	 */
+
+	public function AbsoluteLink($action = null) {
+
+		$parent = $this->getParent();
+		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting) : '';
+		$link = $parent->AbsoluteLink() . "{$date}{$this->URLSegment}/";
+		if($action) {
+			$link .= "{$action}/";
+		}
+		return $link;
+	}
+
+	/**
 	 *	Retrieve a specific attribute for use in templates.
 	 *
 	 *	@parameter <{ATTRIBUTE}> string
@@ -356,7 +386,7 @@ class MediaPage extends SiteTree {
 class MediaPage_Controller extends Page_Controller {
 
 	/**
-	 *	Determine the template for this media holder.
+	 *	Determine the template for this media page.
 	 */
 
 	public function index() {
