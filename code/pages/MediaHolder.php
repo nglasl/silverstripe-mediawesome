@@ -260,29 +260,21 @@ class MediaHolder_Controller extends Page_Controller {
 		}
 		else if(!is_numeric($URL)) {
 
-			// Determine whether a media page child existed.
+			// Determine whether a media page child once existed, and redirect appropriately.
 
-			$parameters = $request->allParams();
-			array_pop($parameters);
-			$child = self::find_old_page(array_filter($parameters, function($value) {
+			$response = $this->resolveURL();
+			if($response) {
 
-				return ($value !== null);
-			}));
-			if($child) {
+				// The current request URL has been successfully parsed.
 
-				// Redirect to the new media page child URL.
-
-				$response = new SS_HTTPResponse();
-				$getVars = $request->getVars();
-				unset($getVars['url']);
-				return $response->redirect(Controller::join_links(
-					$child,
-					!empty($getVars) ? '?' . http_build_query($getVars) : null
-				), 301);
+				while(!$request->allParsed()) {
+					$request->shift();
+				}
+				return $response;
 			}
 			else {
 
-				// The controller action doesn't resolve, and no media page child existed.
+				// The media page child doesn't resolve, and neither does the controller action.
 
 				return $this->httpError(404);
 			}
@@ -344,6 +336,21 @@ class MediaHolder_Controller extends Page_Controller {
 							));
 						}
 						$child = $children->first();
+
+						// Determine whether a media page child once existed, and redirect appropriately.
+
+						if(is_null($child)) {
+							$response = $this->resolveURL();
+							if($response) {
+
+								// The current request URL has been successfully parsed.
+
+								while(!$request->allParsed()) {
+									$request->shift();
+								}
+								return $response;
+							}
+						}
 					}
 				}
 				$segments[] = $segment;
@@ -412,6 +419,50 @@ class MediaHolder_Controller extends Page_Controller {
 		// Handle the new request URL.
 
 		return $this->handleRequest($request);
+	}
+
+	/**
+	 *	Determine whether a media page child once existed for the current request URL.
+	 *	@return ss http response
+	 */
+
+	private function resolveURL() {
+
+		// Retrieve the current request URL without formatting.
+
+		$request = $this->getRequest();
+		$URL = $request->getURL();
+		$holder = substr($URL, 0, strpos($URL, '/'));
+		$page = substr($URL, strrpos($URL, '/') + 1);
+
+		// Determine whether a media page child once existed.
+
+		$resolution = self::find_old_page(array(
+			$holder,
+			$page
+		));
+		$comparison = trim($resolution, '/');
+
+		// Make sure the current request URL doesn't match the media page child that once existed.
+
+		if(($page !== substr($comparison, strrpos($comparison, '/') + 1)) && $resolution) {
+
+			// Appropriately redirect to the media page's new URL.
+
+			$response = new SS_HTTPResponse();
+			$getVars = $request->getVars();
+			unset($getVars['url']);
+			return $response->redirect(Controller::join_links(
+				$resolution,
+				!empty($getVars) ? '?' . http_build_query($getVars) : null
+			), 301);
+		}
+		else {
+
+			// The media page child doesn't resolve.
+
+			return null;
+		}
 	}
 
 	/**
