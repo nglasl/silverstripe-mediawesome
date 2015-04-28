@@ -165,13 +165,18 @@ class MediaHolder_Controller extends Page_Controller {
 
 		if($from) {
 			$valid = true;
+			$date = array();
 			foreach(explode('-', $from) as $segment) {
 				if(!is_numeric($segment)) {
 					$valid = false;
 					break;
 				}
+				else {
+					$date[] = str_pad($segment, 2, '0', STR_PAD_LEFT);
+				}
 			}
 			if($valid) {
+				$from = implode('-', $date);
 				$children = $children->where("Date >= '" . Convert::raw2sql("{$from} 00:00:00") . "'");
 			}
 		}
@@ -225,7 +230,7 @@ class MediaHolder_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Handle a formatted URL, parsing the year/month/day/media format, and directing towards any valid controller actions that may be defined.
+	 *	Handle the current URL, parsing the year/month/day/media format, and directing towards any valid controller actions that may be defined.
 	 *	@URLparameter <{YEAR}> integer
 	 *	@URLparameter <{MONTH}> integer
 	 *	@URLparameter <{DAY}> integer
@@ -303,8 +308,15 @@ class MediaHolder_Controller extends Page_Controller {
 							'URLSegment' => $segment
 						));
 						if(!empty($segments)) {
+
+							// Apply a partial match against the date, since the previous URL segments may only contain the year/month.
+
+							$date = array();
+							foreach($segments as $previous) {
+								$date[] = str_pad($previous, 2, '0', STR_PAD_LEFT);
+							}
 							$children = $children->filter(array(
-								'Date:PartialMatch' => implode('-', $segments)
+								'Date:StartsWith' => implode('-', $date)
 							));
 						}
 						$child = $children->first();
@@ -343,12 +355,12 @@ class MediaHolder_Controller extends Page_Controller {
 			}
 			else {
 
-				// Determine if the remaining URL doesn't match the year/month/day format.
+				// Determine whether the remaining URL doesn't match the year/month/day format.
 
 				$error = (count($segments) === 4);
 				foreach($remaining as $segment) {
 
-					// Determine if the remaining URL doesn't represent a valid date.
+					// Determine whether the remaining URL doesn't represent a valid date.
 
 					if(!is_numeric($segment)) {
 						$error = true;
