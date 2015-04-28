@@ -260,9 +260,32 @@ class MediaHolder_Controller extends Page_Controller {
 		}
 		else if(!is_numeric($URL)) {
 
-			// The controller action doesn't resolve.
+			// Determine whether a media page child existed.
 
-			return $this->httpError(404);
+			$parameters = $request->allParams();
+			array_pop($parameters);
+			$child = self::find_old_page(array_filter($parameters, function($value) {
+
+				return ($value !== null);
+			}));
+			if($child) {
+
+				// Redirect to the new media page child URL.
+
+				$response = new SS_HTTPResponse();
+				$getVars = $request->getVars();
+				unset($getVars['url']);
+				return $response->redirect(Controller::join_links(
+					$child,
+					!empty($getVars) ? '?' . http_build_query($getVars) : null
+				), 301);
+			}
+			else {
+
+				// The controller action doesn't resolve, and no media page child existed.
+
+				return $this->httpError(404);
+			}
 		}
 
 		// Determine the formatted URL segments.
@@ -334,7 +357,10 @@ class MediaHolder_Controller extends Page_Controller {
 
 				// Determine whether a controller action resolves.
 
-				if(!is_null($action) && $controller->hasAction($action) && $controller->checkAccessAction($action)) {
+				if(is_null($action)) {
+					return $controller;
+				}
+				else if($controller->hasAction($action) && $controller->checkAccessAction($action)) {
 					$output = $controller->$action($request);
 
 					// The current request URL has been successfully parsed.
@@ -346,9 +372,9 @@ class MediaHolder_Controller extends Page_Controller {
 				}
 				else {
 
-					// The controller action doesn't resolve, however we may be handling a versioned URL.
+					// The controller action doesn't resolve.
 
-					return $controller;
+					return $this->httpError(404);
 				}
 			}
 			else {
