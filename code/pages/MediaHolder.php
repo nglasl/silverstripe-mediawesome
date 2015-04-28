@@ -144,18 +144,19 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Retrieve custom request filters.
 
-		if($limitVar = $this->getRequest()->getVar('limit')) {
+		$request = $this->getRequest();
+		if($limitVar = $request->getVar('limit')) {
 			$limit = $limitVar;
 		}
-		if($sortVar = $this->getRequest()->getVar('sort')) {
+		if($sortVar = $request->getVar('sort')) {
 			$sort = $sortVar;
 		}
-		if($orderVar = $this->getRequest()->getVar('order')) {
+		if($orderVar = $request->getVar('order')) {
 			$order = $orderVar;
 		}
-		$from = $this->getRequest()->getVar('from');
-		$category = $this->getRequest()->getVar('category');
-		$tag = $this->getRequest()->getVar('tag');
+		$from = $request->getVar('from');
+		$category = $request->getVar('category');
+		$tag = $request->getVar('tag');
 
 		// Apply custom request filters to media page children.
 
@@ -206,7 +207,7 @@ class MediaHolder_Controller extends Page_Controller {
 		$this->extend('updatePaginatedChildren', $children);
 		return PaginatedList::create(
 			$children->sort(Convert::raw2sql($sort) . ' ' . Convert::raw2sql($order)),
-			$this->getRequest()
+			$request
 		)->setPageLength($limit);
 	}
 
@@ -230,7 +231,7 @@ class MediaHolder_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Handle the current URL, parsing the year/month/day/media format, and directing towards any valid controller actions that may be defined.
+	 *	Handle the current URL, parsing a year/month/day/media format, and directing towards any valid controller actions that may be defined.
 	 *	@URLparameter <{YEAR}> integer
 	 *	@URLparameter <{MONTH}> integer
 	 *	@URLparameter <{DAY}> integer
@@ -333,10 +334,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 				// Determine whether a controller action resolves.
 
-				if(is_null($action)) {
-					return $controller;
-				}
-				else if($controller->hasAction($action) && $controller->checkAccessAction($action)) {
+				if(!is_null($action) && $controller->hasAction($action) && $controller->checkAccessAction($action)) {
 					$output = $controller->$action($request);
 
 					// The current request URL has been successfully parsed.
@@ -348,9 +346,9 @@ class MediaHolder_Controller extends Page_Controller {
 				}
 				else {
 
-					// The controller action doesn't resolve.
+					// The controller action doesn't resolve, however we may be handling a versioned URL.
 
-					return $this->httpError(404);
+					return $controller;
 				}
 			}
 			else {
@@ -375,9 +373,9 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Retrieve the paginated children using the date filter segments.
 
-		$request = new SS_HTTPRequest('GET', $this->Link(), array(
+		$request = new SS_HTTPRequest('GET', $this->Link(), array_merge($request->getVars(), array(
 			'from' => implode('-', $segments)
-		));
+		)));
 
 		// The new request URL doesn't require parsing.
 
@@ -431,11 +429,12 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Display existing request filters.
 
-		$form->loadDataFrom($this->getRequest()->getVars());
+		$request = $this->getRequest();
+		$form->loadDataFrom($request->getVars());
 
 		// Validate the date request filter, as this isn't captured on page request.
 
-		if($from = $this->getRequest()->getVar('from')) {
+		if($from = $request->getVar('from')) {
 			foreach(explode('-', $from) as $segment) {
 				if(!is_numeric($segment)) {
 					$date->setValue(null);
@@ -446,7 +445,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Remove validation if clear has been triggered.
 
-		if($this->getRequest()->getVar('action_clearFilters')) {
+		if($request->getVar('action_clearFilters')) {
 			$form->unsetValidator();
 		}
 
@@ -464,7 +463,8 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Apply the from date filter.
 
-		$from = $this->getRequest()->getVar('from');
+		$request = $this->getRequest();
+		$from = $request->getVar('from');
 		$link = $this->Link();
 		$separator = '?';
 		if($from) {
@@ -477,8 +477,8 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Preserve the category/tag filters if they exist.
 
-		$category = $this->getRequest()->getVar('category');
-		$tag = $this->getRequest()->getVar('tag');
+		$category = $request->getVar('category');
+		$tag = $request->getVar('tag');
 		if($category) {
 			$link = HTTP::setGetVar('category', $category, $link, $separator);
 			$separator = '&';
