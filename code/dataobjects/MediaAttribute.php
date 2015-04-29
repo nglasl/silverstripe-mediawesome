@@ -88,7 +88,7 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	Display the appropriate CMS attribute fields.
+	 *	Display the appropriate CMS media attribute fields.
 	 */
 
 	public function getCMSFields() {

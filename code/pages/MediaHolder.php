@@ -455,7 +455,7 @@ class MediaHolder_Controller extends Page_Controller {
 			// Appropriately redirect towards the updated media page URL.
 
 			$response = new SS_HTTPResponse();
-			return $response->redirect(Controller::join_links($resolution, !empty($parameters) ? '?' . http_build_query($parameters) : null), 301);
+			return $response->redirect(self::join_links($resolution, !empty($parameters) ? '?' . http_build_query($parameters) : null), 301);
 		}
 		else {
 

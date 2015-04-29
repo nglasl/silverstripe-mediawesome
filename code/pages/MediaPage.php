@@ -215,6 +215,26 @@ class MediaPage extends SiteTree {
 	}
 
 	/**
+	 *	Confirm that the current page is valid.
+	 */
+
+	public function validate() {
+
+		// The URL segment will conflict with a year/month/day/media format when numeric.
+
+		if(is_numeric($this->URLSegment)) {
+
+			// Customise a validation error message.
+
+			$message = '"URL Segment" must not be numeric!';
+			$error = new SS_HTTPResponse_Exception($message, 403);
+			$error->getResponse()->addHeader('X-Status', rawurlencode($message));
+			throw $error;
+		}
+		return parent::validate();
+	}
+
+	/**
 	 *	Apply the parent holder media type and update any respective media type attributes.
 	 */
 

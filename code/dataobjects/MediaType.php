@@ -189,7 +189,7 @@ class MediaType extends DataObject {
 	}
 
 	/**
-	 *	Confirm that the current media type is valid.
+	 *	Confirm that the current type is valid.
 	 */
 
 	public function validate() {
