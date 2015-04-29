@@ -232,6 +232,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 	/**
 	 *	Handle the current URL, parsing a year/month/day/media format, and directing towards any valid controller actions that may be defined.
+	 *
 	 *	@URLparameter <{YEAR}> integer
 	 *	@URLparameter <{MONTH}> integer
 	 *	@URLparameter <{DAY}> integer
@@ -308,8 +309,9 @@ class MediaHolder_Controller extends Page_Controller {
 						// Determine whether a controller action has been defined.
 
 						$action = $segment;
+						break;
 					}
-					else {
+					else if(!is_numeric($segment)) {
 						if($iteration === 4) {
 
 							// The remaining URL doesn't match the month/day/media format.
@@ -423,6 +425,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 	/**
 	 *	Determine whether a media page child once existed for the current request, and redirect appropriately.
+	 *
 	 *	@return ss http response
 	 */
 
