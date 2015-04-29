@@ -274,7 +274,7 @@ class MediaHolder_Controller extends Page_Controller {
 			}
 			else {
 
-				// The media page child doesn't resolve, and neither does the controller action.
+				// The URL doesn't resolve.
 
 				return $this->httpError(404);
 			}
@@ -422,13 +422,13 @@ class MediaHolder_Controller extends Page_Controller {
 	}
 
 	/**
-	 *	Determine whether a media page child once existed for the current request URL.
+	 *	Determine whether a media page child once existed for the current request, and redirect appropriately.
 	 *	@return ss http response
 	 */
 
 	private function resolveURL() {
 
-		// Retrieve the current request URL without formatting.
+		// Retrieve the current request URL segments.
 
 		$request = $this->getRequest();
 		$URL = $request->getURL();
@@ -443,19 +443,19 @@ class MediaHolder_Controller extends Page_Controller {
 		));
 		$comparison = trim($resolution, '/');
 
-		// Make sure the current request URL doesn't match the media page child that once existed.
+		// Make sure the current request URL doesn't match the resolution.
 
-		if(($page !== substr($comparison, strrpos($comparison, '/') + 1)) && $resolution) {
+		if($resolution && ($page !== substr($comparison, strrpos($comparison, '/') + 1))) {
 
-			// Appropriately redirect to the media page's new URL.
+			// Retrieve the current request parameters.
+
+			$parameters = $request->getVars();
+			unset($parameters['url']);
+
+			// Appropriately redirect towards the updated media page URL.
 
 			$response = new SS_HTTPResponse();
-			$getVars = $request->getVars();
-			unset($getVars['url']);
-			return $response->redirect(Controller::join_links(
-				$resolution,
-				!empty($getVars) ? '?' . http_build_query($getVars) : null
-			), 301);
+			return $response->redirect(Controller::join_links($resolution, !empty($parameters) ? '?' . http_build_query($parameters) : null), 301);
 		}
 		else {
 
