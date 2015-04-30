@@ -352,6 +352,12 @@ class MediaHolder_Controller extends Page_Controller {
 								}
 								return $response;
 							}
+							else {
+
+								// The URL doesn't match the month/day/media format.
+
+								return $this->httpError(404);
+							}
 						}
 					}
 				}
@@ -383,24 +389,6 @@ class MediaHolder_Controller extends Page_Controller {
 
 					// The controller action doesn't resolve.
 
-					return $this->httpError(404);
-				}
-			}
-			else {
-
-				// Determine whether the remaining URL doesn't match the year/month/day format.
-
-				$error = (count($segments) === 4);
-				foreach($remaining as $segment) {
-
-					// Determine whether the remaining URL doesn't represent a valid date.
-
-					if(!is_numeric($segment)) {
-						$error = true;
-						break;
-					}
-				}
-				if($error) {
 					return $this->httpError(404);
 				}
 			}
