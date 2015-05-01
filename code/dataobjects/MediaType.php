@@ -30,18 +30,6 @@ class MediaType extends DataObject {
 	);
 
 	/**
-	 *	Apply all Mediawesome required extensions.
-	 */
-
-	public static function apply_requirements() {
-
-		// Update the current media holder/page images.
-
-		Config::inst()->update('MediaHolder', 'icon', MEDIAWESOME_PATH . '/images/holder.png');
-		Config::inst()->update('MediaPage', 'icon', MEDIAWESOME_PATH . '/images/page.png');
-	}
-
-	/**
 	 *	Apply a custom default media type with no respective attributes.
 	 *	NOTE: Refer to the module configuration example.
 	 *

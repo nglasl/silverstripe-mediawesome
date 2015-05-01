@@ -8,7 +8,12 @@
 if(!defined('MEDIAWESOME_PATH')) {
 	define('MEDIAWESOME_PATH', rtrim(basename(dirname(__FILE__))));
 }
-MediaType::apply_requirements();
+
+// Update the current media holder/page images.
+
+$configuration = Config::inst();
+$configuration->update('MediaHolder', 'icon', MEDIAWESOME_PATH . '/images/holder.png');
+$configuration->update('MediaPage', 'icon', MEDIAWESOME_PATH . '/images/page.png');
 
 /**
  *
