@@ -118,7 +118,7 @@ class MediaAttribute extends DataObject {
 
 		// Confirm that the current attribute has been given a title.
 
-		$this->Title ? $result->valid() : $result->error('Title required!');
+		$this->Title ? $result->valid() : $result->error('"Title" required!');
 
 		// Allow extension customisation.
 
