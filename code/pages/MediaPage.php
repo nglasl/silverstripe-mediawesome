@@ -201,7 +201,13 @@ class MediaPage extends SiteTree {
 		$fields->addFieldToTab('Root.ImagesAttachments', $images = UploadField::create(
 			'Images'
 		));
-		$images->getValidator()->setAllowedExtensions(array('jpg', 'jpeg', 'png', 'gif', 'bmp'));
+		$images->getValidator()->setAllowedExtensions(array(
+			'jpg',
+			'jpeg',
+			'png',
+			'gif',
+			'bmp'
+		));
 		$images->setFolderName("media-{$type}/{$this->ID}/images");
 		$fields->addFieldToTab('Root.ImagesAttachments', $attachments = UploadField::create(
 			'Attachments'
