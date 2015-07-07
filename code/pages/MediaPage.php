@@ -33,8 +33,11 @@ class MediaPage extends SiteTree {
 	);
 
 	private static $searchable_fields = array(
+		'Title',
+		'Content',
 		'ExternalLink',
-		'Abstract'
+		'Abstract',
+		'Tagging'
 	);
 
 	private static $can_be_root = false;
