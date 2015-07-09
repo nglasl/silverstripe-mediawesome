@@ -67,9 +67,6 @@ class MediaType extends DataObject {
 
 	/**
 	 *	Allow access for CMS users viewing media types.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canView($member = null) {
@@ -79,9 +76,6 @@ class MediaType extends DataObject {
 
 	/**
 	 *	Allow access for CMS users editing media types.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canEdit($member = null) {
@@ -91,9 +85,6 @@ class MediaType extends DataObject {
 
 	/**
 	 *	Determine access for the current CMS user creating media types.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canCreate($member = null) {
@@ -103,9 +94,6 @@ class MediaType extends DataObject {
 
 	/**
 	 *	Restrict access for CMS users deleting media types.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canDelete($member = null) {
@@ -186,7 +174,12 @@ class MediaType extends DataObject {
 
 		// Confirm that the current type has been given a title and doesn't already exist.
 
-		!$this->Title ? $result->error('"Title" required!') : (MediaType::get_one('MediaType', "ID != " . (int)$this->ID . " AND Title = '" . Convert::raw2sql($this->Title) . "'") ? $result->error('Type already exists!') : $result->valid());
+		if($result->valid() && !$this->Title) {
+			$result->error('"Title" required!');
+		}
+		else if($result->valid() && MediaType::get_one('MediaType', "ID != " . (int)$this->ID . " AND Title = '" . Convert::raw2sql($this->Title) . "'")) {
+			$result->error('Type already exists!');
+		}
 
 		// Allow extension customisation.
 

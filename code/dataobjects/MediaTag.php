@@ -13,9 +13,6 @@ class MediaTag extends DataObject {
 
 	/**
 	 *	Allow access for CMS users viewing tags.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canView($member = null) {
@@ -25,9 +22,6 @@ class MediaTag extends DataObject {
 
 	/**
 	 *	Allow access for CMS users editing tags.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canEdit($member = null) {
@@ -37,9 +31,6 @@ class MediaTag extends DataObject {
 
 	/**
 	 *	Allow access for CMS users creating tags.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canCreate($member = null) {
@@ -49,9 +40,6 @@ class MediaTag extends DataObject {
 
 	/**
 	 *	Restrict access for CMS users deleting tags.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canDelete($member = null) {
@@ -70,7 +58,12 @@ class MediaTag extends DataObject {
 		// Confirm that the current tag has been given a title and doesn't already exist.
 
 		$this->Title = strtolower($this->Title);
-		!$this->Title ? $result->error('"Title" required!') : (MediaTag::get_one('MediaTag', "ID != " . (int)$this->ID . " AND Title = '" . Convert::raw2sql($this->Title) . "'") ? $result->error('Tag already exists!') : $result->valid());
+		if($result->valid() && !$this->Title) {
+			$result->error('"Title" required!');
+		}
+		else if($result->valid() && MediaTag::get_one('MediaTag', "ID != " . (int)$this->ID . " AND Title = '" . Convert::raw2sql($this->Title) . "'")) {
+			$result->error('Tag already exists!');
+		}
 
 		// Allow extension customisation.
 

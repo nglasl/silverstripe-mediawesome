@@ -26,9 +26,6 @@ class MediaAttribute extends DataObject {
 
 	/**
 	 *	Allow access for CMS users viewing attributes.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canView($member = null) {
@@ -38,9 +35,6 @@ class MediaAttribute extends DataObject {
 
 	/**
 	 *	Determine access for the current CMS user editing attributes.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canEdit($member = null) {
@@ -50,9 +44,6 @@ class MediaAttribute extends DataObject {
 
 	/**
 	 *	Determine access for the current CMS user creating attributes.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canCreate($member = null) {
@@ -62,9 +53,6 @@ class MediaAttribute extends DataObject {
 
 	/**
 	 *	Restrict access for CMS users deleting attributes.
-	 *
-	 *	@parameter <{CURRENT_MEMBER}> member
-	 *	@return boolean
 	 */
 
 	public function canDelete($member = null) {
@@ -118,7 +106,9 @@ class MediaAttribute extends DataObject {
 
 		// Confirm that the current attribute has been given a title.
 
-		$this->Title ? $result->valid() : $result->error('"Title" required!');
+		if(!$this->Title) {
+			$result->error('"Title" required!');
+		}
 
 		// Allow extension customisation.
 
