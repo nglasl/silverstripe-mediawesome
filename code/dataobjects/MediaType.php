@@ -11,6 +11,8 @@ class MediaType extends DataObject {
 		'Title' => 'Varchar(255)'
 	);
 
+	private static $default_sort = 'Title';
+
 	/**
 	 *	The default media types.
 	 */

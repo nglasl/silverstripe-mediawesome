@@ -11,6 +11,8 @@ class MediaTag extends DataObject {
 		'Title' => 'Varchar(255)'
 	);
 
+	private static $default_sort = 'Title';
+
 	/**
 	 *	Allow access for CMS users viewing tags.
 	 */

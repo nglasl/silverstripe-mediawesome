@@ -18,6 +18,8 @@ class MediaAttribute extends DataObject {
 		'MediaPage' => 'MediaPage'
 	);
 
+	private static $default_sort = 'Title';
+
 	/**
 	 *	Flag a write occurrence to prevent infinite recursion.
 	 */
@@ -134,7 +136,7 @@ class MediaAttribute extends DataObject {
 
 		$parameters = Controller::curr()->getRequest()->requestVars();
 		$matches = array();
-		$result = preg_match('#MediaTypes/item/[0-9]*/#', $parameters['url'], $matches);
+		$result = preg_match('#TypesAttributes/item/[0-9]*/#', $parameters['url'], $matches);
 		if($result) {
 			$ID = preg_replace('#[^0-9]#', '', $matches[0]);
 			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where('MediaType.ID = ' . (int)$ID);
