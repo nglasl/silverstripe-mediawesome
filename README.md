@@ -92,13 +92,17 @@ Customisation of media types and their respective attributes will be restricted.
 
 ### Filtering Media Pages
 
-A media holder request may have optional date, category and tag filters, which are extendable by developers. It is also possible to represent the date in a `year/month/day/media` URL format.
+A media holder request may have optional date, category and tag filters, which are extendable by developers.
 
 Retrieve the date filter form in the media holder template:
 
 ```php
 $DateFilterForm
 ```
+
+It is also possible to represent the date in a `year/month/day/media` URL format.
+
+![URL-formatting](images/mediawesome-URL-formatting.png)
 
 ### Smart Templating
 
