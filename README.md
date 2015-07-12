@@ -54,6 +54,8 @@ MediaPage::customise_defaults(array(
 
 These may also be added through the CMS, depending on the current user permissions.
 
+![types](images/mediawesome-types.png)
+
 * Select a media holder.
 * Select `Manage ALL Media`
 * Select `Types and Attributes`
@@ -61,6 +63,8 @@ These may also be added through the CMS, depending on the current user permissio
 ### Dynamic Media Attributes
 
 These may be customised through the CMS, depending on the current user permissions.
+
+![attributes](images/mediawesome-attributes.png)
 
 * Select a media holder.
 * Select `Manage ALL Media`
@@ -70,6 +74,8 @@ These may be customised through the CMS, depending on the current user permissio
 These will be applied to new and existing media pages of the respective type.
 
 ### Media Categories and Tags
+
+![categories-and-tags](images/mediawesome-categories-and-tags.png)
 
 * Select a media holder.
 * Select `Manage ALL Media`
