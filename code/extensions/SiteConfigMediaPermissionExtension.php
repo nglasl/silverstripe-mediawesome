@@ -46,6 +46,10 @@ class SiteConfigMediaPermissionExtension extends DataExtension {
 				$permissions
 			));
 		}
+
+		// Allow extension customisation.
+
+		$this->owner->extend('updateSiteConfigMediaPermissionExtensionCMSFields', $fields);
 	}
 
 }

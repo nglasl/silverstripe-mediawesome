@@ -54,7 +54,7 @@ MediaPage::customise_defaults(array(
 
 These may also be added through the CMS, depending on the current user permissions.
 
-![types](images/mediawesome-types.png)
+![types](https://raw.githubusercontent.com/nglasl/silverstripe-mediawesome/master/images/mediawesome-types.png)
 
 * Select a media holder.
 * Select `Manage ALL Media`
@@ -64,7 +64,7 @@ These may also be added through the CMS, depending on the current user permissio
 
 These may be customised through the CMS, depending on the current user permissions.
 
-![attributes](images/mediawesome-attributes.png)
+![attributes](https://raw.githubusercontent.com/nglasl/silverstripe-mediawesome/master/images/mediawesome-attributes.png)
 
 * Select a media holder.
 * Select `Manage ALL Media`
@@ -75,7 +75,7 @@ These will be applied to new and existing media pages of the respective type.
 
 ### Media Categories and Tags
 
-![categories-and-tags](images/mediawesome-categories-and-tags.png)
+![categories-and-tags](https://raw.githubusercontent.com/nglasl/silverstripe-mediawesome/master/images/mediawesome-categories-and-tags.png)
 
 * Select a media holder.
 * Select `Manage ALL Media`
@@ -102,7 +102,7 @@ $DateFilterForm
 
 It is also possible to represent the date in a `year/month/day/media` URL format.
 
-![URL-formatting](images/mediawesome-URL-formatting.png)
+![URL-formatting](https://raw.githubusercontent.com/nglasl/silverstripe-mediawesome/master/images/mediawesome-URL-formatting.png)
 
 ### Smart Templating
 

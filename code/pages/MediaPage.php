@@ -243,6 +243,10 @@ class MediaPage extends SiteTree {
 			$message = '"URL Segment" must not be numeric!';
 			$error = new SS_HTTPResponse_Exception($message, 403);
 			$error->getResponse()->addHeader('X-Status', rawurlencode($message));
+
+			// Allow extension customisation.
+
+			$this->extend('validateMediaPage', $error);
 			throw $error;
 		}
 		return parent::validate();
