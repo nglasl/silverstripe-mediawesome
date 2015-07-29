@@ -363,6 +363,9 @@ class MediaPage extends SiteTree {
 	public function Link($action = null) {
 
 		$parent = $this->getParent();
+		if (!$parent) {
+			return '';
+		}
 		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting) : '';
 		$link = $parent->Link() . "{$date}{$this->URLSegment}/";
 		if($action) {
@@ -378,6 +381,9 @@ class MediaPage extends SiteTree {
 	public function AbsoluteLink($action = null) {
 
 		$parent = $this->getParent();
+		if (!$parent) {
+			return '';
+		}
 		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting) : '';
 		$link = $parent->AbsoluteLink() . "{$date}{$this->URLSegment}/";
 		if($action) {
