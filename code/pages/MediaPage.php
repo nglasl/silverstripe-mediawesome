@@ -131,7 +131,7 @@ class MediaPage extends SiteTree {
 		// Display a notification that the parent holder contains mixed children.
 
 		$parent = $this->getParent();
-		if($parent && $parent->getCheckMediaHolder()->exists()) {
+		if($parent && $parent->getMediaHolderChildren()->exists()) {
 			Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'MediaNotification',

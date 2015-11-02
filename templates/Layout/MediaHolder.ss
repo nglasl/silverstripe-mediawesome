@@ -3,8 +3,8 @@
 	<div class='media-holder-content'>{$Content}</div>
 	<% if $AllChildren %>
 		<div class='media-holder-children'>
-			<% if $CheckMediaHolder %>
-				<% loop $CheckMediaHolder %>
+			<% if $MediaHolderChildren %>
+				<% loop $MediaHolderChildren %>
 					<div class='media-holder'>
 						<h4><a href='{$Link}'><strong>{$Title}</strong></a></h4>
 						<div>{$Content.Summary}</div>

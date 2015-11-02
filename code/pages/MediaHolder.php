@@ -95,7 +95,7 @@ class MediaHolder extends Page {
 	 *	@return data list
 	 */
 
-	public function getCheckMediaHolder() {
+	public function getMediaHolderChildren() {
 
 		return $this->AllChildren()->where("ClassName = 'MediaHolder'");
 	}
