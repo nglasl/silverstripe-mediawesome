@@ -21,11 +21,11 @@ class SiteConfigMediaPermissionExtension extends DataExtension {
 
 	public function updateCMSFields(FieldList $fields) {
 
+		Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
 		$permissions = array(
 			'ADMIN' => 'Administrators and developers',
 			'SITETREE_EDIT_ALL' => 'Content authors'
 		);
-		Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
 
 		// Confirm that the current CMS user has permission.
 
