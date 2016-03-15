@@ -18,8 +18,6 @@ class MediaAttribute extends DataObject {
 		'MediaPage' => 'MediaPage'
 	);
 
-	private static $default_sort = 'Title';
-
 	/**
 	 *	Flag a write occurrence to prevent infinite recursion.
 	 */
@@ -221,7 +219,7 @@ class MediaAttribute extends DataObject {
 			'/([A-Z][a-z]+)/',
 			'/([A-Z]{2,})/',
 			'/([_.0-9]+)/'
-		), ' $0', $this->Title))  . ": {$this->Content}";
+		), ' $0', $this->Title)) . ": {$this->Content}";
 	}
 
 }
