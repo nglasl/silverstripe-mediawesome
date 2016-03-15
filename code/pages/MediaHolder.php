@@ -219,7 +219,9 @@ class MediaHolder_Controller extends Page_Controller {
 			}
 			if($valid) {
 				$from = implode('-', $date);
-				$children = $children->where("Date >= '" . Convert::raw2sql("{$from} 00:00:00") . "'");
+				$children = $children->where(array(
+					'Date >= ?' => "{$from} 00:00:00"
+				));
 			}
 		}
 

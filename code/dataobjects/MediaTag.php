@@ -63,7 +63,10 @@ class MediaTag extends DataObject {
 		if($result->valid() && !$this->Title) {
 			$result->error('"Title" required!');
 		}
-		else if($result->valid() && MediaTag::get_one('MediaTag', "ID != " . (int)$this->ID . " AND Title = '" . Convert::raw2sql($this->Title) . "'")) {
+		else if($result->valid() && MediaTag::get_one('MediaTag', array(
+			'ID != ?' => $this->ID,
+			'Title = ?' => $this->Title
+		))) {
 			$result->error('Tag already exists!');
 		}
 

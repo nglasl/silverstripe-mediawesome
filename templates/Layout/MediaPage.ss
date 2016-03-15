@@ -2,7 +2,7 @@
 	<h1>{$Title}</h1>
 	<% if $Images.first %>
 		<p class='media-page-main-image'>
-			<span><a href='$Images.first.Link'>{$Images.first.CroppedImage(200, 200)}</a></span>
+			<span><a href='$Images.first.Link'>{$Images.first.Fill(200, 200)}</a></span>
 		</p>
 	<% end_if %>
 	<% if $Categories %>
@@ -26,7 +26,7 @@
 		<p class='media-page-images'>
 			<% loop $Images %>
 				<% if not $first %>
-					<span><a href='{$Link}'>{$CroppedImage(100, 100)}</a></span>
+					<span><a href='{$Link}'>{$Fill(100, 100)}</a></span>
 				<% end_if %>
 			<% end_loop %>
 		</p>

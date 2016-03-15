@@ -325,7 +325,10 @@ class MediaPage extends SiteTree {
 
 				// Retrieve existing attributes for the respective media type.
 
-				$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($type) . "' AND MediaAttribute.LinkID = -1");
+				$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
+					'MediaType.Title = ?' => $type,
+					'MediaAttribute.LinkID = ?' => -1
+				));
 				if($attributes->exists()) {
 					foreach($attributes as $attribute) {
 

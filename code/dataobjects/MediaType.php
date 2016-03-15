@@ -58,7 +58,9 @@ class MediaType extends DataObject {
 
 			// Confirm that this media type doesn't already exist before creating it.
 
-			if(!MediaType::get_one('MediaType', "Title = '" . Convert::raw2sql($default) . "'")) {
+			if(!MediaType::get_one('MediaType', array(
+				'Title = ?' => $default
+			))) {
 				$type = MediaType::create();
 				$type->Title = $default;
 				$type->write();
@@ -139,12 +141,17 @@ class MediaType extends DataObject {
 
 			// Allow customisation of media type attributes if a respective media page exists, depending on the current CMS user permissions.
 
-			if(MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "'")->exists()) {
+			if(MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
+				'MediaType.Title = ?' => $this->Title
+			))->exists()) {
 				$configuration = ($this->checkPermissions() === false) ? GridFieldConfig_RecordViewer::create() : GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction');
 				$fields->addFieldToTab('Root.Main', GridField::create(
 					'MediaAttributes',
 					'Custom Attributes',
-					MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where("MediaType.Title = '" . Convert::raw2sql($this->Title) . "' AND MediaAttribute.LinkID = -1"),
+					MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
+						'MediaType.Title = ?' => $this->Title,
+						'MediaAttribute.LinkID = ?' => -1
+					)),
 					$configuration
 				)->setModelClass('MediaAttribute'));
 			}
@@ -179,7 +186,10 @@ class MediaType extends DataObject {
 		if($result->valid() && !$this->Title) {
 			$result->error('"Title" required!');
 		}
-		else if($result->valid() && MediaType::get_one('MediaType', "ID != " . (int)$this->ID . " AND Title = '" . Convert::raw2sql($this->Title) . "'")) {
+		else if($result->valid() && MediaType::get_one('MediaType', array(
+			'ID != ?' => $this->ID,
+			'Title = ?' => $this->Title
+		))) {
 			$result->error('Type already exists!');
 		}
 
