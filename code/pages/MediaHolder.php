@@ -451,7 +451,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Handle the new request URL.
 
-		return $this->handleRequest($request);
+		return $this->handleRequest($request, DataModel::inst());
 	}
 
 	/**
