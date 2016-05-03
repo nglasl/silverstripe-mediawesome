@@ -77,6 +77,15 @@ class MediaPage extends SiteTree {
 	);
 
 	/**
+	 * The default fields to show for getFrontendCreateFields.
+	 */
+	private static $frontend_create_fields = array(
+		'Title',
+		'Content',
+		'MediaTypeID',
+	);
+
+	/**
 	 *	Apply custom default media types with respective attributes, or additional attributes to existing default media types.
 	 *
 	 *	@parameter <{MEDIA_TYPES_AND_ATTRIBUTES}> array(array(string))
@@ -170,29 +179,7 @@ class MediaPage extends SiteTree {
 
 		// Allow customisation of media type attribute content respective to the current page.
 
-		if($this->MediaAttributes()->exists()) {
-			foreach($this->MediaAttributes() as $attribute) {
-				if(strripos($attribute->Title, 'Time') || strripos($attribute->Title, 'Date') || stripos($attribute->Title, 'When')) {
-
-					// Display an attribute as a date time field where appropriate.
-
-					$fields->addFieldToTab('Root.Main', $custom = DatetimeField::create(
-						"{$attribute->ID}_MediaAttribute",
-						$attribute->Title,
-						$attribute->Content
-					), 'Content');
-					$custom->getDateField()->setConfig('showcalendar', true);
-				}
-				else {
-					$fields->addFieldToTab('Root.Main', $custom = TextField::create(
-						"{$attribute->ID}_MediaAttribute",
-						$attribute->Title,
-						$attribute->Content
-					), 'Content');
-				}
-				$custom->setRightTitle('Custom <strong>' . strtolower($this->MediaType()->Title) . '</strong> attribute');
-			}
-		}
+		$this->updateCMSAttributeFields($fields, 'Content');
 
 		// Display an abstract field for content summarisation.
 
@@ -226,6 +213,177 @@ class MediaPage extends SiteTree {
 
 		$this->extend('updateMediaPageCMSFields', $fields);
 		return $fields;
+	}
+
+	/**
+	 * Update fieldlist with available attributes
+	 */
+	public function updateCMSAttributeFields(FieldList $fields, $insertBefore = null) {
+		$mediaTypeField = $fields->dataFieldByName('MediaTypeID');
+		$canModifyMediaType = ($mediaTypeField && !$mediaTypeField->isReadonly() && $mediaTypeField->hasMethod('getSource'));
+		$useDisplayLogicModule = ($canModifyMediaType && class_exists('DisplayLogicFormField'));
+
+		$attributeFields = array();
+		if($this->MediaAttributes()->exists()) 
+		{
+			foreach($this->MediaAttributes() as $attribute) 
+			{
+				$attributeUID = ($attribute->LinkID == -1) ? $attribute->ID : $attribute->LinkID;
+				$attributeField = $attribute->scaffoldFormField();
+				if ($useDisplayLogicModule) 
+				{
+					$attributeField->displayIf('MediaTypeID')->isEqualTo((int)$attribute->MediaTypeID);
+				}
+				if (!$canModifyMediaType && $attribute->MediaTypeID != $this->MediaTypeID)
+				{
+					$attributeField = $attributeField->performReadonlyTransformation();
+				}
+				$attributeField->AttributeRecord = $attribute; // NOTE: For determining MediaTypeID on ObjectCreatorPage/review action.
+				$attributeFields[$attributeUID] = $attributeField;
+			}
+		}
+		
+		// Add missing attribute fields by getting the placeholder attributes
+		$mediaTypes = array($this->MediaTypeID => '');
+		if ($canModifyMediaType)
+		{
+			$mediaTypes = $mediaTypeField->getSource();
+		}
+		if ($mediaTypes)
+		{
+			foreach ($mediaTypes as $mediaTypeID => $unused) 
+			{
+				$attributes = MediaAttribute::get()
+					->where(array(
+						'MediaTypeID = ?' => $mediaTypeID,
+						'MediaAttribute.LinkID = -1' // NOTE: Not parameterized as it's a constant
+				));
+				foreach ($attributes as $attribute)
+				{
+					$attributeUID = ($attribute->LinkID == -1) ? $attribute->ID : $attribute->LinkID;
+					if (!isset($attributeFields[$attributeUID]))
+					{
+						$attributeField = $attribute->scaffoldFormField();
+						$attributeField->setValue('');
+						if ($useDisplayLogicModule) {
+							$attributeField->displayIf('MediaTypeID')->isEqualTo((int)$mediaTypeID);
+						}
+						$attributeField->AttributeRecord = $attribute; // NOTE: For determining MediaTypeID on ObjectCreatorPage/review action.
+						$attributeFields[$attributeUID] = $attributeField;
+					}
+				}
+			}
+		}
+
+		// Add fields to main field list
+		if ($insertBefore)
+		{
+			foreach($attributeFields as $attributeField) 
+			{
+				$fields->insertBefore($attributeField, $insertBefore);
+			}
+		}
+		else
+		{
+			foreach($attributeFields as $attributeField) 
+			{
+				$fields->push($attributeField);
+			}
+		}
+	}
+
+	/**
+	 * Get the frontend fields to use with ObjectCreatorPage type
+	 * (frontend-objects module)
+	 *
+	 * @return FieldList
+	 */
+	public function getFrontendCreateFields() {
+		$fields = $this->scaffoldFormFields();
+		$whitelist = ArrayLib::valuekey($this->stat('frontend_create_fields'));
+		foreach ($fields as $field) {
+			if (!isset($whitelist[$field->getName()])) {
+				$fields->remove($field);
+			}
+		}
+
+		// Update Media Type dropdown to only use available media types
+		$mediaTypeField = $fields->dataFieldByName('MediaTypeID');
+		if ($mediaTypeField && $mediaTypeField instanceof DropdownField) 
+		{
+			$mediaTypeField->setSource($this->getFrontEndCreateMediaTypes());
+			$mediaTypeField->setHasEmptyDefault(false); // Remove blank option, force user to select one.
+
+			// The display logic module requires jQuery, however sometimes people prefer
+			// to roll their own jQuery.js file from their theme, so only use the framework
+			// provided jQuery if they HAVE NOT included jquery.
+			$hasjQuery = false;
+			foreach (Requirements::backend()->get_javascript() as $filename)
+			{
+				if (strpos($filename, 'jquery') !== false) 
+				{
+					$hasjQuery = true;
+					break;
+				}
+			}
+			if (!$hasjQuery)
+			{
+				Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+			}
+		}
+
+		// Add attribute fields
+		$this->updateCMSAttributeFields($fields);
+
+		return $fields;
+	}
+
+	/**
+	 * Fields to show the user in the review process, removes any attribute
+	 * fields that don't match with the current set MediaType ID.
+	 * (frontend-objects module)
+	 *
+	 * @return FieldList
+	 */
+	public function getFrontendCreateReviewFields() {
+		$fields = $this->getFrontendCreateFields();
+		foreach ($fields as $field)
+		{
+			$attribute = $field->AttributeRecord;
+			if ($attribute && $attribute->MediaTypeID != $this->MediaTypeID) 
+			{
+				$fields->remove($field);
+			}
+		}
+		return $fields;
+	}
+
+	/**
+	 * Get validator for frontend fields used for ObjectCreatorPage.
+	 * (frontend-objects module)
+	 *
+	 * @return MediaPageFrontendCreateValidator
+	 */
+	public function getFrontendCreateValidator() {
+		return MediaPageFrontendCreateValidator::create();
+	}
+
+	/**
+	 * Only gets Media Types that have been set on MediaHolder pages
+	 *
+	 * @return array
+	 */
+	public function getFrontEndCreateMediaTypes(FieldList $fields = null) {
+		$mediaTypeIDs = array();
+		foreach (MediaHolder::get() as $holderPage)
+		{
+			if ($holderPage->MediaTypeID && !isset($mediaTypeIDs[$holderPage->MediaTypeID]) && ($mediaType = $holderPage->MediaType())) 
+			{
+				$mediaTypeIDs[$holderPage->MediaTypeID] = $mediaType->Title;
+			}
+		}
+		// MAYBETODO(Jake): Add ->extend for modifying the media types
+		return $mediaTypeIDs;
 	}
 
 	/**
@@ -278,36 +436,50 @@ class MediaPage extends SiteTree {
 			}
 		}
 
-		// Apply the changes from each media type attribute.
-
-		foreach($this->record as $name => $value) {
-			if(strrpos($name, 'MediaAttribute')) {
-				$ID = substr($name, 0, strpos($name, '_'));
-				$attribute = MediaAttribute::get_by_id('MediaAttribute', $ID);
-				$attribute->Content = $value;
-				$attribute->write();
+		// Detect change in media type, if changed, put page underneath first MediaHolder found with matching Media Type 
+		// -UNLESS- the ParentID has been explicitly changed.
+		//
+		// NOTE: This is for frontend fields where the MediaType can actually be changed in a dropdown.
+		//
+		$changedFields = $this->getChangedFields();
+		$hasChangedParent = (isset($changedFields['ParentID']) && $changedFields['ParentID']['before'] != $changedFields['ParentID']['after']);
+		$hasChangedMediaType = (isset($changedFields['MediaTypeID']) && $changedFields['MediaTypeID']['before'] != $changedFields['MediaTypeID']['after']);
+		if ((!$this->ID || !$hasChangedParent) && $hasChangedMediaType && $this->MediaTypeID)
+		{
+			// NOTE(Jake): HasChangedMediaType = false, when pages are created in the CMS. Tested in SS 3.2.
+			$holderPage = MediaHolder::get()->find('MediaTypeID', $this->MediaTypeID);
+			if ($holderPage)
+			{
+				$this->ParentID = $holderPage->ID;
 			}
 		}
 
 		// Apply the parent holder media type.
-
 		$parent = $this->getParent();
-		if($parent) {
-			$type = $parent->MediaType();
-			if($type->exists()) {
-				$this->MediaTypeID = $type->ID;
-				$type = $type->Title;
+		if($parent) 
+		{
+			// Set media type
+			$type = '';
+			$parentMediaType = $parent->MediaType();
+			if($parentMediaType->exists()) 
+			{
+				// Force set to parent media type
+				$this->MediaTypeID = $parentMediaType->ID;
+				$type = $parentMediaType->Title;
 			}
-			else {
-				$existing = MediaType::get_one('MediaType');
-				$parent->MediaTypeID = $existing->ID;
+			else 
+			{
+				// If parent has no media type, force the parents media type 
+				$existingMediaType = MediaType::get_one('MediaType');
+				$parent->MediaTypeID = $existingMediaType->ID;
 				$parent->write();
-				$this->MediaTypeID = $existing->ID;
-				$type = $existing->Title;
+
+				// Force set to parent media type
+				$this->MediaTypeID = $existingMediaType->ID;
+				$type = $existingMediaType->Title;
 			}
 
 			// Merge the default and custom default media types and their respective attributes.
-
 			$temporary = array();
 			foreach(self::$custom_defaults as $default => $attributes) {
 				if(isset(self::$page_defaults[$default])) {
@@ -357,6 +529,65 @@ class MediaPage extends SiteTree {
 				}
 			}
 		}
+
+		//
+		// Apply the changes from each media type attribute.
+		//
+		foreach($this->record as $name => $value) 
+		{
+			if (strrpos($name, 'MediaAttribute')) 
+			{
+				$ID = (int)substr($name, 0, strpos($name, '_'));
+				if ($ID)
+				{
+					$attribute = DataObject::get_by_id('MediaAttribute', $ID);
+					if ($attribute->MediaTypeID == $this->MediaTypeID)
+					{
+						if ($attribute->MediaPageID == $this->ID)
+						{
+							// Handle existing attributes attached to the page
+							// (only if their media type matches)
+							$attribute->Content = $value;
+							$attribute->write();
+						}
+						else if ($value && $attribute->LinkID == -1)
+						{
+							// Handle adding new attributes, must have some sort of content to be added ($value)
+							// to create them.
+							//
+							// If the attribute is the original/placeholder (and not attached to this page)
+							// then create a copy of it and attach it to this page.
+							//
+							if ($this->MediaAttributes() instanceof UnsavedRelationList) 
+							{
+								// Attributes are created above and immediately attached based on the current
+								// MediaTypeID. Use the ones created above.
+								//
+								// The code above was left as-is to ensure backwards compatibility,
+								// ie. creating attributes for pages if none exist yet, rather than creating
+								// 	   them if a value comes through.
+								$newAttr = $this->MediaAttributes()->find('LinkID', $ID);
+								if (!$newAttr) 
+								{
+									$newAttr = MediaAttribute::create();
+								}
+							}
+							else
+							{
+								$newAttr = MediaAttribute::create();
+							}
+							$newAttr->OriginalTitle = $attribute->OriginalTitle;
+							$newAttr->Title = $attribute->Title;
+							$newAttr->Content = $value;
+							$newAttr->LinkID = $attribute->ID;
+							$newAttr->MediaPageID = $this->ID;
+							$newAttr->write();
+							$this->MediaAttributes()->add($newAttr);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -396,6 +627,24 @@ class MediaPage extends SiteTree {
 	}
 
 	/**
+	 * Retrieve attributes attached to the page that match the current media type
+	 *
+	 * @return DataList
+	 */
+	public function getAttributes() {
+		return $this->MediaAttributes()->filter(array('MediaTypeID' => $this->MediaTypeID));
+	}
+
+	/**
+	 * Retrieve attributes attached to the page that match the current media type
+	 *
+	 * @return DataList
+	 */
+	public function Attributes() {
+		return $this->getAttributes();
+	}
+
+	/**
 	 *	Retrieve a specific attribute for use in templates.
 	 *
 	 *	@parameter <{ATTRIBUTE}> string
@@ -404,7 +653,7 @@ class MediaPage extends SiteTree {
 
 	public function getAttribute($title) {
 
-		foreach($this->MediaAttributes() as $attribute) {
+		foreach($this->MediaAttributes()->filter(array('MediaTypeID' => $this->MediaTypeID)) as $attribute) {
 
 			// Retrieve the original title for comparison.
 
@@ -451,4 +700,13 @@ class MediaPage_Controller extends Page_Controller {
 		return $this->renderWith($templates);
 	}
 
+}
+
+class MediaPageFrontendCreateValidator extends RequiredFields {
+	public function php($data) {
+		$result = parent::php($data);
+		// maybetodo(jake): If Attribute is a required field, validate here. Need to think about how
+		// 			   to make attributes required first. (extend MediaAttribute?)
+		return $result;
+	}
 }

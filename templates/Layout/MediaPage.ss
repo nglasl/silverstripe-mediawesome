@@ -14,7 +14,7 @@
 	<% end_if %>
 	<div class='media-page-date'><em>{$Date.Date}</em></div>
 	<div class='media-page-attributes'>
-		<% loop $MediaAttributes %>
+		<% loop $Attributes %>
 			<% if $Content %>
 				<div class='media-page-attribute {$TemplateClass}'><em><strong>{$Title}: </strong>{$Content}</em></div>
 			<% end_if %>

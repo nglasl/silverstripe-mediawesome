@@ -15,7 +15,8 @@ class MediaAttribute extends DataObject {
 	);
 
 	private static $has_one = array(
-		'MediaPage' => 'MediaPage'
+		'MediaPage' => 'MediaPage',
+		'MediaType' => 'MediaType',
 	);
 
 	/**
@@ -23,6 +24,29 @@ class MediaAttribute extends DataObject {
 	 */
 
 	private static $write_flag = false;
+
+	/**
+	 * Update old data
+	 */
+
+	public function requireDefaultRecords() {
+		parent::requireDefaultRecords();
+
+		if ($this->class === __CLASS__)
+		{
+			// Update mediawesome 1.2.2 and lower versions so that the MediaAttribute has the MediaType set.
+			foreach (MediaAttribute::get()->filter(array('MediaTypeID' => 0)) as $record)
+			{
+				$page = $record->MediaPage();
+				if ($page && $page->exists())
+				{
+					$record->MediaTypeID = $page->MediaTypeID;
+					$record->write();
+					DB::alteration_message("#{$record->ID} updated MediaTypeID to equal MediaPage.MediaTypeID.", 'created');
+				}
+			}
+		}
+	}
 
 	/**
 	 *	Allow access for CMS users viewing attributes.
@@ -82,18 +106,43 @@ class MediaAttribute extends DataObject {
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
-		$fields->removeByName('OriginalTitle');
 
 		// Remove the attribute fields relating to an individual media page.
-
-		$fields->removeByName('Content');
-		$fields->removeByName('LinkID');
-		$fields->removeByName('MediaPageID');
+		$fields->removeByName(array('OriginalTitle', 'Content', 'LinkID', 'MediaPageID', 'MediaTypeID'));
 
 		// Allow extension customisation.
 
 		$this->extend('updateMediaAttributeCMSFields', $fields);
 		return $fields;
+	}
+
+	/**
+	 * Create the attribute field to be used for editing on the MediaPage
+	 */
+
+	public function scaffoldFormField() 
+	{
+		if(strripos($this->Title, 'Time') || strripos($this->Title, 'Date') || stripos($this->Title, 'When')) 
+		{
+			$field = DatetimeField::create(
+				"{$this->ID}_MediaAttribute",
+				$this->Title,
+				$this->Content
+			);
+			$field->getDateField()->setConfig('showcalendar', true);
+		}
+		else 
+		{
+			$field = TextField::create(
+				"{$this->ID}_MediaAttribute",
+				$this->Title,
+				$this->Content
+			);
+		}
+		if (($mediaType = $this->MediaType())) {
+			$field->setRightTitle('Custom <strong>' . strtolower($mediaType->Title) . '</strong> attribute');
+		}
+		return $field;
 	}
 
 	/**
@@ -190,6 +239,16 @@ class MediaAttribute extends DataObject {
 					}
 					self::$write_flag = false;
 				}
+			}
+		}
+
+		// If media type isn't set, update it to be the attached pages Media Type ID
+		if (!$this->MediaTypeID && $this->MediaPageID) 
+		{
+			$page = $this->MediaPage();
+			if ($page && $page->exists())
+			{
+				$this->MediaTypeID = $page->MediaTypeID;
 			}
 		}
 	}
