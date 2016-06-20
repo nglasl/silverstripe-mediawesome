@@ -28,8 +28,7 @@ class MediaType extends DataObject {
 	 *	The custom default media types.
 	 */
 
-	private static $custom_defaults = array(
-	);
+	private static $custom_defaults = array();
 
 	/**
 	 *	Apply a custom default media type with no respective attributes.

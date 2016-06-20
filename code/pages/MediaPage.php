@@ -73,8 +73,7 @@ class MediaPage extends SiteTree {
 	 *	The custom default media types and their respective attributes.
 	 */
 
-	private static $custom_defaults = array(
-	);
+	private static $custom_defaults = array();
 
 	/**
 	 *	Apply custom default media types with respective attributes, or additional attributes to existing default media types.
