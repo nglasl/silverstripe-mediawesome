@@ -5,7 +5,7 @@
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
-class MediaPage extends SiteTree {
+class MediaPage extends Page {
 
 	private static $db = array(
 		'ExternalLink' => 'Varchar(255)',
