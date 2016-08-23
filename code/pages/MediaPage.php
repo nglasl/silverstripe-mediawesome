@@ -377,7 +377,7 @@ class MediaPage extends SiteTree {
 									// Create a new attribute.
 
 									$new = MediaAttribute::create();
-									$new->OriginalTitle = $attribute->OriginalTitle;
+									$new->OriginalTitle = $title;
 									$new->Title = $attribute->Title;
 									$new->LinkID = $attribute->ID;
 									$new->MediaPageID = $this->ID;
