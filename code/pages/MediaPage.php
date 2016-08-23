@@ -258,7 +258,7 @@ class MediaPage extends SiteTree {
 
 		parent::onBeforeWrite();
 
-		// Set the default media page date to the current time.
+		// Set the default media page date.
 
 		if(is_null($this->Date)) {
 			$this->Date = date('Y-m-d');
@@ -356,7 +356,7 @@ class MediaPage extends SiteTree {
 			}
 			else {
 
-				// Determine whether new attributes exist.
+				// Determine whether there are new attributes.
 
 				if($attributes->exists() && isset($defaults[$type])) {
 					$defaults = $defaults[$type];
@@ -368,9 +368,12 @@ class MediaPage extends SiteTree {
 
 								unset($defaults[$index]);
 
-								// Determine whether this media page requires the existing attribute.
+								// Determine whether this media page requires the attribute.
 
 								if(!$this->MediaAttributes()->filter('LinkID', $attribute->ID)->exists()) {
+
+									// Create a new attribute.
+
 									$new = MediaAttribute::create();
 									$new->Title = $attribute->Title;
 									$new->LinkID = $attribute->ID;
@@ -384,7 +387,7 @@ class MediaPage extends SiteTree {
 					}
 					if(count($defaults)) {
 
-						// Create a new attribute the remaining defaults.
+						// Create a new attribute for the remaining defaults found.
 
 						foreach($defaults as $attribute) {
 							$new = MediaAttribute::create();
