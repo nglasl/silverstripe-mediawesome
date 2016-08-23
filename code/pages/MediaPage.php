@@ -387,7 +387,7 @@ class MediaPage extends SiteTree {
 					}
 					if(count($defaults)) {
 
-						// Create a new attribute for the remaining defaults found.
+						// Create a new attribute for the remaining defaults.
 
 						foreach($defaults as $attribute) {
 							$new = MediaAttribute::create();
