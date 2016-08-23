@@ -57,8 +57,8 @@ class MediaPage extends SiteTree {
 			'Author'
 		),
 		'Event' => array(
-			'Start Time',
 			'End Date',
+			'Time',
 			'End Time',
 			'Location'
 		),
@@ -146,7 +146,7 @@ class MediaPage extends SiteTree {
 		)->setRightTitle('An <strong>optional</strong> redirect URL to the media source'), 'URLSegment');
 		$fields->addFieldToTab('Root.Main', DateField::create(
 			'Date'
-		)->setConfig('showcalendar', true), 'Content');
+		)->setConfig('showcalendar', true)->setConfig('dateformat', 'dd/MM/YYYY'), 'Content');
 
 		// Allow customisation of categories and tags respective to the current page.
 
@@ -175,11 +175,11 @@ class MediaPage extends SiteTree {
 
 					// Display an attribute as a date field where appropriate.
 
-					$fields->addFieldToTab('Root.Main', $custom = DateField::create(
+					$fields->insertAfter('Date', $custom = DateField::create(
 						"{$attribute->ID}_MediaAttribute",
 						$attribute->Title,
 						$attribute->Content
-					)->setConfig('showcalendar', true), 'Content');
+					)->setConfig('showcalendar', true)->setConfig('dateformat', 'dd/MM/YYYY'));
 				}
 				else {
 					$fields->addFieldToTab('Root.Main', $custom = TextField::create(

@@ -28,8 +28,8 @@ array(
 		'Author'
 	),
 	'Event' => array(
-		'Start Time',
 		'End Date',
+		'Time',
 		'End Time',
 		'Location'
 	),
