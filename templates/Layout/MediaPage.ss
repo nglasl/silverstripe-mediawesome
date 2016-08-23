@@ -12,7 +12,7 @@
 			<% end_loop %>
 		</h3>
 	<% end_if %>
-	<div class='media-page-date'><em>{$Date.Date}</em></div>
+	<div class='media-page-date'><em>{$Date}</em></div>
 	<div class='media-page-attributes'>
 		<% loop $MediaAttributes %>
 			<% if $Content %>

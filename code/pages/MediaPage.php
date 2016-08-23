@@ -10,7 +10,7 @@ class MediaPage extends SiteTree {
 	private static $db = array(
 		'ExternalLink' => 'Varchar(255)',
 		'Abstract' => 'Text',
-		'Date' => 'Datetime'
+		'Date' => 'Date'
 	);
 
 	private static $has_one = array(
@@ -58,6 +58,7 @@ class MediaPage extends SiteTree {
 		),
 		'Event' => array(
 			'Start Time',
+			'End Date',
 			'End Time',
 			'Location'
 		),
@@ -143,10 +144,9 @@ class MediaPage extends SiteTree {
 		$fields->addFieldToTab('Root.Main', TextField::create(
 			'ExternalLink'
 		)->setRightTitle('An <strong>optional</strong> redirect URL to the media source'), 'URLSegment');
-		$fields->addFieldToTab('Root.Main', $date = DatetimeField::create(
+		$fields->addFieldToTab('Root.Main', DateField::create(
 			'Date'
-		), 'Content');
-		$date->getDateField()->setConfig('showcalendar', true);
+		)->setConfig('showcalendar', true), 'Content');
 
 		// Allow customisation of categories and tags respective to the current page.
 
@@ -171,16 +171,15 @@ class MediaPage extends SiteTree {
 
 		if($this->MediaAttributes()->exists()) {
 			foreach($this->MediaAttributes() as $attribute) {
-				if(strripos($attribute->Title, 'Time') || strripos($attribute->Title, 'Date') || stripos($attribute->Title, 'When')) {
+				if(strripos($attribute->Title, 'Date') || stripos($attribute->Title, 'When')) {
 
 					// Display an attribute as a date time field where appropriate.
 
-					$fields->addFieldToTab('Root.Main', $custom = DatetimeField::create(
+					$fields->addFieldToTab('Root.Main', $custom = DateField::create(
 						"{$attribute->ID}_MediaAttribute",
 						$attribute->Title,
 						$attribute->Content
-					), 'Content');
-					$custom->getDateField()->setConfig('showcalendar', true);
+					)->setConfig('showcalendar', true), 'Content');
 				}
 				else {
 					$fields->addFieldToTab('Root.Main', $custom = TextField::create(
@@ -262,7 +261,7 @@ class MediaPage extends SiteTree {
 		// Set the default media page date to the current time.
 
 		if(is_null($this->Date)) {
-			$this->Date = SS_Datetime::now()->Format('Y-m-d H:i:s');
+			$this->Date = date('Y-m-d');
 		}
 
 		// Confirm that the external link exists.
@@ -318,16 +317,16 @@ class MediaPage extends SiteTree {
 			}
 			$defaults = array_merge(self::$page_defaults, $temporary);
 
+			// Retrieve existing attributes for the respective media type.
+
+			$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
+				'MediaType.Title = ?' => $type,
+				'MediaAttribute.LinkID = ?' => -1
+			));
+
 			// Apply existing attributes to a new media page.
 
 			if(!$this->MediaAttributes()->exists()) {
-
-				// Retrieve existing attributes for the respective media type.
-
-				$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
-					'MediaType.Title = ?' => $type,
-					'MediaAttribute.LinkID = ?' => -1
-				));
 				if($attributes->exists()) {
 					foreach($attributes as $attribute) {
 
@@ -352,6 +351,48 @@ class MediaPage extends SiteTree {
 						$new->MediaPageID = $this->ID;
 						$this->MediaAttributes()->add($new);
 						$new->write();
+					}
+				}
+			}
+			else {
+
+				// Determine whether new attributes exist.
+
+				if($attributes->exists() && isset($defaults[$type])) {
+					$defaults = $defaults[$type];
+					foreach($attributes as $attribute) {
+						foreach($defaults as $index => $default) {
+							if($attribute->Title === $default) {
+
+								// This attribute already exists.
+
+								unset($defaults[$index]);
+							}
+						}
+
+						// Determine whether this media page requires the existing attribute.
+
+						if(!$this->MediaAttributes()->filter('Title', $attribute->Title)->exists()) {
+							$new = MediaAttribute::create();
+							$new->Title = $attribute->Title;
+							$new->LinkID = $attribute->ID;
+							$new->MediaPageID = $this->ID;
+							$this->MediaAttributes()->add($new);
+							$new->write();
+						}
+					}
+					if(count($defaults)) {
+
+						// Create a new attribute the remaining defaults.
+
+						foreach($defaults as $attribute) {
+							$new = MediaAttribute::create();
+							$new->Title = $attribute;
+							$new->LinkID = -1;
+							$new->MediaPageID = $this->ID;
+							$this->MediaAttributes()->add($new);
+							$new->write();
+						}
 					}
 				}
 			}

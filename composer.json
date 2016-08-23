@@ -23,7 +23,7 @@
 	"extra": {
 		"installer-name": "mediawesome",
 		"branch-alias": {
-			"dev-master": "1.2.x-dev"
+			"dev-master": "2.0.x-dev"
 		},
 		"screenshots": [
 			"https://raw.githubusercontent.com/nglasl/silverstripe-mediawesome/master/images/mediawesome-types.png"
