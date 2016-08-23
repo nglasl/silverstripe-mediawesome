@@ -171,7 +171,7 @@ class MediaPage extends SiteTree {
 
 		if($this->MediaAttributes()->exists()) {
 			foreach($this->MediaAttributes() as $attribute) {
-				if(strripos($attribute->Title, 'Date') || stripos($attribute->Title, 'When')) {
+				if(strripos($attribute->Title, 'Date')) {
 
 					// Display an attribute as a date time field where appropriate.
 
@@ -367,18 +367,19 @@ class MediaPage extends SiteTree {
 								// This attribute already exists.
 
 								unset($defaults[$index]);
+
+								// Determine whether this media page requires the existing attribute.
+
+								if(!$this->MediaAttributes()->filter('Title', $attribute->Title)->exists()) {
+									$new = MediaAttribute::create();
+									$new->Title = $attribute->Title;
+									$new->LinkID = $attribute->ID;
+									$new->MediaPageID = $this->ID;
+									$this->MediaAttributes()->add($new);
+									$new->write();
+								}
+								break;
 							}
-						}
-
-						// Determine whether this media page requires the existing attribute.
-
-						if(!$this->MediaAttributes()->filter('Title', $attribute->Title)->exists()) {
-							$new = MediaAttribute::create();
-							$new->Title = $attribute->Title;
-							$new->LinkID = $attribute->ID;
-							$new->MediaPageID = $this->ID;
-							$this->MediaAttributes()->add($new);
-							$new->write();
 						}
 					}
 					if(count($defaults)) {
