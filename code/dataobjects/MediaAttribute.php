@@ -157,6 +157,7 @@ class MediaAttribute extends DataObject {
 						// Create a new attribute for remaining media pages.
 
 						$new = MediaAttribute::create();
+						$new->OriginalTitle = $this->OriginalTitle;
 						$new->Title = $this->Title;
 						$new->LinkID = $this->ID;
 						$new->MediaPageID = $page->ID;

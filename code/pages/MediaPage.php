@@ -333,6 +333,7 @@ class MediaPage extends SiteTree {
 						// Create a new attribute for each one found.
 
 						$new = MediaAttribute::create();
+						$new->OriginalTitle = $attribute->OriginalTitle;
 						$new->Title = $attribute->Title;
 						$new->LinkID = $attribute->ID;
 						$new->MediaPageID = $this->ID;
@@ -362,7 +363,7 @@ class MediaPage extends SiteTree {
 					$defaults = $defaults[$type];
 					foreach($attributes as $attribute) {
 						foreach($defaults as $index => $default) {
-							$title = $attribute->Title;
+							$title = $attribute->OriginalTitle;
 							if($title === $default) {
 
 								// This attribute already exists.
@@ -371,12 +372,13 @@ class MediaPage extends SiteTree {
 
 								// Determine whether this media page requires the attribute.
 
-								if(!$this->MediaAttributes()->filter('Title', $title)->exists()) {
+								if(!$this->MediaAttributes()->filter('OriginalTitle', $title)->exists()) {
 
 									// Create a new attribute.
 
 									$new = MediaAttribute::create();
-									$new->Title = $title;
+									$new->OriginalTitle = $attribute->OriginalTitle;
+									$new->Title = $attribute->Title;
 									$new->LinkID = $attribute->ID;
 									$new->MediaPageID = $this->ID;
 									$this->MediaAttributes()->add($new);
