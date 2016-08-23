@@ -357,13 +357,13 @@ class MediaPage extends Page {
 			}
 			else {
 
-				// Determine whether there are new attributes.
+				// Determine whether there are new attributes for this media page.
 
 				if($attributes->exists() && isset($defaults[$type])) {
 					$defaults = $defaults[$type];
 					foreach($attributes as $attribute) {
+						$title = $attribute->OriginalTitle;
 						foreach($defaults as $index => $default) {
-							$title = $attribute->OriginalTitle;
 							if($title === $default) {
 
 								// This attribute already exists.
