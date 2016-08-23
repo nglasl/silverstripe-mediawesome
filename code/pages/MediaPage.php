@@ -173,7 +173,7 @@ class MediaPage extends SiteTree {
 			foreach($this->MediaAttributes() as $attribute) {
 				if(strripos($attribute->Title, 'Date')) {
 
-					// Display an attribute as a date time field where appropriate.
+					// Display an attribute as a date field where appropriate.
 
 					$fields->addFieldToTab('Root.Main', $custom = DateField::create(
 						"{$attribute->ID}_MediaAttribute",
@@ -370,7 +370,7 @@ class MediaPage extends SiteTree {
 
 								// Determine whether this media page requires the existing attribute.
 
-								if(!$this->MediaAttributes()->filter('Title', $attribute->Title)->exists()) {
+								if(!$this->MediaAttributes()->filter('LinkID', $attribute->ID)->exists()) {
 									$new = MediaAttribute::create();
 									$new->Title = $attribute->Title;
 									$new->LinkID = $attribute->ID;
