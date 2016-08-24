@@ -178,7 +178,7 @@ class MediaPage extends Page {
 					$fields->insertAfter('Date', $custom = DateField::create(
 						"{$attribute->ID}_MediaAttribute",
 						$attribute->Title,
-						date('d/m/Y', strtotime($attribute->Content))
+						$attribute->Content ? date('d/m/Y', strtotime($attribute->Content)) : null
 					)->setConfig('showcalendar', true)->setConfig('dateformat', 'dd/MM/YYYY'));
 				}
 				else {
@@ -236,7 +236,7 @@ class MediaPage extends Page {
 
 		// The URL segment will conflict with a year/month/day/media format when numeric.
 
-		if(is_numeric($this->URLSegment) || !($parent instanceof MediaHolder) || ($parent->MediaTypeID != $this->MediaTypeID)) {
+		if(is_numeric($this->URLSegment) || !($parent instanceof MediaHolder) || ($this->MediaTypeID && ($parent->MediaTypeID != $this->MediaTypeID))) {
 
 			// Customise a validation error message.
 
