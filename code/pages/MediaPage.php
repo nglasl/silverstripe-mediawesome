@@ -171,14 +171,14 @@ class MediaPage extends Page {
 
 		if($this->MediaAttributes()->exists()) {
 			foreach($this->MediaAttributes() as $attribute) {
-				if(strripos($attribute->Title, 'Date')) {
+				if(strripos($attribute->OriginalTitle, 'Date') || strripos($attribute->Title, 'Date')) {
 
 					// Display an attribute as a date field where appropriate.
 
 					$fields->insertAfter('Date', $custom = DateField::create(
 						"{$attribute->ID}_MediaAttribute",
 						$attribute->Title,
-						$attribute->Content
+						date('d/m/Y', strtotime($attribute->Content))
 					)->setConfig('showcalendar', true)->setConfig('dateformat', 'dd/MM/YYYY'));
 				}
 				else {
