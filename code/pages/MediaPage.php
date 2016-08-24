@@ -171,7 +171,7 @@ class MediaPage extends Page {
 
 		if($this->MediaAttributes()->exists()) {
 			foreach($this->MediaAttributes() as $attribute) {
-				if(strripos($attribute->OriginalTitle, 'Date') || strripos($attribute->Title, 'Date')) {
+				if(strrpos($attribute->OriginalTitle, 'Date') || strrpos($attribute->Title, 'Date')) {
 
 					// Display an attribute as a date field where appropriate.
 
