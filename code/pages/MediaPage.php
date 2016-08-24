@@ -234,11 +234,12 @@ class MediaPage extends Page {
 
 		// The URL segment will conflict with a year/month/day/media format when numeric.
 
-		if(is_numeric($this->URLSegment)) {
+		$parent = $this->getParent();
+		if(is_numeric($this->URLSegment) || !($parent instanceof MediaHolder) || ($parent->MediaTypeID != $this->MediaTypeID)) {
 
 			// Customise a validation error message.
 
-			$message = '"URL Segment" must not be numeric!';
+			$message = is_numeric($this->URLSegment) ? '"URL Segment" must not be numeric!' : 'Invalid media holder!';
 			$error = new SS_HTTPResponse_Exception($message, 403);
 			$error->getResponse()->addHeader('X-Status', rawurlencode($message));
 
