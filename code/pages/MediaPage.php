@@ -232,9 +232,10 @@ class MediaPage extends Page {
 
 	public function validate() {
 
+		$parent = $this->getParent();
+
 		// The URL segment will conflict with a year/month/day/media format when numeric.
 
-		$parent = $this->getParent();
 		if(is_numeric($this->URLSegment) || !($parent instanceof MediaHolder) || ($parent->MediaTypeID != $this->MediaTypeID)) {
 
 			// Customise a validation error message.
