@@ -43,10 +43,8 @@ class MediaHolder extends Page {
 			$fields->addFieldToTab('Root.Main', DropdownField::create(
 				'MediaTypeID',
 				'Media Type',
-				array_merge(array(
-					0 => ''
-				), MediaType::get()->map()->toArray())
-			), 'Title');
+				MediaType::get()->map()->toArray()
+			)->setHasEmptyDefault(true), 'Title');
 
 		// Allow customisation of the media URL format.
 
