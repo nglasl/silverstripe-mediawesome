@@ -154,8 +154,13 @@ class MediaAttribute extends DataObject {
 			$this->OriginalTitle = $this->Title;
 		}
 
-		// Retrieve the respective media type for updating all attribute references.
-
+        if (!Controller::has_curr()) {
+            // we may have been triggered from a cli script
+            return;
+        }
+        
+        // Retrieve the respective media type for updating all attribute references.
+        
 		$parameters = Controller::curr()->getRequest()->requestVars();
 		$matches = array();
 		$result = preg_match('#TypesAttributes/item/[0-9]*/#', $parameters['url'], $matches);
