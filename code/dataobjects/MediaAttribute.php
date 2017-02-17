@@ -156,10 +156,9 @@ class MediaAttribute extends DataObject {
 
 		// Retrieve the respective media type for updating all attribute references.
 
-		$parameters = Controller::curr()->getRequest()->requestVars();
+		$parameters = Controller::has_curr() ? Controller::curr()->getRequest()->requestVars() : null;
 		$matches = array();
-		$result = preg_match('#TypesAttributes/item/[0-9]*/#', $parameters['url'], $matches);
-		if($result) {
+		if(is_array($parameters) && preg_match('#TypesAttributes/item/[0-9]*/#', $parameters['url'], $matches)) {
 			$ID = preg_replace('#[^0-9]#', '', $matches[0]);
 			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where('MediaType.ID = ' . (int)$ID);
 
