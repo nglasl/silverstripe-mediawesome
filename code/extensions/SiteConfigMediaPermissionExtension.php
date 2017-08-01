@@ -2,7 +2,7 @@
 
 /**
  *	Mediawesome extension which allows permission configuration for customisation of media.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class SiteConfigMediaPermissionExtension extends DataExtension {

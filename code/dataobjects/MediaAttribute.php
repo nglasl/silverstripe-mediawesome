@@ -2,7 +2,7 @@
 
 /**
  *	Mediawesome CMS attribute for a media type.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class MediaAttribute extends DataObject {
@@ -158,7 +158,7 @@ class MediaAttribute extends DataObject {
 
 		$parameters = Controller::has_curr() ? Controller::curr()->getRequest()->requestVars() : null;
 		$matches = array();
-		if(is_array($parameters) && preg_match('#TypesAttributes/item/[0-9]*/#', $parameters['url'], $matches)) {
+		if(is_array($parameters) && isset($parameters['url']) && preg_match('#TypesAttributes/item/[0-9]*/#', $parameters['url'], $matches)) {
 			$ID = preg_replace('#[^0-9]#', '', $matches[0]);
 			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where('MediaType.ID = ' . (int)$ID);
 

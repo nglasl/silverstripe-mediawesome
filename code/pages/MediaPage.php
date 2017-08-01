@@ -2,7 +2,7 @@
 
 /**
  *	Displays customised media content relating to the respective media type.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class MediaPage extends Page {

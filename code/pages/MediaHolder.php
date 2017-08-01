@@ -2,7 +2,7 @@
 
 /**
  *	Displays media holder/page children, with optional date/tag filters.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class MediaHolder extends Page {

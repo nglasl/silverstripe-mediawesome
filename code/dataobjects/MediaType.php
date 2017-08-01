@@ -2,7 +2,7 @@
 
 /**
  *	Mediawesome CMS type/category of media.
- *	@author Nathan Glasl <nathan@silverstripe.com.au>
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class MediaType extends DataObject {
