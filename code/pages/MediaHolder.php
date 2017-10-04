@@ -88,14 +88,23 @@ class MediaHolder extends Page {
 	}
 
 	/**
-	 *	Retrieve any media holder children.
+	 * 	Retrieve any MediaHolders that are children of this MediaHolder.
 	 *
-	 *	@return data list
+	 * 	@return data list
 	 */
-
 	public function getMediaHolderChildren() {
 
 		return $this->AllChildren()->where("ClassName = 'MediaHolder'");
+	}
+
+	/**
+	 * 	Retrieve any MediaPages that are children of this MediaHolder.
+	 *
+	 * 	@return data list
+	 */
+	public function getMediaPageChildren() {
+
+		return $this->AllChildren()->where("ClassName = 'MediaPage'");
 	}
 
 }
