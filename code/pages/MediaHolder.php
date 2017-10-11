@@ -205,6 +205,7 @@ class MediaHolder_Controller extends Page_Controller {
 			$order = $orderVar;
 		}
 		$from = $request->getVar('from');
+		$to = $request->getVar('to');
 		$category = $request->getVar('category');
 		$tag = $request->getVar('tag');
 
@@ -212,25 +213,57 @@ class MediaHolder_Controller extends Page_Controller {
 
 		$children = MediaPage::get()->where('ParentID = ' . (int)$this->data()->ID);
 
-		// Validate the date request filter.
+		// Validate the date request filters.
 
-		if($from) {
+		if ($from) {
 			$valid = true;
-			$date = array();
-			foreach(explode('-', $from) as $segment) {
-				if(!is_numeric($segment)) {
+			$date  = array();
+			foreach (explode('-', $from) as $segment) {
+				if (!is_numeric($segment)) {
 					$valid = false;
 					break;
-				}
-				else {
+				} else {
 					$date[] = str_pad($segment, 2, '0', STR_PAD_LEFT);
 				}
 			}
-			if($valid) {
+			if ($valid) {
 				$from = implode('-', $date);
-				$children = $children->where(array(
-					'Date >= ?' => $from
-				));
+				if ($order == 'DESC') {
+					$children = $children->where(array(
+						'Date <= ?' => $from
+					));
+				}
+				if ($order == 'ASC') {
+					$children = $children->where(array(
+						'Date >= ?' => $from
+					));
+				}
+			}
+		}
+
+		if ($to) {
+			$valid = true;
+			$date  = array();
+			foreach (explode('-', $to) as $segment) {
+				if (!is_numeric($segment)) {
+					$valid = false;
+					break;
+				} else {
+					$date[] = str_pad($segment, 2, '0', STR_PAD_LEFT);
+				}
+			}
+			if ($valid) {
+				$to = implode('-', $date);
+				if ($order == 'DESC') {
+					$children = $children->where(array(
+						'Date >= ?' => $to
+					));
+				}
+				if ($order == 'ASC') {
+					$children = $children->where(array(
+						'Date <= ?' => $to
+					));
+				}
 			}
 		}
 
@@ -523,13 +556,17 @@ class MediaHolder_Controller extends Page_Controller {
 			$this,
 			'getDateFilterForm',
 			FieldList::create(
-				$date = DateField::create(
-					'from',
-					''
-				)->setConfig('showcalendar', true)->setConfig('min', $children->min('Date'))->setConfig('max', $children->max('Date'))->setAttribute('placeholder', 'From'),
-				HiddenField::create(
-					'category'
-				),
+				$dateFrom = DateField::create(
+						'from', ''
+					)->setConfig('showcalendar', true)->setConfig('min', $children->min('Date'))->setConfig('max',
+						$children->max('Date'))->setAttribute('placeholder', 'From'),
+					$dateTo   = DateField::create(
+						'to', ''
+					)->setConfig('showcalendar', true)->setConfig('min', $children->min('Date'))->setConfig('max',
+						$children->max('Date'))->setAttribute('placeholder', 'To'),
+					HiddenField::create(
+						'category'
+					),
 				HiddenField::create(
 					'tag'
 				)
@@ -552,12 +589,21 @@ class MediaHolder_Controller extends Page_Controller {
 		$request = $this->getRequest();
 		$form->loadDataFrom($request->getVars());
 
-		// Validate the date request filter, as this isn't captured on page request.
+		// Validate the date request filters, as this isn't captured on page request.
 
-		if($from = $request->getVar('from')) {
-			foreach(explode('-', $from) as $segment) {
-				if(!is_numeric($segment)) {
-					$date->setValue(null);
+		if ($from = $request->getVar('from')) {
+			foreach (explode('-', $from) as $segment) {
+				if (!is_numeric($segment)) {
+					$dateFrom->setValue(null);
+					break;
+				}
+			}
+		}
+
+		if ($to = $request->getVar('to')) {
+			foreach (explode('-', $to) as $segment) {
+				if (!is_numeric($segment)) {
+					$dateTo->setValue(null);
 					break;
 				}
 			}
