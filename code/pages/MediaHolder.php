@@ -227,9 +227,19 @@ class MediaHolder_Controller extends Page_Controller {
 				}
 			}
 			if($valid) {
+
+				// This is used to determine the direction to filter, so it makes sense from a user's perspective.
+
+				if($order === 'DESC') {
+					$date[count($date) - 1]++;
+					$direction = '<';
+				}
+				else {
+					$direction = '>=';
+				}
 				$from = implode('-', $date);
 				$children = $children->where(array(
-					'Date >= ?' => $from
+					"Date {$direction} ?" => $from
 				));
 			}
 		}
@@ -551,17 +561,6 @@ class MediaHolder_Controller extends Page_Controller {
 
 		$request = $this->getRequest();
 		$form->loadDataFrom($request->getVars());
-
-		// Validate the date request filter, as this isn't captured on page request.
-
-		if($from = $request->getVar('from')) {
-			foreach(explode('-', $from) as $segment) {
-				if(!is_numeric($segment)) {
-					$date->setValue(null);
-					break;
-				}
-			}
-		}
 
 		// Remove validation if clear has been triggered.
 
