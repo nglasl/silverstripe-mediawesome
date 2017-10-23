@@ -15,14 +15,9 @@ class MediaAttribute extends DataObject {
 	);
 
 	private static $has_one = array(
+		'MediaType' => 'MediaType',
 		'MediaPage' => 'MediaPage'
 	);
-
-	/**
-	 *	Flag a write occurrence to prevent infinite recursion.
-	 */
-
-	private static $write_flag = false;
 
 	/**
 	 *	Update previous media attributes.
@@ -107,12 +102,23 @@ class MediaAttribute extends DataObject {
 
 		$fields = parent::getCMSFields();
 		$fields->removeByName('OriginalTitle');
+		$fields->removeByName('MediaTypeID');
 
 		// Remove the attribute fields relating to an individual media page.
 
 		$fields->removeByName('Content');
 		$fields->removeByName('LinkID');
 		$fields->removeByName('MediaPageID');
+
+		// The media attribute may have no media type context, which `MediaAttributeAddNewButton` will then provide.
+
+		if(Controller::has_curr()) {
+			$fields->push(HiddenField::create(
+				'MediaType',
+				null,
+				Controller::curr()->getRequest()->getVar('type')
+			));
+		}
 
 		// Allow extension customisation.
 
@@ -156,63 +162,55 @@ class MediaAttribute extends DataObject {
 
 		// Retrieve the respective media type for updating all attribute references.
 
-		$parameters = Controller::has_curr() ? Controller::curr()->getRequest()->requestVars() : null;
-		$matches = array();
-		if(is_array($parameters) && isset($parameters['url']) && preg_match('#TypesAttributes/item/[0-9]*/#', $parameters['url'], $matches)) {
-			$ID = preg_replace('#[^0-9]#', '', $matches[0]);
-			$pages = MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where('MediaType.ID = ' . (int)$ID);
+		$typeID = $this->MediaTypeID ?: $this->MediaType;
+		$pages = MediaPage::get()->filter('MediaTypeID', $typeID);
 
-			// Apply this new attribute to existing media pages of the respective type.
+		// Apply this new attribute to existing media pages of the respective type.
 
-			if($pages && (is_null($this->MediaPageID) || ($this->MediaPageID === 0))) {
-				foreach($pages as $key => $page) {
-					if($key === 0) {
+		if($pages->exists() && (is_null($this->MediaPageID) || ($this->MediaPageID === 0))) {
+			foreach($pages as $key => $page) {
+				if($key === 0) {
 
-						// Apply the current attribute to the first media page.
+					// Apply the current attribute to the first media page.
 
-						self::$write_flag = true;
-						$this->LinkID = -1;
-						$this->MediaPageID = $page->ID;
-						$page->MediaAttributes()->add($this);
-					}
-					else {
+					$this->LinkID = -1;
+					$this->MediaTypeID = $typeID;
+					$this->MediaPageID = $page->ID;
+					$page->MediaAttributes()->add($this);
+				}
+				else {
 
-						// Create a new attribute for remaining media pages.
+					// Create a new attribute for remaining media pages.
 
-						$new = MediaAttribute::create();
-						$new->OriginalTitle = $this->OriginalTitle;
-						$new->Title = $this->Title;
-						$new->LinkID = $this->ID;
-						$new->MediaPageID = $page->ID;
-						$page->MediaAttributes()->add($new);
-						$new->write();
-					}
+					$new = MediaAttribute::create();
+					$new->OriginalTitle = $this->OriginalTitle;
+					$new->Title = $this->Title;
+					$new->LinkID = $this->ID;
+					$new->MediaPageID = $page->ID;
+					$page->MediaAttributes()->add($new);
+					$new->write();
 				}
 			}
+		}
 
-			// Apply the changes from this attribute to existing media pages of the respective type.
+		// Apply the changes from this attribute to existing media pages of the respective type.
 
-			else if($pages) {
+		else if($pages->exists()) {
 
-				// Confirm that a write occurrence doesn't already exist.
+			// Confirm that a write occurrence doesn't already exist.
 
-				if(!self::$write_flag) {
-					foreach($pages as $page) {
-						foreach($page->MediaAttributes() as $attribute) {
+			foreach($pages as $page) {
+				foreach($page->MediaAttributes() as $attribute) {
 
-							// Confirm that each attribute is linked to the original attribute.
+					// Confirm that each attribute is linked to the original attribute.
 
-							if(($attribute->LinkID == $this->ID) && ($attribute->Title !== $this->Title)) {
+					if(($attribute->LinkID == $this->ID) && ($attribute->Title !== $this->Title)) {
 
-								// Apply the changes from this attribute.
+						// Apply the changes from this attribute.
 
-								self::$write_flag = true;
-								$attribute->Title = $this->Title;
-								$attribute->write();
-							}
-						}
+						$attribute->Title = $this->Title;
+						$attribute->write();
 					}
-					self::$write_flag = false;
 				}
 			}
 		}

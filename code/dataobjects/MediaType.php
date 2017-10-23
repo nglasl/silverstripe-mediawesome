@@ -143,7 +143,17 @@ class MediaType extends DataObject {
 			if(MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
 				'MediaType.Title = ?' => $this->Title
 			))->exists()) {
-				$configuration = ($this->checkPermissions() === false) ? GridFieldConfig_RecordViewer::create() : GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction');
+				if($this->checkPermissions() === false) {
+					$configuration = GridFieldConfig_RecordViewer::create();
+				}
+				else {
+					$configuration = GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction');
+
+					// The media attribute may have no media type context, which `MediaAttributeAddNewButton` will then provide.
+
+					$configuration->removeComponentsByType('GridFieldAddNewButton');
+					$configuration->addComponent(new MediaAttributeAddNewButton($this->ID));
+				}
 				$fields->addFieldToTab('Root.Main', GridField::create(
 					'MediaAttributes',
 					'Custom Attributes',

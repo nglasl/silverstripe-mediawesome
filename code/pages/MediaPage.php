@@ -295,13 +295,21 @@ class MediaPage extends Page {
 		if($parent) {
 			$type = $parent->MediaType();
 			if($type->exists()) {
-				$this->MediaTypeID = $type->ID;
+				$typeID = $type->ID;
+				$this->MediaTypeID = $typeID;
 				$type = $type->Title;
 			}
 			else {
 				$existing = MediaType::get_one('MediaType');
-				$parent->MediaTypeID = $existing->ID;
+				$typeID = $existing->ID;
+				$parent->MediaTypeID = $typeID;
 				$parent->write();
+				if($parent->isPublished()) {
+
+					// The parents needs to be published, otherwise it'll be considered an invalid media holder.
+
+					$parent->publish('Stage', 'Live');
+				}
 				$this->MediaTypeID = $existing->ID;
 				$type = $existing->Title;
 			}
@@ -351,6 +359,7 @@ class MediaPage extends Page {
 						$new = MediaAttribute::create();
 						$new->Title = $attribute;
 						$new->LinkID = -1;
+						$new->MediaTypeID = $typeID;
 						$new->MediaPageID = $this->ID;
 						$this->MediaAttributes()->add($new);
 						$new->write();
@@ -398,6 +407,7 @@ class MediaPage extends Page {
 							$new = MediaAttribute::create();
 							$new->Title = $attribute;
 							$new->LinkID = -1;
+							$new->MediaTypeID = $typeID;
 							$new->MediaPageID = $this->ID;
 							$this->MediaAttributes()->add($new);
 							$new->write();
