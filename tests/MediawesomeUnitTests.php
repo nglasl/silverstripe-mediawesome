@@ -75,15 +75,8 @@ class MediawesomeUnitTests extends SapphireTest {
 
 		// Determine whether this change is reflected by the second page.
 
-		foreach($second->MediaAttributes() as $attribute) {
-			if($attribute->LinkID === $master->ID) {
-				$this->assertEquals($attribute->Title, $master->Title);
-
-				// This is now done.
-
-				break;
-			}
-		}
+		$attribute = $second->MediaAttributes()->filter('LinkID', $master->ID)->first();
+		$this->assertEquals($attribute->Title, $master->Title);
 
 		// Determine whether this change is reflected by a new media page.
 
@@ -95,15 +88,8 @@ class MediawesomeUnitTests extends SapphireTest {
 		);
 		$third->writeToStage('Stage');
 		$third->publish('Stage', 'Live');
-		foreach($third->MediaAttributes() as $attribute) {
-			if($attribute->LinkID === $master->ID) {
-				$this->assertEquals($attribute->Title, $master->Title);
-
-				// This is now done.
-
-				break;
-			}
-		}
+		$attribute = $third->MediaAttributes()->filter('LinkID', $master->ID)->first();
+		$this->assertEquals($attribute->Title, $master->Title);
 	}
 
 }
