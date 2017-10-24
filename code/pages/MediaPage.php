@@ -306,7 +306,7 @@ class MediaPage extends Page {
 				$parent->write();
 				if($parent->isPublished()) {
 
-					// The parents needs to be published, otherwise it'll be considered an invalid media holder.
+					// The parent needs to be published, otherwise it'll be considered an invalid media holder.
 
 					$parent->publish('Stage', 'Live');
 				}

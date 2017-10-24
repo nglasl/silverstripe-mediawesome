@@ -196,9 +196,6 @@ class MediaAttribute extends DataObject {
 		// Apply the changes from this attribute to existing media pages of the respective type.
 
 		else if($pages->exists()) {
-
-			// Confirm that a write occurrence doesn't already exist.
-
 			foreach($pages as $page) {
 				foreach($page->MediaAttributes() as $attribute) {
 
