@@ -10,7 +10,7 @@ class MediawesomeFunctionalTests extends FunctionalTest {
 	protected $usesDatabase = true;
 
 	protected $requireDefaultRecordsFrom = array(
-		'MediaType'
+		'MediaPage'
 	);
 
 	public function testURLs() {

@@ -22,34 +22,29 @@ _The current release is **4.0.0**_
 
 These are the default media types and their respective attributes.
 
-```php
-array(
-	'Blog' => array(
-		'Author'
-	),
-	'Event' => array(
-		'End Date',
-		'Time',
-		'End Time',
-		'Location'
-	),
-	'News' => array(
-		'Author'
-	),
-	'Publication' => array(
-		'Author'
-	)
-);
+```yaml
+MediaPage:
+  type_defaults:
+    Blog:
+      - 'Author'
+    Event:
+      - 'End Date'
+      - 'Time'
+      - 'End Time'
+      - 'Location'
+    News:
+      - 'Author'
+    Publication:
+      - 'Author'
 ```
 
-Apply custom default media types with respective attributes, or additional attributes to existing default types.
+Apply custom default media types and/or respective attributes.
 
-```php
-MediaPage::customise_defaults(array(
-	'Media Type' => array(
-		'Attribute'
-	)
-));
+```yaml
+MediaPage:
+  type_defaults:
+    Type:
+      - 'Attribute'
 ```
 
 These may also be added through the CMS, depending on the current user permissions.

@@ -1,0 +1,13 @@
+MediaPage:
+  type_defaults:
+    Blog:
+      - 'Author'
+    Event:
+      - 'End Date'
+      - 'Time'
+      - 'End Time'
+      - 'Location'
+    News:
+      - 'Author'
+    Publication:
+      - 'Author'

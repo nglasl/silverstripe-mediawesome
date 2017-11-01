@@ -14,61 +14,6 @@ class MediaType extends DataObject {
 	private static $default_sort = 'Title';
 
 	/**
-	 *	The default media types.
-	 */
-
-	private static $page_defaults = array(
-		'Blog',
-		'Event',
-		'News',
-		'Publication'
-	);
-
-	/**
-	 *	The custom default media types.
-	 */
-
-	private static $custom_defaults = array();
-
-	/**
-	 *	Apply a custom default media type with no respective attributes.
-	 *	NOTE: Refer to the module configuration example.
-	 *
-	 *	@parameter <{MEDIA_TYPE}> string
-	 */
-
-	public static function add_default($type) {
-
-		self::$custom_defaults[] = $type;
-	}
-
-	/**
-	 *	The process to automatically create any default media types, executed on project build.
-	 */
-
-	public function requireDefaultRecords() {
-
-		parent::requireDefaultRecords();
-
-		// Merge the default and custom default media types.
-
-		$defaults = array_unique(array_merge(self::$page_defaults, self::$custom_defaults));
-		foreach($defaults as $default) {
-
-			// Confirm that this media type doesn't already exist before creating it.
-
-			if(!MediaType::get_one('MediaType', array(
-				'Title = ?' => $default
-			))) {
-				$type = MediaType::create();
-				$type->Title = $default;
-				$type->write();
-				DB::alteration_message("{$default} Media Type", 'created');
-			}
-		}
-	}
-
-	/**
 	 *	Allow access for CMS users viewing media types.
 	 */
 
@@ -119,10 +64,6 @@ class MediaType extends DataObject {
 		return Permission::check($configuration->MediaPermission, 'any', $member);
 	}
 
-	/**
-	 *	Display the respective CMS media type attributes.
-	 */
-
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
@@ -138,42 +79,28 @@ class MediaType extends DataObject {
 				"<div class='field'><label class='left'>Custom Attributes</label></div>"
 			));
 
-			// Allow customisation of media type attributes if a respective media page exists, depending on the current CMS user permissions.
+			// Allow customisation of media type attributes, depending on the current CMS user permissions.
 
-			if(MediaPage::get()->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
-				'MediaType.Title = ?' => $this->Title
-			))->exists()) {
-				if($this->checkPermissions() === false) {
-					$configuration = GridFieldConfig_RecordViewer::create();
-				}
-				else {
-					$configuration = GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction');
-
-					// The media attribute may have no media type context, which `MediaAttributeAddNewButton` will then provide.
-
-					$configuration->removeComponentsByType('GridFieldAddNewButton');
-					$configuration->addComponent(new MediaAttributeAddNewButton($this->ID));
-				}
-				$fields->addFieldToTab('Root.Main', GridField::create(
-					'MediaAttributes',
-					'Custom Attributes',
-					MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
-						'MediaType.Title = ?' => $this->Title,
-						'MediaAttribute.LinkID = ?' => -1
-					)),
-					$configuration
-				)->setModelClass('MediaAttribute'));
+			if($this->checkPermissions() === false) {
+				$configuration = GridFieldConfig_RecordViewer::create();
 			}
 			else {
+				$configuration = GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction');
 
-				// Display a notice that respective media pages should first be created.
+				// The media attribute may have no media type context, which `MediaAttributeAddNewButton` will then provide.
 
-				Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
-				$fields->addFieldToTab('Root.Main', LiteralField::create(
-					'MediaNotice',
-					"<p class='mediawesome notice'><strong>No {$this->Title} Pages Found</strong></p>"
-				));
+				$configuration->removeComponentsByType('GridFieldAddNewButton');
+				$configuration->addComponent(new MediaAttributeAddNewButton($this->ID));
 			}
+			$fields->addFieldToTab('Root.Main', GridField::create(
+				'MediaAttributes',
+				'Custom Attributes',
+				MediaAttribute::get()->filter(array(
+					'MediaTypeID' => $this->ID,
+					'LinkID' => -1
+				)),
+				$configuration
+			)->setModelClass('MediaAttribute'));
 		}
 
 		// Allow extension customisation.

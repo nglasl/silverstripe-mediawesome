@@ -24,17 +24,13 @@ class MediaHolder extends Page {
 
 	private static $description = '<strong>Holds:</strong> Blogs, Events, News, Publications <strong>or Custom Media</strong>';
 
-	/**
-	 *	Allow selection and customisation of CMS media types/tags.
-	 */
-
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
 
 		// Display the media type as read only if media page children exist.
 
-		($this->AllChildren()->where("ClassName != 'MediaHolder'")->exists() && $this->MediaType()->exists()) ?
+		($this->getMediaPageChildren()->exists() && $this->MediaType()->exists()) ?
 			$fields->addFieldToTab('Root.Main', ReadonlyField::create(
 				'Media',
 				'Media Type',

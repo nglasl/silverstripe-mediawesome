@@ -10,7 +10,7 @@ class MediawesomeUnitTests extends SapphireTest {
 	protected $usesDatabase = true;
 
 	protected $requireDefaultRecordsFrom = array(
-		'MediaType'
+		'MediaPage'
 	);
 
 	public function testMediaAttributes() {
@@ -44,34 +44,19 @@ class MediawesomeUnitTests extends SapphireTest {
 
 		// Determine whether the media attributes line up.
 
-		foreach($first->MediaAttributes() as $attribute) {
-			if($attribute->LinkID === -1) {
+		$attribute = $first->MediaAttributes()->first();
+		$master = MediaAttribute::get()->byID($attribute->LinkID);
+		$this->assertEquals($attribute->Title, $master->Title);
 
-				// This is the master attribute.
+		// Update the master attribute.
 
-				$master = $attribute;
-			}
-			else {
+		$master->Title = 'Changed';
+		$master->write();
 
-				// Determine the master attribute for comparison.
+		// Determine whether this change is reflected by the first page.
 
-				$master = MediaAttribute::get()->byID($attribute->LinkID);
-				$this->assertEquals($attribute->Title, $master->Title);
-			}
-
-			// Update the master attribute.
-
-			$master->Title = 'Changed';
-			$master->write();
-
-			// Determine whether this change is reflected by the first page.
-
-			$this->assertEquals($attribute->Title, $master->Title);
-
-			// This only needs to be done once.
-
-			break;
-		}
+		$attribute = $first->MediaAttributes()->first();
+		$this->assertEquals($attribute->Title, $master->Title);
 
 		// Determine whether this change is reflected by the second page.
 

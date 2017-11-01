@@ -52,69 +52,56 @@ class MediaPage extends Page {
 	 *	The default media types and their respective attributes.
 	 */
 
-	private static $page_defaults = array(
-		'Blog' => array(
-			'Author'
-		),
-		'Event' => array(
-			'End Date',
-			'Time',
-			'End Time',
-			'Location'
-		),
-		'News' => array(
-			'Author'
-		),
-		'Publication' => array(
-			'Author'
-		)
-	);
+	private static $type_defaults = array();
 
-	/**
-	 *	The custom default media types and their respective attributes.
-	 */
+	public function requireDefaultRecords() {
 
-	private static $custom_defaults = array();
+		parent::requireDefaultRecords();
+		foreach($this->config()->type_defaults as $name => $attributes) {
 
-	/**
-	 *	Apply custom default media types with respective attributes, or additional attributes to existing default media types.
-	 *
-	 *	@parameter <{MEDIA_TYPES_AND_ATTRIBUTES}> array(array(string))
-	 */
+			// Confirm that this media type doesn't already exist before creating it.
 
-	public static function customise_defaults($objects) {
-
-		// Confirm that the parameter is valid.
-
-		if(is_array($objects)) {
-			foreach($objects as $temporary) {
-				if(!is_array($temporary)) {
-					return;
-				}
+			$type = MediaType::get()->filter(array(
+				'Title' => $name
+			))->first();
+			if(!$type) {
+				$type = MediaType::create();
+				$type->Title = $name;
+				$type->write();
+				DB::alteration_message("\"{$name}\" Media Type", 'created');
 			}
 
-			// Apply an array unique for the nested array.
+			// Confirm that these media attributes don't already exist before creating them.
 
-			$output = array();
-			foreach($objects as $type => $attribute) {
-				if(!isset(self::$custom_defaults[$type]) && !isset($output[$type]) && ($type !== 'MediaHolder')) {
-					$output[$type] = $attribute;
+			if(is_array($attributes)) {
+				foreach($attributes as $attribute) {
 
-					// Apply the custom default media types.
+					// This may cause a duplicate time attribute when migrating.
 
-					MediaType::add_default($type);
+					$titles = array(
+						$attribute
+					);
+					if(($name === 'Event') && ($attribute === 'Time')) {
+						$titles[] = 'Start Time';
+					}
+
+					// Create each attribute.
+
+					if(!MediaAttribute::get()->filter(array(
+						'MediaTypeID' => $type->ID,
+						'LinkID' => -1,
+						'OriginalTitle' => $titles
+					))->first()) {
+						$new = MediaAttribute::create();
+						$new->Title = $attribute;
+						$new->MediaTypeID = $type->ID;
+						$new->write();
+						DB::alteration_message("\"{$name}\" - \"{$attribute}\" Media Attribute", 'created');
+					}
 				}
 			}
-
-			// Apply the custom default media types with respective attributes.
-
-			self::$custom_defaults = array_merge(self::$custom_defaults, $output);
 		}
 	}
-
-	/**
-	 *	Display the appropriate CMS media page fields and respective media type attributes.
-	 */
 
 	public function getCMSFields() {
 
@@ -169,27 +156,25 @@ class MediaPage extends Page {
 
 		// Allow customisation of media type attribute content respective to the current page.
 
-		if($this->MediaAttributes()->exists()) {
-			foreach($this->MediaAttributes() as $attribute) {
-				if(strrpos($attribute->OriginalTitle, 'Date') || strrpos($attribute->Title, 'Date')) {
+		foreach($this->MediaAttributes() as $attribute) {
+			if(strrpos($attribute->OriginalTitle, 'Date') || strrpos($attribute->Title, 'Date')) {
 
-					// Display an attribute as a date field where appropriate.
+				// Display an attribute as a date field where appropriate.
 
-					$fields->insertAfter('Date', $custom = DateField::create(
-						"{$attribute->ID}_MediaAttribute",
-						$attribute->Title,
-						$attribute->Content ? date('d/m/Y', strtotime($attribute->Content)) : null
-					)->setConfig('showcalendar', true)->setConfig('dateformat', 'dd/MM/YYYY'));
-				}
-				else {
-					$fields->addFieldToTab('Root.Main', $custom = TextField::create(
-						"{$attribute->ID}_MediaAttribute",
-						$attribute->Title,
-						$attribute->Content
-					), 'Content');
-				}
-				$custom->setRightTitle('Custom <strong>' . strtolower($this->MediaType()->Title) . '</strong> attribute');
+				$fields->insertAfter('Date', $custom = DateField::create(
+					"{$attribute->ID}_MediaAttribute",
+					$attribute->Title,
+					$attribute->Content ? date('d/m/Y', strtotime($attribute->Content)) : null
+				)->setConfig('showcalendar', true)->setConfig('dateformat', 'dd/MM/YYYY'));
 			}
+			else {
+				$fields->addFieldToTab('Root.Main', $custom = TextField::create(
+					"{$attribute->ID}_MediaAttribute",
+					$attribute->Title,
+					$attribute->Content
+				), 'Content');
+			}
+			$custom->setRightTitle('Custom <strong>' . strtolower($this->MediaType()->Title) . '</strong> attribute');
 		}
 
 		// Display an abstract field for content summarisation.
@@ -252,17 +237,13 @@ class MediaPage extends Page {
 		return parent::validate();
 	}
 
-	/**
-	 *	Apply the parent holder media type and update any respective media type attributes.
-	 */
-
 	public function onBeforeWrite() {
 
 		parent::onBeforeWrite();
 
 		// Set the default media page date.
 
-		if(is_null($this->Date)) {
+		if(!$this->Date) {
 			$this->Date = date('Y-m-d');
 		}
 
@@ -278,31 +259,17 @@ class MediaPage extends Page {
 			}
 		}
 
-		// Apply the changes from each media type attribute.
-
-		foreach($this->record as $name => $value) {
-			if(strrpos($name, 'MediaAttribute')) {
-				$ID = substr($name, 0, strpos($name, '_'));
-				$attribute = MediaAttribute::get_by_id('MediaAttribute', $ID);
-				$attribute->Content = $value;
-				$attribute->write();
-			}
-		}
-
 		// Apply the parent holder media type.
 
 		$parent = $this->getParent();
 		if($parent) {
 			$type = $parent->MediaType();
 			if($type->exists()) {
-				$typeID = $type->ID;
-				$this->MediaTypeID = $typeID;
-				$type = $type->Title;
+				$this->MediaTypeID = $type->ID;
 			}
 			else {
-				$existing = MediaType::get_one('MediaType');
-				$typeID = $existing->ID;
-				$parent->MediaTypeID = $typeID;
+				$existing = MediaType::get()->first();
+				$parent->MediaTypeID = $existing->ID;
 				$parent->write();
 				if($parent->isPublished()) {
 
@@ -311,109 +278,48 @@ class MediaPage extends Page {
 					$parent->publish('Stage', 'Live');
 				}
 				$this->MediaTypeID = $existing->ID;
-				$type = $existing->Title;
 			}
+		}
+	}
 
-			// Merge the default and custom default media types and their respective attributes.
+	public function onAfterWrite() {
 
-			$temporary = array();
-			foreach(self::$custom_defaults as $default => $attributes) {
-				if(isset(self::$page_defaults[$default])) {
-					self::$page_defaults[$default] = array_unique(array_merge(self::$page_defaults[$default], $attributes));
-				}
-				else {
-					$temporary[$default] = $attributes;
-				}
+		parent::onAfterWrite();
+
+		// Apply the changes from each media type attribute.
+
+		foreach($this->record as $name => $value) {
+			if(strrpos($name, 'MediaAttribute')) {
+				$ID = substr($name, 0, strpos($name, '_'));
+				$attribute = MediaAttribute::get()->byID($ID);
+				$attribute->Content = $value;
+				$attribute->write();
 			}
-			$defaults = array_merge(self::$page_defaults, $temporary);
+		}
+		$typeID = $this->MediaTypeID;
+		$type = $this->MediaType()->Title;
 
-			// Retrieve existing attributes for the respective media type.
+		// Retrieve existing attributes for the respective media type.
 
-			$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
-				'MediaType.Title = ?' => $type,
-				'MediaAttribute.LinkID = ?' => -1
-			));
+		$attributes = MediaAttribute::get()->filter(array(
+			'MediaTypeID' => $typeID,
+			'LinkID' => -1
+		));
 
-			// Apply existing attributes to a new media page.
+		// Apply existing attributes to a new media page.
 
-			if(!$this->MediaAttributes()->exists()) {
-				if($attributes->exists()) {
-					foreach($attributes as $attribute) {
+		foreach($attributes as $attribute) {
+			if(!$this->MediaAttributes()->filter('OriginalTitle', $attribute->OriginalTitle)->exists()) {
 
-						// Create a new attribute for each one found.
+				// Create a new attribute for each one found.
 
-						$new = MediaAttribute::create();
-						$new->OriginalTitle = $attribute->OriginalTitle;
-						$new->Title = $attribute->Title;
-						$new->LinkID = $attribute->ID;
-						$new->MediaPageID = $this->ID;
-						$this->MediaAttributes()->add($new);
-						$new->write();
-					}
-				}
-
-				// Create a new attribute for each default and custom default media type found.
-
-				else if(isset($defaults[$type])) {
-					foreach($defaults[$type] as $attribute) {
-						$new = MediaAttribute::create();
-						$new->Title = $attribute;
-						$new->LinkID = -1;
-						$new->MediaTypeID = $typeID;
-						$new->MediaPageID = $this->ID;
-						$this->MediaAttributes()->add($new);
-						$new->write();
-					}
-				}
-			}
-			else {
-
-				// Determine whether there are new attributes for this media page.
-
-				if($attributes->exists() && isset($defaults[$type])) {
-					$defaults = $defaults[$type];
-					foreach($attributes as $attribute) {
-						$title = $attribute->OriginalTitle;
-						foreach($defaults as $index => $default) {
-							if($title === $default) {
-
-								// This attribute already exists.
-
-								unset($defaults[$index]);
-
-								// Determine whether this media page requires the attribute.
-
-								if(!$this->MediaAttributes()->filter('OriginalTitle', $title)->exists()) {
-
-									// Create a new attribute.
-
-									$new = MediaAttribute::create();
-									$new->OriginalTitle = $title;
-									$new->Title = $attribute->Title;
-									$new->LinkID = $attribute->ID;
-									$new->MediaPageID = $this->ID;
-									$this->MediaAttributes()->add($new);
-									$new->write();
-								}
-								break;
-							}
-						}
-					}
-					if(count($defaults)) {
-
-						// Create a new attribute for the remaining defaults.
-
-						foreach($defaults as $attribute) {
-							$new = MediaAttribute::create();
-							$new->Title = $attribute;
-							$new->LinkID = -1;
-							$new->MediaTypeID = $typeID;
-							$new->MediaPageID = $this->ID;
-							$this->MediaAttributes()->add($new);
-							$new->write();
-						}
-					}
-				}
+				$new = MediaAttribute::create();
+				$new->OriginalTitle = $attribute->OriginalTitle;
+				$new->Title = $attribute->Title;
+				$new->LinkID = $attribute->ID;
+				$new->MediaTypeID = $typeID;
+				$new->MediaPageID = $this->ID;
+				$new->write();
 			}
 		}
 	}

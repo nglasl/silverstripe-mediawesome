@@ -19,19 +19,15 @@ class MediaAttribute extends DataObject {
 		'MediaPage' => 'MediaPage'
 	);
 
-	/**
-	 *	Update previous media attributes.
-	 */
-
 	public function requireDefaultRecords() {
 
 		parent::requireDefaultRecords();
 
 		// Retrieve existing "start time" attributes.
 
-		$attributes = MediaAttribute::get()->innerJoin('MediaPage', 'MediaAttribute.MediaPageID = MediaPage.ID')->innerJoin('MediaType', 'MediaPage.MediaTypeID = MediaType.ID')->where(array(
-			'MediaType.Title = ?' => 'Event',
-			'OriginalTitle = ?' => 'Start Time'
+		$attributes = MediaAttribute::get()->filter(array(
+			'MediaType.Title' => 'Event',
+			'OriginalTitle' => 'Start Time'
 		));
 		foreach($attributes as $attribute) {
 
@@ -94,10 +90,6 @@ class MediaAttribute extends DataObject {
 		return Permission::check($configuration->MediaPermission, 'any', $member);
 	}
 
-	/**
-	 *	Display the appropriate CMS media attribute fields.
-	 */
-
 	public function getCMSFields() {
 
 		$fields = parent::getCMSFields();
@@ -146,19 +138,35 @@ class MediaAttribute extends DataObject {
 		return $result;
 	}
 
-	/**
-	 *	Assign the current attribute to each media page of the respective type.
-	 */
-
 	public function onBeforeWrite() {
 
 		parent::onBeforeWrite();
 
 		// Set the original title of the current attribute for use in templates.
 
-		if(is_null($this->OriginalTitle)) {
+		if(!$this->OriginalTitle) {
 			$this->OriginalTitle = $this->Title;
 		}
+
+		// Determine whether this is a new attribute.
+
+		if(!$this->MediaPageID && !$this->ID) {
+
+			// This will be the master attribute.
+
+			$this->LinkID = -1;
+			if(!$this->MediaTypeID) {
+
+				// This needs the media type context.
+
+				$this->MediaTypeID = $this->MediaType;
+			}
+		}
+	}
+
+	public function onAfterWrite() {
+
+		parent::onAfterWrite();
 
 		// Retrieve the respective media type for updating all attribute references.
 
@@ -167,35 +175,24 @@ class MediaAttribute extends DataObject {
 
 		// Apply this new attribute to existing media pages of the respective type.
 
-		if($pages->exists() && (is_null($this->MediaPageID) || ($this->MediaPageID === 0))) {
+		if($pages->exists() && !$this->MediaPageID && $this->isChanged('ID')) {
 			foreach($pages as $key => $page) {
-				if($key === 0) {
 
-					// Apply the current attribute to the first media page.
+				// Create a new attribute for remaining media pages.
 
-					$this->LinkID = -1;
-					$this->MediaTypeID = $typeID;
-					$this->MediaPageID = $page->ID;
-					$page->MediaAttributes()->add($this);
-				}
-				else {
-
-					// Create a new attribute for remaining media pages.
-
-					$new = MediaAttribute::create();
-					$new->OriginalTitle = $this->OriginalTitle;
-					$new->Title = $this->Title;
-					$new->LinkID = $this->ID;
-					$new->MediaPageID = $page->ID;
-					$page->MediaAttributes()->add($new);
-					$new->write();
-				}
+				$new = MediaAttribute::create();
+				$new->OriginalTitle = $this->OriginalTitle;
+				$new->Title = $this->Title;
+				$new->LinkID = $this->ID;
+				$new->MediaTypeID = $typeID;
+				$new->MediaPageID = $page->ID;
+				$new->write();
 			}
 		}
 
 		// Apply the changes from this attribute to existing media pages of the respective type.
 
-		else if($pages->exists()) {
+		else if($pages->exists() && !$this->MediaPageID) {
 			foreach($pages as $page) {
 				foreach($page->MediaAttributes() as $attribute) {
 

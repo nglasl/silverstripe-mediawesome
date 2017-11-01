@@ -4,17 +4,11 @@
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-p.mediawesome.notice,
 p.mediawesome.notification {
 	padding: 10px;
 	-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
-}
-
-p.mediawesome.notice {
-	background: #F0F8FC;
-	border: 1px solid #93CDE8;
 }
 
 p.mediawesome.notification {
