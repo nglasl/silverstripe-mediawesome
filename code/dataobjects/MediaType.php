@@ -85,7 +85,7 @@ class MediaType extends DataObject {
 				$configuration = GridFieldConfig_RecordViewer::create();
 			}
 			else {
-				$configuration = GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction');
+				$configuration = GridFieldConfig_RecordEditor::create();
 
 				// The media attribute may have no media type context, which `MediaAttributeAddNewButton` will then provide.
 

@@ -57,7 +57,7 @@ These may also be added through the CMS, depending on the current user permissio
 
 ### Dynamic Media Attributes
 
-These may be customised through the CMS, depending on the current user permissions.
+These may be customised through the CMS, depending on the current user permissions. These attributes will appear on media pages of the respective type, however it's important to note that they're limited to text and/or date fields.
 
 ![attributes](https://raw.githubusercontent.com/nglasl/silverstripe-mediawesome/master/images/mediawesome-attributes.png)
 

@@ -67,12 +67,16 @@ class MediaAttribute extends DataObject {
 	}
 
 	/**
-	 *	Restrict access for CMS users deleting attributes.
+	 *	Determine whether this is user created, and whether it's not being used on a media page.
 	 */
 
 	public function canDelete($member = null) {
 
-		return false;
+		$config = MediaPage::config();
+		$type = $this->MediaType()->Title;
+		return
+			(!isset($config->type_defaults[$type]) || !in_array($this->OriginalTitle, $config->type_defaults[$type]))
+			&& (MediaAttribute::get()->filter('LinkID', $this->ID)->where('Content IS NOT NULL')->count() === 0);
 	}
 
 	/**
@@ -152,7 +156,7 @@ class MediaAttribute extends DataObject {
 
 		if(!$this->MediaPageID && !$this->ID) {
 
-			// This will be the master attribute, which is used to keep the remaining attributes in line.
+			// This will be the master attribute, which is used to keep the page attributes in line.
 
 			$this->LinkID = -1;
 			if(!$this->MediaTypeID) {
@@ -207,6 +211,17 @@ class MediaAttribute extends DataObject {
 					}
 				}
 			}
+		}
+	}
+
+	public function onAfterDelete() {
+
+		parent::onAfterDelete();
+		if($this->LinkID === -1) {
+
+			// Delete the page attributes associated with this master attribute.
+
+			MediaAttribute::get()->filter('LinkID', $this->ID)->removeAll();
 		}
 	}
 
