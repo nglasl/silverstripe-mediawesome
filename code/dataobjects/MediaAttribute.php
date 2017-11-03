@@ -152,7 +152,7 @@ class MediaAttribute extends DataObject {
 
 		if(!$this->MediaPageID && !$this->ID) {
 
-			// This will be the master attribute.
+			// This will be the master attribute, which is used to keep the remaining attributes in line.
 
 			$this->LinkID = -1;
 			if(!$this->MediaTypeID) {
@@ -173,7 +173,7 @@ class MediaAttribute extends DataObject {
 		$typeID = $this->MediaTypeID ?: $this->MediaType;
 		$pages = MediaPage::get()->filter('MediaTypeID', $typeID);
 
-		// Apply this new attribute to existing media pages of the respective type.
+		// Apply this new master attribute to existing media pages of the respective type.
 
 		if($pages->exists() && !$this->MediaPageID && $this->isChanged('ID')) {
 			foreach($pages as $key => $page) {
@@ -190,7 +190,7 @@ class MediaAttribute extends DataObject {
 			}
 		}
 
-		// Apply the changes from this attribute to existing media pages of the respective type.
+		// Apply the changes from this master attribute to existing media pages of the respective type.
 
 		else if($pages->exists() && !$this->MediaPageID) {
 			foreach($pages as $page) {

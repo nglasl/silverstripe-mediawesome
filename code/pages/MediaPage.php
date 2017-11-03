@@ -57,9 +57,12 @@ class MediaPage extends Page {
 	public function requireDefaultRecords() {
 
 		parent::requireDefaultRecords();
+
+		// Instantiate the default media types and their respective attributes.
+
 		foreach($this->config()->type_defaults as $name => $attributes) {
 
-			// Confirm that this media type doesn't already exist before creating it.
+			// Confirm that the media type doesn't already exist before creating it.
 
 			$type = MediaType::get()->filter(array(
 				'Title' => $name
@@ -70,13 +73,10 @@ class MediaPage extends Page {
 				$type->write();
 				DB::alteration_message("\"{$name}\" Media Type", 'created');
 			}
-
-			// Confirm that these media attributes don't already exist before creating them.
-
 			if(is_array($attributes)) {
 				foreach($attributes as $attribute) {
 
-					// This may cause a duplicate time attribute when migrating.
+					// Without this, it may cause a duplicate "time" attribute to appear when migrating.
 
 					$titles = array(
 						$attribute
@@ -85,7 +85,7 @@ class MediaPage extends Page {
 						$titles[] = 'Start Time';
 					}
 
-					// Create each attribute.
+					// Confirm that the media attributes don't already exist before creating them.
 
 					if(!MediaAttribute::get()->filter(array(
 						'MediaTypeID' => $type->ID,
@@ -154,7 +154,7 @@ class MediaPage extends Page {
 			$tagsList->setAttribute('disabled', 'true');
 		}
 
-		// Allow customisation of media type attribute content respective to the current page.
+		// Allow customisation of media type attributes respective to the current page.
 
 		foreach($this->MediaAttributes() as $attribute) {
 			if(strrpos($attribute->OriginalTitle, 'Date') || strrpos($attribute->Title, 'Date')) {
@@ -296,22 +296,21 @@ class MediaPage extends Page {
 				$attribute->write();
 			}
 		}
-		$typeID = $this->MediaTypeID;
-		$type = $this->MediaType()->Title;
 
 		// Retrieve existing attributes for the respective media type.
 
+		$typeID = $this->MediaTypeID;
 		$attributes = MediaAttribute::get()->filter(array(
 			'MediaTypeID' => $typeID,
 			'LinkID' => -1
 		));
 
-		// Apply existing attributes to a new media page.
+		// Apply existing attributes to the page.
 
 		foreach($attributes as $attribute) {
 			if(!$this->MediaAttributes()->filter('OriginalTitle', $attribute->OriginalTitle)->exists()) {
 
-				// Create a new attribute for each one found.
+				// This is a new attribute.
 
 				$new = MediaAttribute::create();
 				$new->OriginalTitle = $attribute->OriginalTitle;

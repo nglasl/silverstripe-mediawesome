@@ -42,7 +42,7 @@ class MediawesomeUnitTests extends SapphireTest {
 		$second->writeToStage('Stage');
 		$second->publish('Stage', 'Live');
 
-		// Determine whether the media attributes line up.
+		// Determine whether the media attributes line up against the master attributes.
 
 		$attribute = $first->MediaAttributes()->first();
 		$master = MediaAttribute::get()->byID($attribute->LinkID);
