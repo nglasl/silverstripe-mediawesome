@@ -17,10 +17,11 @@ class MediawesomeUnitTests extends SapphireTest {
 
 		// Instantiate some media pages with a random type.
 
+		$type = MediaType::get()->first();
 		$holder = MediaHolder::create(
 			array(
 				'Title' => 'Holder',
-				'MediaTypeID' => MediaType::get()->first()->ID
+				'MediaTypeID' => $type->ID
 			)
 		);
 		$holder->writeToStage('Stage');
@@ -42,39 +43,29 @@ class MediawesomeUnitTests extends SapphireTest {
 		$second->writeToStage('Stage');
 		$second->publish('Stage', 'Live');
 
-		// Determine whether the media attributes line up against the master attributes.
+		// Determine whether a media page has the respective media attributes.
 
 		$attribute = $first->MediaAttributes()->first();
-		$master = MediaAttribute::get()->byID($attribute->LinkID);
-		$this->assertEquals($attribute->Title, $master->Title);
+		$expected = $type->MediaAttributes()->first();
+		$this->assertEquals($attribute->ID, $expected->ID);
+		$this->assertEquals($attribute->Content, null);
 
-		// Update the master attribute.
+		// Update the media attribute content.
 
-		$master->Title = 'Changed';
-		$master->write();
+		$first->MediaAttributes()->add($attribute, array(
+			'Content' => 'Changed'
+		));
 
 		// Determine whether this change is reflected by the first page.
 
 		$attribute = $first->MediaAttributes()->first();
-		$this->assertEquals($attribute->Title, $master->Title);
+		$this->assertEquals($attribute->Content, 'Changed');
 
-		// Determine whether this change is reflected by the second page.
+		// Confirm this change is not reflected by the second page.
 
-		$attribute = $second->MediaAttributes()->filter('LinkID', $master->ID)->first();
-		$this->assertEquals($attribute->Title, $master->Title);
-
-		// Determine whether this change is reflected by a new media page.
-
-		$third = MediaPage::create(
-			array(
-				'Title' => 'Third',
-				'ParentID' => $holder->ID
-			)
-		);
-		$third->writeToStage('Stage');
-		$third->publish('Stage', 'Live');
-		$attribute = $third->MediaAttributes()->filter('LinkID', $master->ID)->first();
-		$this->assertEquals($attribute->Title, $master->Title);
+		$attribute = $second->MediaAttributes()->first();
+		$this->assertEquals($attribute->ID, $expected->ID);
+		$this->assertEquals($attribute->Content, null);
 	}
 
 }

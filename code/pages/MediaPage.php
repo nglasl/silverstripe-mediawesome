@@ -17,15 +17,22 @@ class MediaPage extends Page {
 		'MediaType' => 'MediaType'
 	);
 
-	private static $has_many = array(
-		'MediaAttributes' => 'MediaAttribute'
-	);
-
 	private static $many_many = array(
+		'MediaAttributes' => 'MediaAttribute',
 		'Images' => 'Image',
 		'Attachments' => 'File',
 		'Categories' => 'MediaTag',
 		'Tags' => 'MediaTag'
+	);
+
+	/**
+	 *	Each page will have different content for a media attribute.
+	 */
+
+	private static $many_many_extraFields = array(
+		'MediaAttributes' => array(
+			'Content' => 'HTMLText'
+		)
 	);
 
 	private static $defaults = array(
@@ -89,14 +96,13 @@ class MediaPage extends Page {
 
 					if(!MediaAttribute::get()->filter(array(
 						'MediaTypeID' => $type->ID,
-						'LinkID' => -1,
 						'OriginalTitle' => $titles
 					))->first()) {
 						$new = MediaAttribute::create();
 						$new->Title = $attribute;
 						$new->MediaTypeID = $type->ID;
 						$new->write();
-						DB::alteration_message("\"{$name}\" - \"{$attribute}\" Media Attribute", 'created');
+						DB::alteration_message("\"{$name}\" > \"{$attribute}\" Media Attribute", 'created');
 					}
 				}
 			}
@@ -154,24 +160,26 @@ class MediaPage extends Page {
 			$tagsList->setAttribute('disabled', 'true');
 		}
 
-		// Allow customisation of media type attributes respective to the current page.
+		// Allow customisation of the media type attributes.
 
-		foreach($this->MediaAttributes() as $attribute) {
-			if(strrpos($attribute->OriginalTitle, 'Date') || strrpos($attribute->Title, 'Date')) {
+		foreach($this->MediaType()->MediaAttributes() as $attribute) {
+			$existing = $this->MediaAttributes()->byID($attribute->ID);
+			$content = $existing ? $existing->Content : null;
+			if(strrpos($attribute->Title, 'Date') || strrpos($attribute->OriginalTitle, 'Date')) {
 
 				// Display an attribute as a date field where appropriate.
 
 				$fields->insertAfter('Date', $custom = DateField::create(
 					"{$attribute->ID}_MediaAttribute",
 					$attribute->Title,
-					$attribute->Content ? date('d/m/Y', strtotime($attribute->Content)) : null
+					$content ? date('d/m/Y', strtotime($content)) : null
 				)->setConfig('showcalendar', true)->setConfig('dateformat', 'dd/MM/YYYY'));
 			}
 			else {
 				$fields->addFieldToTab('Root.Main', $custom = TextField::create(
 					"{$attribute->ID}_MediaAttribute",
 					$attribute->Title,
-					$attribute->Content
+					$content
 				), 'Content');
 			}
 			$custom->setRightTitle('Custom <strong>' . strtolower($this->MediaType()->Title) . '</strong> attribute');
@@ -286,39 +294,21 @@ class MediaPage extends Page {
 
 		parent::onAfterWrite();
 
-		// Apply the changes from each media type attribute.
+		// Link any missing media type attributes.
+
+		foreach($this->MediaType()->MediaAttributes() as $attribute) {
+			$this->MediaAttributes()->add($attribute);
+		}
+
+		// Apply changes from the media type attributes.
 
 		foreach($this->record as $name => $value) {
 			if(strrpos($name, 'MediaAttribute')) {
 				$ID = substr($name, 0, strpos($name, '_'));
 				$attribute = MediaAttribute::get()->byID($ID);
-				$attribute->Content = $value;
-				$attribute->write();
-			}
-		}
-
-		// Retrieve existing attributes for the respective media type.
-
-		$typeID = $this->MediaTypeID;
-		$attributes = MediaAttribute::get()->filter(array(
-			'MediaTypeID' => $typeID,
-			'LinkID' => -1
-		));
-
-		// Apply existing attributes to the page.
-
-		foreach($attributes as $attribute) {
-			if(!$this->MediaAttributes()->filter('OriginalTitle', $attribute->OriginalTitle)->exists()) {
-
-				// This is a new attribute.
-
-				$new = MediaAttribute::create();
-				$new->OriginalTitle = $attribute->OriginalTitle;
-				$new->Title = $attribute->Title;
-				$new->LinkID = $attribute->ID;
-				$new->MediaTypeID = $typeID;
-				$new->MediaPageID = $this->ID;
-				$new->write();
+				$this->MediaAttributes()->add($attribute, array(
+					'Content' => $value
+				));
 			}
 		}
 	}
@@ -368,14 +358,7 @@ class MediaPage extends Page {
 
 	public function getAttribute($title) {
 
-		foreach($this->MediaAttributes() as $attribute) {
-
-			// Retrieve the original title for comparison.
-
-			if($attribute->OriginalTitle === $title) {
-				return $attribute;
-			}
-		}
+		return $this->MediaAttributes()->filter('OriginalTitle', $title)->first();
 	}
 
 	/**

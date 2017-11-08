@@ -45,6 +45,10 @@ class MediawesomeFunctionalTests extends FunctionalTest {
 		$holder->writeToStage('Stage');
 		$holder->publish('Stage', 'Live');
 
+		// This should match "holder/year/month/day/media".
+
+		$this->assertEquals(count(explode('/', trim($first->Link(), '/'))), 5);
+
 		// Determine whether the page remains accessible.
 
 		$response = $this->get($first->Link());

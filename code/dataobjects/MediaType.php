@@ -11,6 +11,10 @@ class MediaType extends DataObject {
 		'Title' => 'Varchar(255)'
 	);
 
+	private static $has_many = array(
+		'MediaAttributes' => 'MediaAttribute'
+	);
+
 	private static $default_sort = 'Title';
 
 	/**
@@ -81,24 +85,12 @@ class MediaType extends DataObject {
 
 			// Allow customisation of media type attributes, depending on the current CMS user permissions.
 
-			if($this->checkPermissions() === false) {
-				$configuration = GridFieldConfig_RecordViewer::create();
-			}
-			else {
-				$configuration = GridFieldConfig_RecordEditor::create();
-
-				// The media attribute may have no media type context, which `MediaAttributeAddNewButton` will then provide.
-
-				$configuration->removeComponentsByType('GridFieldAddNewButton');
-				$configuration->addComponent(new MediaAttributeAddNewButton($this->ID));
-			}
+			$fields->removeByName('MediaAttributes');
+			$configuration = ($this->checkPermissions() === false) ? GridFieldConfig_RecordViewer::create() : GridFieldConfig_RecordEditor::create();
 			$fields->addFieldToTab('Root.Main', GridField::create(
 				'MediaAttributes',
 				'Custom Attributes',
-				MediaAttribute::get()->filter(array(
-					'MediaTypeID' => $this->ID,
-					'LinkID' => -1
-				)),
+				$this->MediaAttributes(),
 				$configuration
 			)->setModelClass('MediaAttribute'));
 		}
