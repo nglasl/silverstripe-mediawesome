@@ -20,26 +20,6 @@ class MediaAttribute extends DataObject {
 		'MediaPages' => 'MediaPage'
 	);
 
-	public function requireDefaultRecords() {
-
-		parent::requireDefaultRecords();
-
-		// Retrieve existing "start time" attributes.
-
-		$attributes = MediaAttribute::get()->filter(array(
-			'MediaType.Title' => 'Event',
-			'OriginalTitle' => 'Start Time'
-		));
-		foreach($attributes as $attribute) {
-
-			// These should now be "time" attributes.
-
-			$attribute->Title = 'Time';
-			$attribute->OriginalTitle = 'Time';
-			$attribute->write();
-		}
-	}
-
 	/**
 	 *	Allow access for CMS users viewing attributes.
 	 */

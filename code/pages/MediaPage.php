@@ -65,6 +65,80 @@ class MediaPage extends Page {
 
 		parent::requireDefaultRecords();
 
+		// Determine whether this requires an SS3 to SS4 migration.
+
+		if(MediaAttribute::get()->filter('MediaTypeID', 0)->exists()) {
+
+			// Retrieve the existing media attributes.
+
+			$attributes = new SQLSelect(
+				'*',
+				'MediaAttribute',
+				'LinkID <> 0 AND MediaPageID <> 0',
+				'LinkID ASC'
+			);
+			$attributes = $attributes->execute();
+			if(count($attributes)) {
+
+				// With the results from above, delete these to prevent data integrity issues.
+
+				$delete = new SQLDelete(
+					'MediaAttribute',
+					'LinkID <> 0 AND MediaPageID <> 0'
+				);
+				$delete->execute();
+
+				// Migrate the existing media attributes.
+
+				foreach($attributes as $existing) {
+					$page = MediaPage::get()->byID($existing['MediaPageID']);
+					if(!$page) {
+
+						// This page may no longer exist.
+
+						continue;
+					}
+					if($existing['LinkID'] == -1) {
+
+						// Instantiate a new attribute for each "master" attribute.
+
+						$attribute = MediaAttribute::create();
+						$attribute->ID = $existing['ID'];
+						$attribute->Created = $existing['Created'];
+						$attribute->Title = $existing['Title'];
+						$attribute->OriginalTitle = $existing['OriginalTitle'];
+						$attribute->MediaTypeID = $page->MediaTypeID;
+						$attribute->write();
+					}
+					else {
+						$attribute = MediaAttribute::get()->byID($existing['LinkID']);
+					}
+
+					// Each page will have different content for a media attribute.
+
+					$content = isset($existing['Content']) ? $existing['Content'] : null;
+					$page->MediaAttributes()->add($attribute, array(
+						'Content' => $content
+					));
+				}
+			}
+		}
+
+		// Retrieve existing "start time" attributes.
+
+		$attributes = MediaAttribute::get()->filter(array(
+			'MediaType.Title' => 'Event',
+			'OriginalTitle' => 'Start Time'
+		));
+		foreach($attributes as $attribute) {
+
+			// These should now be "time" attributes.
+
+			$attribute->Title = 'Time';
+			$attribute->OriginalTitle = 'Time';
+			$attribute->write();
+		}
+
 		// Instantiate the default media types and their respective attributes.
 
 		foreach($this->config()->type_defaults as $name => $attributes) {
@@ -83,20 +157,11 @@ class MediaPage extends Page {
 			if(is_array($attributes)) {
 				foreach($attributes as $attribute) {
 
-					// Without this, it may cause a duplicate "time" attribute to appear when migrating.
-
-					$titles = array(
-						$attribute
-					);
-					if(($name === 'Event') && ($attribute === 'Time')) {
-						$titles[] = 'Start Time';
-					}
-
 					// Confirm that the media attributes don't already exist before creating them.
 
 					if(!MediaAttribute::get()->filter(array(
 						'MediaTypeID' => $type->ID,
-						'OriginalTitle' => $titles
+						'OriginalTitle' => $attribute
 					))->first()) {
 						$new = MediaAttribute::create();
 						$new->Title = $attribute;
