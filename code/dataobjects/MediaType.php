@@ -45,12 +45,15 @@ class MediaType extends DataObject {
 	}
 
 	/**
-	 *	Restrict access for CMS users deleting media types.
+	 *	Determine whether this is user created, and whether it's not used on a media holder.
 	 */
 
 	public function canDelete($member = null) {
 
-		return false;
+		$config = MediaPage::config();
+		return
+			!isset($config->type_defaults[$this->Title])
+			&& !MediaHolder::get()->filter('MediaTypeID', $this->ID)->exists();
 	}
 
 	/**

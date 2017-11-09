@@ -64,7 +64,7 @@ class MediaHolder extends Page {
 			'TypesAttributes',
 			'Types and Attributes',
 			MediaType::get(),
-			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
+			GridFieldConfig_RecordEditor::create()
 		)->setModelClass('MediaType'));
 
 		// Allow customisation of media categories and tags.
