@@ -1,5 +1,13 @@
 <?php
 
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
+use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Permission;
+use SilverStripe\SiteConfig\SiteConfig;
+
 /**
  *	Mediawesome CMS type/category of media.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -39,7 +47,7 @@ class MediaType extends DataObject {
 	 *	Determine access for the current CMS user creating media types.
 	 */
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null, $context = array()) {
 
 		return $this->checkPermissions($member);
 	}
@@ -81,10 +89,6 @@ class MediaType extends DataObject {
 			$fields->replaceField('Title', ReadonlyField::create(
 				'Title'
 			));
-			$fields->addFieldToTab('Root.Main', LiteralField::create(
-				'MediaAttributesTitle',
-				"<div class='field'><label class='left'>Custom Attributes</label></div>"
-			));
 
 			// Allow customisation of media type attributes, depending on the current CMS user permissions.
 
@@ -114,14 +118,14 @@ class MediaType extends DataObject {
 
 		// Confirm that the current type has been given a title and doesn't already exist.
 
-		if($result->valid() && !$this->Title) {
-			$result->error('"Title" required!');
+		if($result->isValid() && !$this->Title) {
+			$result->addError('"Title" required!');
 		}
-		else if($result->valid() && MediaType::get_one('MediaType', array(
+		else if($result->isValid() && MediaType::get_one('MediaType', array(
 			'ID != ?' => $this->ID,
 			'Title = ?' => $this->Title
 		))) {
-			$result->error('Type already exists!');
+			$result->addError('Type already exists!');
 		}
 
 		// Allow extension customisation.

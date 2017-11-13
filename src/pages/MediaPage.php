@@ -1,5 +1,21 @@
 <?php
 
+use SilverStripe\Assets\File;
+use SilverStripe\Assets\Image;
+use SilverStripe\Control\HTTPResponse_Exception;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Forms\DateField;
+use SilverStripe\Forms\FileHandleField;
+use SilverStripe\Forms\ListboxField;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\Forms\TextareaField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\ORM\DB;
+use SilverStripe\ORM\Queries\SQLDelete;
+use SilverStripe\ORM\Queries\SQLSelect;
+use SilverStripe\View\Requirements;
+
 /**
  *	Displays customised media content relating to the respective media type.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -19,8 +35,8 @@ class MediaPage extends Page {
 
 	private static $many_many = array(
 		'MediaAttributes' => 'MediaAttribute',
-		'Images' => 'Image',
-		'Attachments' => 'File',
+		'Images' => Image::class,
+		'Attachments' => File::class,
 		'Categories' => 'MediaTag',
 		'Tags' => 'MediaTag'
 	);
@@ -33,6 +49,11 @@ class MediaPage extends Page {
 		'MediaAttributes' => array(
 			'Content' => 'HTMLText'
 		)
+	);
+
+	private static $owns = array(
+		'Images',
+		'Attachments'
 	);
 
 	private static $defaults = array(
@@ -54,6 +75,8 @@ class MediaPage extends Page {
 	private static $default_parent = 'MediaHolder';
 
 	private static $description = 'Blog, Event, News, Publication <strong>or Custom Media</strong>';
+
+	private static $icon = 'nglasl/silverstripe-mediawesome: client/images/page.png';
 
 	/**
 	 *	The default media types and their respective attributes.
@@ -190,7 +213,7 @@ class MediaPage extends Page {
 
 		$parent = $this->getParent();
 		if($parent && $parent->getMediaHolderChildren()->exists()) {
-			Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
+			Requirements::css('nglasl/silverstripe-mediawesome: client/css/mediawesome.css');
 			$fields->addFieldToTab('Root.Main', LiteralField::create(
 				'MediaNotification',
 				"<p class='mediawesome notification'><strong>Mixed {$this->MediaType()->Title} Holder</strong></p>"
@@ -201,10 +224,10 @@ class MediaPage extends Page {
 
 		$fields->addFieldToTab('Root.Main', TextField::create(
 			'ExternalLink'
-		)->setRightTitle('An <strong>optional</strong> redirect URL to the media source'), 'URLSegment');
+		)->setDescription('An <strong>optional</strong> redirect URL to the media source'), 'URLSegment');
 		$fields->addFieldToTab('Root.Main', DateField::create(
 			'Date'
-		)->setConfig('showcalendar', true)->setConfig('dateformat', 'dd/MM/YYYY'), 'Content');
+		), 'Content');
 
 		// Allow customisation of categories and tags respective to the current page.
 
@@ -214,12 +237,12 @@ class MediaPage extends Page {
 			'Categories',
 			'Categories',
 			$tags
-		)->setMultiple(true));
+		));
 		$fields->addFieldToTab('Root.CategoriesTags', $tagsList = ListboxField::create(
 			'Tags',
 			'Tags',
 			$tags
-		)->setMultiple(true));
+		));
 		if(!$tags) {
 			$categoriesList->setAttribute('disabled', 'true');
 			$tagsList->setAttribute('disabled', 'true');
@@ -238,7 +261,7 @@ class MediaPage extends Page {
 					"{$attribute->ID}_MediaAttribute",
 					$attribute->Title,
 					$content ? date('d/m/Y', strtotime($content)) : null
-				)->setConfig('showcalendar', true)->setConfig('dateformat', 'dd/MM/YYYY'));
+				));
 			}
 			else {
 				$fields->addFieldToTab('Root.Main', $custom = TextField::create(
@@ -247,7 +270,7 @@ class MediaPage extends Page {
 					$content
 				), 'Content');
 			}
-			$custom->setRightTitle('Custom <strong>' . strtolower($this->MediaType()->Title) . '</strong> attribute');
+			$custom->setDescription('Custom <strong>' . strtolower($this->MediaType()->Title) . '</strong> attribute');
 		}
 
 		// Display an abstract field for content summarisation.
@@ -255,25 +278,21 @@ class MediaPage extends Page {
 		$fields->addfieldToTab('Root.Main', $abstract = TextareaField::create(
 			'Abstract'
 		), 'Content');
-		$abstract->setRightTitle('A concise summary of the content');
+		$abstract->setDescription('A concise summary of the content');
 		$abstract->setRows(6);
 
 		// Allow customisation of images and attachments.
 
 		$type = strtolower($this->MediaType()->Title);
 		$fields->findOrMakeTab('Root.ImagesAttachments', 'Images and Attachments');
-		$fields->addFieldToTab('Root.ImagesAttachments', $images = UploadField::create(
+		$fields->addFieldToTab('Root.ImagesAttachments', $images = Injector::inst()->create(
+			FileHandleField::class,
 			'Images'
 		));
-		$images->getValidator()->setAllowedExtensions(array(
-			'jpg',
-			'jpeg',
-			'png',
-			'gif',
-			'bmp'
-		));
+		$images->setAllowedFileCategories('image/supported');
 		$images->setFolderName("media-{$type}/{$this->ID}/images");
-		$fields->addFieldToTab('Root.ImagesAttachments', $attachments = UploadField::create(
+		$fields->addFieldToTab('Root.ImagesAttachments', $attachments = Injector::inst()->create(
+			FileHandleField::class,
 			'Attachments'
 		));
 		$attachments->setFolderName("media-{$type}/{$this->ID}/attachments");
@@ -299,7 +318,7 @@ class MediaPage extends Page {
 			// Customise a validation error message.
 
 			$message = is_numeric($this->URLSegment) ? '"URL Segment" must not be numeric!' : 'Invalid media holder!';
-			$error = new SS_HTTPResponse_Exception($message, 403);
+			$error = new HTTPResponse_Exception($message, 403);
 			$error->getResponse()->addHeader('X-Status', rawurlencode($message));
 
 			// Allow extension customisation.
@@ -388,7 +407,7 @@ class MediaPage extends Page {
 		if(!$parent) {
 			return null;
 		}
-		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting) : '';
+		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting ?: 'y/MM/dd/') : '';
 		$link = $parent->Link() . "{$date}{$this->URLSegment}/";
 		if($action) {
 			$link .= "{$action}/";
@@ -406,7 +425,7 @@ class MediaPage extends Page {
 		if(!$parent) {
 			return null;
 		}
-		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting) : '';
+		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting ?: 'y/MM/dd/') : '';
 		$link = $parent->AbsoluteLink() . "{$date}{$this->URLSegment}/";
 		if($action) {
 			$link .= "{$action}/";
@@ -438,29 +457,6 @@ class MediaPage extends Page {
 		// This provides consistency when it comes to defining parameters from the template.
 
 		return $this->getAttribute($title);
-	}
-
-}
-
-class MediaPage_Controller extends Page_Controller {
-
-	/**
-	 *	Determine the template for this media page.
-	 */
-
-	public function index() {
-
-		// Use a custom media type page template if one exists.
-
-		$type = $this->data()->MediaType();
-		$templates = array();
-		if($type->exists()) {
-			$templates[] = "{$this->data()->ClassName}_" . str_replace(' ', '', $type->Title);
-		}
-		$templates[] = $this->data()->ClassName;
-		$templates[] = 'Page';
-		$this->extend('updateTemplates', $templates);
-		return $this->renderWith($templates);
 	}
 
 }

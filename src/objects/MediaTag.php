@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\ORM\DataObject;
+
 /**
  *	Mediawesome CMS tag for a media page.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -35,7 +37,7 @@ class MediaTag extends DataObject {
 	 *	Allow access for CMS users creating tags.
 	 */
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null, $context = array()) {
 
 		return true;
 	}
@@ -60,14 +62,14 @@ class MediaTag extends DataObject {
 		// Confirm that the current tag has been given a title and doesn't already exist.
 
 		$this->Title = strtolower($this->Title);
-		if($result->valid() && !$this->Title) {
-			$result->error('"Title" required!');
+		if($result->isValid() && !$this->Title) {
+			$result->addError('"Title" required!');
 		}
-		else if($result->valid() && MediaTag::get_one('MediaTag', array(
+		else if($result->isValid() && MediaTag::get_one('MediaTag', array(
 			'ID != ?' => $this->ID,
 			'Title = ?' => $this->Title
 		))) {
-			$result->error('Tag already exists!');
+			$result->addError('Tag already exists!');
 		}
 
 		// Allow extension customisation.

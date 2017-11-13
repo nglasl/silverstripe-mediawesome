@@ -15,7 +15,7 @@
 				<% loop $PaginatedChildren %>
 					<div class='media-page'>
 						<h2><a href='<% if $ExternalLink %>{$ExternalLink}<% else_if not $Content && $Attachments.count == 1 %>$Attachments.first.Link<% else %>{$Link}<% end_if %>'<% if $ExternalLink %> target='_blank'<% end_if %>><strong>{$Title}</strong></a></h2>
-						<p class='media-date'><em>{$Date.Format('M j, Y')}</em></p>
+						<p class='media-date'><em>{$Date.Format('MMM d, y')}</em></p>
 						<% if $Abstract %>
 							<div class='media-abstract'>{$Abstract}</div>
 						<% end_if %>

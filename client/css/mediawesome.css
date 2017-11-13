@@ -1,0 +1,14 @@
+
+/**
+ *	The mediawesome specific styling.
+ *	@author Nathan Glasl <nathan@symbiote.com.au>
+ */
+
+p.mediawesome.notification {
+	background: #FFA84C;
+	padding: 10px;
+	border: 1px solid #FF7400;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}

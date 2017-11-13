@@ -1,6 +1,6 @@
 ---
 name: mediawesome-extensions
 ---
-SiteConfig:
+SilverStripe\SiteConfig\SiteConfig:
   extensions:
     - 'SiteConfigMediaPermissionExtension'

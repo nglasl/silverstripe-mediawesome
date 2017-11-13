@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\Dev\SapphireTest;
+
 /**
  *	The mediawesome specific unit testing.
  *	@author Nathan Glasl <nathan@symbiote.com.au>

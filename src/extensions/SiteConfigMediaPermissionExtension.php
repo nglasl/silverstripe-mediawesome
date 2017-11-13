@@ -1,5 +1,11 @@
 <?php
 
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\ORM\DataExtension;
+use SilverStripe\Security\Permission;
+
 /**
  *	Mediawesome extension which allows permission configuration for customisation of media.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -21,7 +27,6 @@ class SiteConfigMediaPermissionExtension extends DataExtension {
 
 	public function updateCMSFields(FieldList $fields) {
 
-		Requirements::css(MEDIAWESOME_PATH . '/css/mediawesome.css');
 		$permissions = array(
 			'ADMIN' => 'Administrators and developers',
 			'SITETREE_EDIT_ALL' => 'Content authors'

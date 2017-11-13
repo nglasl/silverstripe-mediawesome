@@ -1,5 +1,9 @@
 <?php
 
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Permission;
+use SilverStripe\SiteConfig\SiteConfig;
+
 /**
  *	Mediawesome CMS attribute for a media type.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
@@ -42,7 +46,7 @@ class MediaAttribute extends DataObject {
 	 *	Determine access for the current CMS user creating attributes.
 	 */
 
-	public function canCreate($member = null) {
+	public function canCreate($member = null, $context = array()) {
 
 		return $this->checkPermissions($member);
 	}
@@ -98,8 +102,8 @@ class MediaAttribute extends DataObject {
 
 		// Confirm that the current attribute has been given a title.
 
-		if($result->valid() && !$this->Title) {
-			$result->error('"Title" required!');
+		if($result->isValid() && !$this->Title) {
+			$result->addError('"Title" required!');
 		}
 
 		// Allow extension customisation.

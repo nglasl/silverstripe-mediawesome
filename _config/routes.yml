@@ -1,7 +1,7 @@
 ---
 name: mediawesome-routes
 ---
-MediaHolder_Controller:
+MediaHolderController:
   url_handlers:
     '': 'index'
     '$URL': 'handleURL'

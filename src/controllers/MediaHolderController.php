@@ -1,113 +1,24 @@
 <?php
 
+use SilverStripe\CMS\Controllers\ModelAsController;
+use SilverStripe\Control\HTTP;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Control\HTTPResponse;
+use SilverStripe\Core\Convert;
+use SilverStripe\Forms\DateField;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\Form;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\HiddenField;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\FieldType\DBDate;
+use SilverStripe\ORM\PaginatedList;
+
 /**
- *	Displays media holder/page children, with optional date/tag filters.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class MediaHolder extends Page {
-
-	private static $db = array(
-		'URLFormatting' => "Enum('Y/m/d/, Y/m/, Y/, -', 'Y/m/d/')"
-	);
-
-	private static $has_one = array(
-		'MediaType' => 'MediaType'
-	);
-
-	private static $allowed_children = array(
-		'MediaHolder',
-		'MediaPage'
-	);
-
-	private static $default_child = 'MediaPage';
-
-	private static $description = '<strong>Holds:</strong> Blogs, Events, News, Publications <strong>or Custom Media</strong>';
-
-	public function getCMSFields() {
-
-		$fields = parent::getCMSFields();
-
-		// Display the media type as read only if media page children exist.
-
-		($this->getMediaPageChildren()->exists() && $this->MediaType()->exists()) ?
-			$fields->addFieldToTab('Root.Main', ReadonlyField::create(
-				'Media',
-				'Media Type',
-				$this->MediaType()->Title
-			), 'Title') :
-			$fields->addFieldToTab('Root.Main', DropdownField::create(
-				'MediaTypeID',
-				'Media Type',
-				MediaType::get()->map()->toArray()
-			)->setHasEmptyDefault(true), 'Title');
-
-		// Allow customisation of the media URL format.
-
-		$formats = array(
-			'Y/m/d/' => 'year/month/day/media',
-			'Y/m/' => 'year/month/media',
-			'Y/' => 'year/media',
-			'-' => 'media'
-		);
-		$fields->insertBefore(DropdownField::create(
-			'URLFormatting',
-			'URL Formatting',
-			$formats
-		)->setRightTitle('The <strong>media</strong> URL format'), 'Content');
-
-		// Allow customisation of media types, depending on the current CMS user permissions.
-
-		$fields->findOrMakeTab('Root.ManageMedia.TypesAttributes', 'Types and Attributes');
-		$fields->findOrMakeTab('Root.ManageMedia')->setTitle('Manage ALL Media');
-		$fields->addFieldToTab('Root.ManageMedia.TypesAttributes', GridField::create(
-			'TypesAttributes',
-			'Types and Attributes',
-			MediaType::get(),
-			GridFieldConfig_RecordEditor::create()
-		)->setModelClass('MediaType'));
-
-		// Allow customisation of media categories and tags.
-
-		$fields->findOrMakeTab('Root.ManageMedia.CategoriesTags', 'Categories and Tags');
-		$fields->addFieldToTab('Root.ManageMedia.CategoriesTags', GridField::create(
-			'CategoriesTags',
-			'Categories and Tags',
-			MediaTag::get(),
-			GridFieldConfig_RecordEditor::create()->removeComponentsByType('GridFieldDeleteAction')
-		)->setModelClass('MediaTag'));
-
-		// Allow extension customisation.
-
-		$this->extend('updateMediaHolderCMSFields', $fields);
-		return $fields;
-	}
-
-	/**
-	 *	Retrieve any `MediaHolder` children of this `MediaHolder`.
-	 *
-	 *	@return data list
-	 */
-
-	public function getMediaHolderChildren() {
-
-		return $this->AllChildren()->where("ClassName = 'MediaHolder'");
-	}
-
-	/**
-	 *	Retrieve any `MediaPage` children of this `MediaHolder`.
-	 *
-	 *	@return data list
-	 */
-
-	public function getMediaPageChildren() {
-
-		return $this->AllChildren()->where("ClassName = 'MediaPage'");
-	}
-
-}
-
-class MediaHolder_Controller extends Page_Controller {
+class MediaHolderController extends PageController {
 
 	private static $allowed_actions = array(
 		'handleURL',
@@ -133,45 +44,6 @@ class MediaHolder_Controller extends Page_Controller {
 		$templates[] = 'Page';
 		$this->extend('updateTemplates', $templates);
 		return $this->renderWith($templates);
-	}
-
-	/**
-	 *	Display an error page on invalid request.
-	 *
-	 *	@parameter <{ERROR_CODE}> integer
-	 *	@parameter <{ERROR_MESSAGE}> string
-	 */
-
-	public function httpError($code, $message = null) {
-
-		// Determine the error page for the given status code.
-
-		$errorPages = ErrorPage::get()->filter('ErrorCode', $code);
-
-		// Allow extension customisation.
-
-		$this->extend('updateErrorPages', $errorPages);
-
-		// Retrieve the error page response.
-
-		if($errorPage = $errorPages->first()) {
-			Requirements::clear();
-			Requirements::clear_combined_files();
-			$response = ModelAsController::controller_for($errorPage)->handleRequest(new SS_HTTPRequest('GET', ''), DataModel::inst());
-			throw new SS_HTTPResponse_Exception($response, $code);
-		}
-
-		// Retrieve the cached error page response.
-
-		else if(file_exists($cachedPage = ErrorPage::get_filepath_for_errorcode($code, class_exists('Translatable') ? Translatable::get_current_locale() : null))) {
-			$response = new SS_HTTPResponse();
-			$response->setStatusCode($code);
-			$response->setBody(file_get_contents($cachedPage));
-			throw new SS_HTTPResponse_Exception($response, $code);
-		}
-		else {
-			return parent::httpError($code, $message);
-		}
 	}
 
 	/**
@@ -206,7 +78,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Apply custom request filters to media page children.
 
-		$children = MediaPage::get()->where('ParentID = ' . (int)$this->data()->ID);
+		$children = MediaPage::get()->filter('ParentID', $this->data()->ID);
 
 		// Validate the date request filter.
 
@@ -295,7 +167,7 @@ class MediaHolder_Controller extends Page_Controller {
 	 *	@URLparameter <{MONTH}> integer
 	 *	@URLparameter <{DAY}> integer
 	 *	@URLparameter <{MEDIA_URL_SEGMENT}> string
-	 *	@return ss http response
+	 *	@return http response
 	 */
 
 	public function handleURL() {
@@ -454,25 +326,26 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Retrieve the paginated children using the date filter segments.
 
-		$request = new SS_HTTPRequest('GET', $this->Link(), array_merge($request->getVars(), array(
+		$newRequest = new HTTPRequest('GET', $this->Link(), array_merge($request->getVars(), array(
 			'from' => implode('-', $segments)
 		)));
+		$newRequest->setSession($request->getSession());
 
 		// The new request URL doesn't require parsing.
 
-		while(!$request->allParsed()) {
-			$request->shift();
+		while(!$newRequest->allParsed()) {
+			$newRequest->shift();
 		}
 
 		// Handle the new request URL.
 
-		return $this->handleRequest($request, DataModel::inst());
+		return $this->handleRequest($newRequest);
 	}
 
 	/**
 	 *	Determine whether a media page child once existed for the current request, and redirect appropriately.
 	 *
-	 *	@return ss http response
+	 *	@return http response
 	 */
 
 	private function resolveURL() {
@@ -503,7 +376,7 @@ class MediaHolder_Controller extends Page_Controller {
 
 			// Appropriately redirect towards the updated media page URL.
 
-			$response = new SS_HTTPResponse();
+			$response = new HTTPResponse();
 			return $response->redirect(self::join_links($resolution, !empty($parameters) ? '?' . http_build_query($parameters) : null), 301);
 		}
 		else {
@@ -524,15 +397,15 @@ class MediaHolder_Controller extends Page_Controller {
 
 		// Display a form that allows filtering from a specified date.
 
-		$children = MediaPage::get()->where('ParentID = ' . (int)$this->data()->ID);
+		$children = MediaPage::get()->filter('ParentID', $this->data()->ID);
 		$form = Form::create(
 			$this,
 			'getDateFilterForm',
 			FieldList::create(
 				$date = DateField::create(
 					'from',
-					''
-				)->setConfig('showcalendar', true)->setConfig('min', $children->min('Date'))->setConfig('max', $children->max('Date'))->setAttribute('placeholder', 'From'),
+					'From'
+				)->setMinDate($children->min('Date'))->setMaxDate($children->max('Date')),
 				HiddenField::create(
 					'category'
 				),
@@ -586,8 +459,8 @@ class MediaHolder_Controller extends Page_Controller {
 
 			// Determine the formatted URL to represent the request filter.
 
-			$date = new DateTime($from);
-			$link .= $date->Format('Y/m/d/');
+			$date = DBDate::create()->setValue($from);
+			$link .= $date->Format('y/MM/dd/');
 		}
 
 		// Preserve the category/tag filters if they exist.
