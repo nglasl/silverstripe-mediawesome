@@ -6,6 +6,9 @@ use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\FileHandleField;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldAddNewButton;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\ListboxField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyField;
@@ -14,6 +17,7 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\Queries\SQLDelete;
 use SilverStripe\ORM\Queries\SQLSelect;
+use SilverStripe\Versioned\Versioned;
 use SilverStripe\View\Requirements;
 
 /**
@@ -34,24 +38,19 @@ class MediaPage extends Page {
 	);
 
 	private static $many_many = array(
-		'MediaAttributes' => 'MediaAttribute',
+		'MediaAttributes' => array(
+			'through' => 'MediaPageAttribute', // This is essentially the versioned join.
+			'from' => 'MediaPage',
+			'to' => 'MediaAttribute'
+		),
 		'Images' => Image::class,
 		'Attachments' => File::class,
 		'Categories' => 'MediaTag',
 		'Tags' => 'MediaTag'
 	);
 
-	/**
-	 *	Each page will have different content for a media attribute.
-	 */
-
-	private static $many_many_extraFields = array(
-		'MediaAttributes' => array(
-			'Content' => 'HTMLText'
-		)
-	);
-
 	private static $owns = array(
+		'MediaPageAttributes',
 		'Images',
 		'Attachments'
 	);
@@ -62,7 +61,6 @@ class MediaPage extends Page {
 
 	private static $searchable_fields = array(
 		'Title',
-		'Content',
 		'ExternalLink',
 		'Abstract',
 		'Tagging'
@@ -143,6 +141,12 @@ class MediaPage extends Page {
 					$page->MediaAttributes()->add($attribute, array(
 						'Content' => $content
 					));
+
+					// The attributes are versioned, but should only be published when it's considered safe to do so.
+
+					if($page->isPublished() && !$page->isModifiedOnDraft()) {
+						$page->publishRecursive();
+					}
 				}
 			}
 		}
@@ -248,38 +252,21 @@ class MediaPage extends Page {
 			$tagsList->setAttribute('disabled', 'true');
 		}
 
-		// Allow customisation of the media type attributes.
-
-		foreach($this->MediaType()->MediaAttributes() as $attribute) {
-			$existing = $this->MediaAttributes()->byID($attribute->ID);
-			$content = $existing ? $existing->Content : null;
-			if(strrpos($attribute->Title, 'Date') || strrpos($attribute->OriginalTitle, 'Date')) {
-
-				// Display an attribute as a date field where appropriate.
-
-				$fields->insertAfter('Date', $custom = DateField::create(
-					"{$attribute->ID}_MediaAttribute",
-					$attribute->Title,
-					$content ? date('d/m/Y', strtotime($content)) : null
-				));
-			}
-			else {
-				$fields->addFieldToTab('Root.Main', $custom = TextField::create(
-					"{$attribute->ID}_MediaAttribute",
-					$attribute->Title,
-					$content
-				), 'Content');
-			}
-			$custom->setDescription('Custom <strong>' . strtolower($this->MediaType()->Title) . '</strong> attribute');
-		}
-
 		// Display an abstract field for content summarisation.
 
 		$fields->addfieldToTab('Root.Main', $abstract = TextareaField::create(
 			'Abstract'
 		), 'Content');
 		$abstract->setDescription('A concise summary of the content');
-		$abstract->setRows(6);
+
+		// Allow customisation of the media type attributes.
+
+		$fields->addFieldToTab('Root.Main', GridField::create(
+			'MediaPageAttributes',
+			"{$this->MediaType()->Title} Attributes",
+			$this->MediaPageAttributes(),
+			GridFieldConfig_RecordEditor::create()->removeComponentsByType(GridFieldAddNewButton::class)
+		)->addExtraClass('pb-2'), 'Content');
 
 		// Allow customisation of images and attachments.
 
@@ -367,7 +354,7 @@ class MediaPage extends Page {
 
 					// The parent needs to be published, otherwise it'll be considered an invalid media holder.
 
-					$parent->publish('Stage', 'Live');
+					$parent->publishRecursive();
 				}
 				$this->MediaTypeID = $existing->ID;
 			}
@@ -378,23 +365,16 @@ class MediaPage extends Page {
 
 		parent::onAfterWrite();
 
-		// Link any missing media type attributes.
+		// This triggers for both a save and publish, causing duplicate attributes to appear.
 
-		foreach($this->MediaType()->MediaAttributes() as $attribute) {
-			$this->MediaAttributes()->add($attribute);
-		}
+		if(Versioned::get_stage() === 'Stage') {
 
-		// Apply changes from the media type attributes.
+			// The attributes of the respective type need to appear on this page.
 
-		foreach($this->record as $name => $value) {
-			if(strrpos($name, 'MediaAttribute')) {
-				$ID = substr($name, 0, strpos($name, '_'));
-				$attribute = MediaAttribute::get()->byID($ID);
-				$this->MediaAttributes()->add($attribute, array(
-					'Content' => $value
-				));
-			}
-		}
+			foreach($this->MediaType()->MediaAttributes() as $attribute) {
+	 			$this->MediaAttributes()->add($attribute);
+	 		}
+ 		}
 	}
 
 	/**
@@ -431,6 +411,17 @@ class MediaPage extends Page {
 			$link .= "{$action}/";
 		}
 		return $link;
+	}
+
+	/**
+	 *	Retrieve the versioned attribute join records, since these are what we're editing.
+	 *
+	 *	@return media page attribute
+	 */
+
+	public function MediaPageAttributes() {
+
+		return MediaPageAttribute::get()->filter('MediaPageID', $this->ID);
 	}
 
 	/**

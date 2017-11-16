@@ -57,7 +57,7 @@ These may also be added through the CMS, depending on the current user permissio
 
 ### Dynamic Media Attributes
 
-These may be customised through the CMS, depending on the current user permissions. These attributes will appear on media pages of the respective type, however it's important to note that they're limited to text and/or date fields.
+These may be customised through the CMS, depending on the current user permissions.
 
 ![attributes](https://raw.githubusercontent.com/nglasl/silverstripe-mediawesome/master/client/images/mediawesome-attributes.png)
 
@@ -66,7 +66,9 @@ These may be customised through the CMS, depending on the current user permissio
 * Select `Types and Attributes`
 * Select the respective type.
 
-These will be applied to new and existing media pages of the respective type.
+These attributes will appear on media pages of the respective type.
+
+![versioning](https://raw.githubusercontent.com/nglasl/silverstripe-mediawesome/master/client/images/mediawesome-attribute-versioning.png)
 
 ### Media Categories and Tags
 

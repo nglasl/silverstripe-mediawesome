@@ -3,6 +3,7 @@
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
 use SilverStripe\SiteConfig\SiteConfig;
+use SilverStripe\Versioned\Versioned;
 
 /**
  *	Mediawesome CMS attribute for a media type.
@@ -21,47 +22,42 @@ class MediaAttribute extends DataObject {
 	);
 
 	private static $belongs_many_many = array(
-		'MediaPages' => 'MediaPage'
+		'MediaPages' => 'MediaPage.MediaAttributes'
 	);
-
-	/**
-	 *	Allow access for CMS users viewing attributes.
-	 */
 
 	public function canView($member = null) {
 
 		return true;
 	}
 
-	/**
-	 *	Determine access for the current CMS user editing attributes.
-	 */
-
 	public function canEdit($member = null) {
 
 		return $this->checkPermissions($member);
 	}
-
-	/**
-	 *	Determine access for the current CMS user creating attributes.
-	 */
 
 	public function canCreate($member = null, $context = array()) {
 
 		return $this->checkPermissions($member);
 	}
 
-	/**
-	 *	Determine whether this is user created, and whether it's not used on a media page.
-	 */
-
 	public function canDelete($member = null) {
+
+		// Determine whether this is being used.
+
+		$current = Versioned::get_stage();
+		foreach(singleton(Versioned::class)->getVersionedStages() as $stage) {
+			Versioned::set_stage($stage);
+			if($this->MediaPages()->exists() && $this->MediaPages()->where('MediaPageAttribute.Content IS NOT NULL')->exists()) {
+				return false;
+			}
+		}
+		Versioned::set_stage($current);
+
+		// Determine whether this is user created.
 
 		$config = MediaPage::config();
 		$type = $this->MediaType()->Title;
-		return
-			(!isset($config->type_defaults[$type]) || !in_array($this->OriginalTitle, $config->type_defaults[$type]))
-			&& (!$this->MediaPages()->exists() || !$this->MediaPages()->where('MediaPage_MediaAttributes.Content IS NOT NULL')->exists());
+		return !isset($config->type_defaults[$type]) || !in_array($this->OriginalTitle, $config->type_defaults[$type]);
 	}
 
 	/**
@@ -123,13 +119,29 @@ class MediaAttribute extends DataObject {
 		}
 	}
 
+	public function onAfterWrite() {
+
+		parent::onAfterWrite();
+
+		// This needs to appear on media pages of the respective type.
+
+		foreach(MediaPage::get()->filter('MediaTypeID', $this->MediaTypeID) as $page) {
+ 			$page->MediaAttributes()->add($this);
+ 		}
+	}
+
 	public function onAfterDelete() {
 
 		parent::onAfterDelete();
 
 		// Clean up the pages associated with this.
 
-		$this->MediaPages()->removeAll();
+		$current = Versioned::get_stage();
+		foreach(singleton(Versioned::class)->getVersionedStages() as $stage) {
+			Versioned::set_stage($stage);
+			MediaPageAttribute::get()->filter('MediaAttributeID', $this->ID)->removeAll();
+		}
+		Versioned::set_stage($current);
 	}
 
 	/**

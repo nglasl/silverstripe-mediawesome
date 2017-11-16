@@ -17,6 +17,8 @@ class MediawesomeFunctionalTests extends FunctionalTest {
 
 	public function testURLs() {
 
+		$this->logInWithPermission();
+
 		// Instantiate a media page with a random type.
 
 		$holder = MediaHolder::create(
@@ -28,7 +30,7 @@ class MediawesomeFunctionalTests extends FunctionalTest {
 			)
 		);
 		$holder->writeToStage('Stage');
-		$holder->publish('Stage', 'Live');
+		$holder->publishRecursive();
 		$first = MediaPage::create(
 			array(
 				'Title' => 'First',
@@ -36,7 +38,7 @@ class MediawesomeFunctionalTests extends FunctionalTest {
 			)
 		);
 		$first->writeToStage('Stage');
-		$first->publish('Stage', 'Live');
+		$first->publishRecursive();
 
 		// This should match "holder/year/month/day/media".
 
@@ -51,7 +53,7 @@ class MediawesomeFunctionalTests extends FunctionalTest {
 
 		$holder->URLFormatting = '-';
 		$holder->writeToStage('Stage');
-		$holder->publish('Stage', 'Live');
+		$holder->publishRecursive();
 
 		// This should match "holder/media".
 

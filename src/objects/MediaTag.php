@@ -15,36 +15,20 @@ class MediaTag extends DataObject {
 
 	private static $default_sort = 'Title';
 
-	/**
-	 *	Allow access for CMS users viewing tags.
-	 */
-
 	public function canView($member = null) {
 
 		return true;
 	}
-
-	/**
-	 *	Allow access for CMS users editing tags.
-	 */
 
 	public function canEdit($member = null) {
 
 		return true;
 	}
 
-	/**
-	 *	Allow access for CMS users creating tags.
-	 */
-
 	public function canCreate($member = null, $context = array()) {
 
 		return true;
 	}
-
-	/**
-	 *	Restrict access for CMS users deleting tags.
-	 */
 
 	public function canDelete($member = null) {
 

@@ -15,8 +15,8 @@
 	<div class='media-page-date'><em>{$Date.Format('MMM d, y')}</em></div>
 	<div class='media-page-attributes'>
 		<% loop $MediaAttributes %>
-			<% if $Content %>
-				<div class='media-page-attribute {$TemplateClass}'><em><strong>{$Title}: </strong>{$Content}</em></div>
+			<% if $Join.Content %>
+				<div class='media-page-attribute {$TemplateClass}'><em><strong>{$Title}: </strong>{$Join.Content}</em></div>
 			<% end_if %>
 		<% end_loop %>
 		<br>

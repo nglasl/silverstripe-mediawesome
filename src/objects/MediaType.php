@@ -25,43 +25,29 @@ class MediaType extends DataObject {
 
 	private static $default_sort = 'Title';
 
-	/**
-	 *	Allow access for CMS users viewing media types.
-	 */
-
 	public function canView($member = null) {
 
 		return true;
 	}
-
-	/**
-	 *	Allow access for CMS users editing media types.
-	 */
 
 	public function canEdit($member = null) {
 
 		return true;
 	}
 
-	/**
-	 *	Determine access for the current CMS user creating media types.
-	 */
-
 	public function canCreate($member = null, $context = array()) {
 
 		return $this->checkPermissions($member);
 	}
 
-	/**
-	 *	Determine whether this is user created, and whether it's not used on a media holder.
-	 */
-
 	public function canDelete($member = null) {
+
+		// Determine whether this is being used, and whether this is user created.
 
 		$config = MediaPage::config();
 		return
-			!isset($config->type_defaults[$this->Title])
-			&& !MediaHolder::get()->filter('MediaTypeID', $this->ID)->exists();
+			!MediaHolder::get()->filter('MediaTypeID', $this->ID)->exists()
+			&& !isset($config->type_defaults[$this->Title]);
 	}
 
 	/**

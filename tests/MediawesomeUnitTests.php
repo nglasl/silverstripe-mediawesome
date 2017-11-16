@@ -1,6 +1,7 @@
 <?php
 
 use SilverStripe\Dev\SapphireTest;
+use SilverStripe\Versioned\Versioned;
 
 /**
  *	The mediawesome specific unit testing.
@@ -27,7 +28,7 @@ class MediawesomeUnitTests extends SapphireTest {
 			)
 		);
 		$holder->writeToStage('Stage');
-		$holder->publish('Stage', 'Live');
+		$holder->publishRecursive();
 		$first = MediaPage::create(
 			array(
 				'Title' => 'First',
@@ -35,7 +36,7 @@ class MediawesomeUnitTests extends SapphireTest {
 			)
 		);
 		$first->writeToStage('Stage');
-		$first->publish('Stage', 'Live');
+		$first->publishRecursive();
 		$second = MediaPage::create(
 			array(
 				'Title' => 'Second',
@@ -43,14 +44,14 @@ class MediawesomeUnitTests extends SapphireTest {
 			)
 		);
 		$second->writeToStage('Stage');
-		$second->publish('Stage', 'Live');
+		$second->publishRecursive();
 
 		// Determine whether a media page has the respective media attributes.
 
 		$attribute = $first->MediaAttributes()->first();
 		$expected = $type->MediaAttributes()->first();
 		$this->assertEquals($attribute->ID, $expected->ID);
-		$this->assertEquals($attribute->Content, null);
+		$this->assertEquals($attribute->getJoin()->Content, null);
 
 		// Update the media attribute content.
 
@@ -61,13 +62,27 @@ class MediawesomeUnitTests extends SapphireTest {
 		// Determine whether this change is reflected by the first page.
 
 		$attribute = $first->MediaAttributes()->first();
-		$this->assertEquals($attribute->Content, 'Changed');
+		$this->assertEquals($attribute->getJoin()->Content, 'Changed');
 
 		// Confirm this change is not reflected by the second page.
 
 		$attribute = $second->MediaAttributes()->first();
 		$this->assertEquals($attribute->ID, $expected->ID);
-		$this->assertEquals($attribute->Content, null);
+		$this->assertEquals($attribute->getJoin()->Content, null);
+
+		// The attributes are versioned, so make sure this change wasn't published.
+
+		Versioned::set_stage('Live');
+		$first = MediaPage::get()->byID($first->ID);
+		$attribute = $first->MediaAttributes()->first();
+		$this->assertEquals($attribute->getJoin()->Content, null);
+		$first->publishRecursive();
+
+		// Confirm this change is now published.
+
+		$attribute = $first->MediaAttributes()->first();
+		$this->assertEquals($attribute->getJoin()->Content, 'Changed');
+		Versioned::set_stage('Stage');
 	}
 
 }
