@@ -82,6 +82,18 @@ class MediawesomeUnitTests extends SapphireTest {
 
 		$attribute = $first->MediaAttributes()->first();
 		$this->assertEquals($attribute->getJoin()->Content, 'Changed');
+
+		// Determine whether a new media attribute appears on the page.
+
+		$count = $first->MediaAttributes()->count();
+		$new = MediaAttribute::create(
+			array(
+				'Title' => 'New',
+				'MediaTypeID' => $type->ID
+			)
+		);
+		$new->write();
+		$this->assertEquals($first->MediaAttributes()->count(), $count + 1);
 		Versioned::set_stage('Stage');
 	}
 

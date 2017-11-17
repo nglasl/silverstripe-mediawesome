@@ -2,7 +2,7 @@
 
 _The current release is **4.0.0**_
 
-> A module for SilverStripe which will allow creation of dynamic media holders/pages with CMS customisable types and attributes (blogs, events, news, publications).
+> This module allows creation of dynamic media holders/pages with CMS customisable types and attributes (blogs, events, news, publications), including versioning.
 
 ## Requirement
 
@@ -66,7 +66,7 @@ These may be customised through the CMS, depending on the current user permissio
 * Select `Types and Attributes`
 * Select the respective type.
 
-These attributes will appear on media pages of the respective type.
+These attributes will appear on media pages of the respective type, and are versioned.
 
 ![versioning](https://raw.githubusercontent.com/nglasl/silverstripe-mediawesome/master/client/images/mediawesome-attribute-versioning.png)
 
