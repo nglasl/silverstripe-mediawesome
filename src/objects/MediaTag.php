@@ -1,13 +1,17 @@
 <?php
 
+namespace nglasl\mediawesome;
+
 use SilverStripe\ORM\DataObject;
 
 /**
- *	Mediawesome CMS tag for a media page.
+ *	This is a CMS tag for a media page.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class MediaTag extends DataObject {
+
+	private static $table_name = 'MediaTag';
 
 	private static $db = array(
 		'Title' => 'Varchar(255)'
@@ -49,7 +53,7 @@ class MediaTag extends DataObject {
 		if($result->isValid() && !$this->Title) {
 			$result->addError('"Title" required!');
 		}
-		else if($result->isValid() && MediaTag::get_one('MediaTag', array(
+		else if($result->isValid() && MediaTag::get_one(MediaTag::class, array(
 			'ID != ?' => $this->ID,
 			'Title = ?' => $this->Title
 		))) {

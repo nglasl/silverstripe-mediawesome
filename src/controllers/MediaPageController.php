@@ -1,10 +1,12 @@
 <?php
 
+namespace nglasl\mediawesome;
+
 /**
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class MediaPageController extends PageController {
+class MediaPageController extends \PageController {
 
 	/**
 	 *	Determine the template for this media page.
@@ -17,9 +19,9 @@ class MediaPageController extends PageController {
 		$type = $this->data()->MediaType();
 		$templates = array();
 		if($type->exists()) {
-			$templates[] = "{$this->data()->ClassName}_" . str_replace(' ', '', $type->Title);
+			$templates[] = 'MediaPage_' . str_replace(' ', '', $type->Title);
 		}
-		$templates[] = $this->data()->ClassName;
+		$templates[] = 'MediaPage';
 		$templates[] = 'Page';
 		$this->extend('updateTemplates', $templates);
 		return $this->renderWith($templates);

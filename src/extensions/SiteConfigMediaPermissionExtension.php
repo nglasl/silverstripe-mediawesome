@@ -1,5 +1,7 @@
 <?php
 
+namespace nglasl\mediawesome;
+
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\ReadonlyField;
@@ -7,7 +9,7 @@ use SilverStripe\ORM\DataExtension;
 use SilverStripe\Security\Permission;
 
 /**
- *	Mediawesome extension which allows permission configuration for customisation of media.
+ *	This allows permission configuration for customisation of media.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 

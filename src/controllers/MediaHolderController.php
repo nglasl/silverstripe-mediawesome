@@ -1,5 +1,7 @@
 <?php
 
+namespace nglasl\mediawesome;
+
 use SilverStripe\CMS\Controllers\ModelAsController;
 use SilverStripe\Control\HTTP;
 use SilverStripe\Control\HTTPRequest;
@@ -18,7 +20,7 @@ use SilverStripe\ORM\PaginatedList;
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class MediaHolderController extends PageController {
+class MediaHolderController extends \PageController {
 
 	private static $allowed_actions = array(
 		'handleURL',
@@ -38,9 +40,9 @@ class MediaHolderController extends PageController {
 		$type = $this->data()->MediaType();
 		$templates = array();
 		if($type->exists()) {
-			$templates[] = "{$this->data()->ClassName}_" . str_replace(' ', '', $type->Title);
+			$templates[] = 'MediaHolder_' . str_replace(' ', '', $type->Title);
 		}
-		$templates[] = $this->data()->ClassName;
+		$templates[] = 'MediaHolder';
 		$templates[] = 'Page';
 		$this->extend('updateTemplates', $templates);
 		return $this->renderWith($templates);

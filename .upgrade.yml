@@ -1,0 +1,12 @@
+mappings:
+  MediaHolderController: 'nglasl\mediawesome\MediaHolderController'
+  MediaPageController: 'nglasl\mediawesome\MediaPageController'
+  SiteConfigMediaPermissionExtension: 'nglasl\mediawesome\SiteConfigMediaPermissionExtension'
+  MediaAttribute: 'nglasl\mediawesome\MediaAttribute'
+  MediaPageAttribute: 'nglasl\mediawesome\MediaPageAttribute'
+  MediaTag: 'nglasl\mediawesome\MediaTag'
+  MediaType: 'nglasl\mediawesome\MediaType'
+  MediaHolder: 'nglasl\mediawesome\MediaHolder'
+  MediaPage: 'nglasl\mediawesome\MediaPage'
+  MediawesomeFunctionalTests: 'nglasl\mediawesome\tests\FunctionalTests'
+  MediawesomeUnitTests: 'nglasl\mediawesome\tests\UnitTests'

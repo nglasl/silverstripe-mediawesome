@@ -23,7 +23,7 @@ _The current release is **4.0.0**_
 These are the default media types and their respective attributes.
 
 ```yaml
-MediaPage:
+nglasl\mediawesome\MediaPage:
   type_defaults:
     Blog:
       - 'Author'
@@ -41,7 +41,7 @@ MediaPage:
 Apply custom default media types and/or respective attributes.
 
 ```yaml
-MediaPage:
+nglasl\mediawesome\MediaPage:
   type_defaults:
     Type:
       - 'Attribute'

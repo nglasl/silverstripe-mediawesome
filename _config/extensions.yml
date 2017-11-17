@@ -1,9 +1,9 @@
 ---
 name: mediawesome-extensions
 ---
-MediaPageAttribute:
+nglasl\mediawesome\MediaPageAttribute:
   extensions:
     - 'SilverStripe\Versioned\Versioned'
 SilverStripe\SiteConfig\SiteConfig:
   extensions:
-    - 'SiteConfigMediaPermissionExtension'
+    - 'nglasl\mediawesome\SiteConfigMediaPermissionExtension'

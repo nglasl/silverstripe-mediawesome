@@ -1,5 +1,7 @@
 <?php
 
+namespace nglasl\mediawesome;
+
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Image;
 use SilverStripe\Control\HTTPResponse_Exception;
@@ -17,6 +19,7 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\Queries\SQLDelete;
 use SilverStripe\ORM\Queries\SQLSelect;
+use SilverStripe\ORM\Queries\SQLUpdate;
 use SilverStripe\Versioned\Versioned;
 use SilverStripe\View\Requirements;
 
@@ -25,7 +28,9 @@ use SilverStripe\View\Requirements;
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class MediaPage extends Page {
+class MediaPage extends \Page {
+
+	private static $table_name = 'MediaPage';
 
 	private static $db = array(
 		'ExternalLink' => 'Varchar(255)',
@@ -34,19 +39,19 @@ class MediaPage extends Page {
 	);
 
 	private static $has_one = array(
-		'MediaType' => 'MediaType'
+		'MediaType' => MediaType::class
 	);
 
 	private static $many_many = array(
 		'MediaAttributes' => array(
-			'through' => 'MediaPageAttribute', // This is essentially the versioned join.
+			'through' => MediaPageAttribute::class, // This is essentially the versioned join.
 			'from' => 'MediaPage',
 			'to' => 'MediaAttribute'
 		),
 		'Images' => Image::class,
 		'Attachments' => File::class,
-		'Categories' => 'MediaTag',
-		'Tags' => 'MediaTag'
+		'Categories' => MediaTag::class,
+		'Tags' => MediaTag::class
 	);
 
 	private static $owns = array(
@@ -70,7 +75,7 @@ class MediaPage extends Page {
 
 	private static $allowed_children = 'none';
 
-	private static $default_parent = 'MediaHolder';
+	private static $default_parent = MediaHolder::class;
 
 	private static $description = 'Blog, Event, News, Publication <strong>or Custom Media</strong>';
 
@@ -89,6 +94,25 @@ class MediaPage extends Page {
 		// Determine whether this requires an SS3 to SS4 migration.
 
 		if(MediaAttribute::get()->filter('MediaTypeID', 0)->exists()) {
+
+			// The problem is that class name mapping happens after this, but we need it right now to query pages.
+
+			foreach(array(
+				'SiteTree',
+				'SiteTree_Live',
+				'SiteTree_Versions'
+			) as $table) {
+				$update = new SQLUpdate(
+					$table,
+					array(
+						'ClassName' => MediaPage::class
+					),
+					array(
+						'ClassName' => 'MediaPage'
+					)
+				);
+				$update->execute();
+			}
 
 			// Retrieve the existing media attributes.
 

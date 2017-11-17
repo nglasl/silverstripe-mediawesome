@@ -1,7 +1,7 @@
 ---
 name: mediawesome-routes
 ---
-MediaHolderController:
+nglasl\mediawesome\MediaHolderController:
   url_handlers:
     '': 'index'
     '$URL': 'handleURL'

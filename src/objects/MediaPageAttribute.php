@@ -1,5 +1,7 @@
 <?php
 
+namespace nglasl\mediawesome;
+
 use SilverStripe\Forms\TextareaField;
 use SilverStripe\ORM\DataObject;
 
@@ -10,13 +12,15 @@ use SilverStripe\ORM\DataObject;
 
 class MediaPageAttribute extends DataObject {
 
+	private static $table_name = 'MediaPageAttribute';
+
 	private static $db = array(
 		'Content' => 'HTMLText'
 	);
 
 	private static $has_one = array(
-		'MediaPage' => 'MediaPage',
-		'MediaAttribute' => 'MediaAttribute'
+		'MediaPage' => MediaPage::class,
+		'MediaAttribute' => MediaAttribute::class
 	);
 
 	private static $summary_fields = array(

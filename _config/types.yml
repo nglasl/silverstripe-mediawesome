@@ -1,4 +1,7 @@
-MediaPage:
+---
+name: mediawesome-types
+---
+nglasl\mediawesome\MediaPage:
   type_defaults:
     Blog:
       - 'Author'

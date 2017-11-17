@@ -1,5 +1,7 @@
 <?php
 
+namespace nglasl\mediawesome;
+
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
@@ -11,22 +13,24 @@ use SilverStripe\Forms\ReadonlyField;
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class MediaHolder extends Page {
+class MediaHolder extends \Page {
+
+	private static $table_name = 'MediaHolder';
 
 	private static $db = array(
 		'URLFormatting' => "Enum('y/MM/dd/, y/MM/, y/, -', 'y/MM/dd/')"
 	);
 
 	private static $has_one = array(
-		'MediaType' => 'MediaType'
+		'MediaType' => MediaType::class
 	);
 
 	private static $allowed_children = array(
-		'MediaHolder',
-		'MediaPage'
+		MediaHolder::class,
+		MediaPage::class
 	);
 
-	private static $default_child = 'MediaPage';
+	private static $default_child = MediaPage::class;
 
 	private static $description = '<strong>Holds:</strong> Blogs, Events, News, Publications <strong>or Custom Media</strong>';
 
@@ -73,7 +77,7 @@ class MediaHolder extends Page {
 			'Types and Attributes',
 			MediaType::get(),
 			GridFieldConfig_RecordEditor::create()
-		)->setModelClass('MediaType'));
+		)->setModelClass(MediaType::class));
 
 		// Allow customisation of media categories and tags.
 
@@ -83,7 +87,7 @@ class MediaHolder extends Page {
 			'Categories and Tags',
 			MediaTag::get(),
 			GridFieldConfig_RecordEditor::create()->removeComponentsByType(GridFieldDeleteAction::class)
-		)->setModelClass('MediaTag'));
+		)->setModelClass(MediaTag::class));
 
 		// Allow extension customisation.
 
@@ -99,7 +103,7 @@ class MediaHolder extends Page {
 
 	public function getMediaHolderChildren() {
 
-		return $this->AllChildren()->filter('ClassName', 'MediaHolder');
+		return $this->AllChildren()->filter('ClassName', MediaHolder::class);
 	}
 
 	/**
@@ -110,7 +114,7 @@ class MediaHolder extends Page {
 
 	public function getMediaPageChildren() {
 
-		return $this->AllChildren()->filter('ClassName', 'MediaPage');
+		return $this->AllChildren()->filter('ClassName', MediaPage::class);
 	}
 
 }

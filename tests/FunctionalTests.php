@@ -1,5 +1,10 @@
 <?php
 
+namespace nglasl\mediawesome\tests;
+
+use nglasl\mediawesome\MediaHolder;
+use nglasl\mediawesome\MediaPage;
+use nglasl\mediawesome\MediaType;
 use SilverStripe\Dev\FunctionalTest;
 
 /**
@@ -7,12 +12,12 @@ use SilverStripe\Dev\FunctionalTest;
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class MediawesomeFunctionalTests extends FunctionalTest {
+class FunctionalTests extends FunctionalTest {
 
 	protected $usesDatabase = true;
 
 	protected $requireDefaultRecordsFrom = array(
-		'MediaPage'
+		MediaPage::class
 	);
 
 	public function testURLs() {
@@ -23,7 +28,7 @@ class MediawesomeFunctionalTests extends FunctionalTest {
 
 		$holder = MediaHolder::create(
 			array(
-				'ClassName' => 'MediaHolder',
+				'ClassName' => MediaHolder::class,
 				'Title' => 'Holder',
 				'URLFormatting' => 'y/MM/dd/',
 				'MediaTypeID' => MediaType::get()->first()->ID

@@ -1,5 +1,7 @@
 <?php
 
+namespace nglasl\mediawesome;
+
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
@@ -9,18 +11,20 @@ use SilverStripe\Security\Permission;
 use SilverStripe\SiteConfig\SiteConfig;
 
 /**
- *	Mediawesome CMS type/category of media.
+ *	This is a CMS type/category of media.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class MediaType extends DataObject {
+
+	private static $table_name = 'MediaType';
 
 	private static $db = array(
 		'Title' => 'Varchar(255)'
 	);
 
 	private static $has_many = array(
-		'MediaAttributes' => 'MediaAttribute'
+		'MediaAttributes' => MediaAttribute::class
 	);
 
 	private static $default_sort = 'Title';
@@ -85,7 +89,7 @@ class MediaType extends DataObject {
 				'Custom Attributes',
 				$this->MediaAttributes(),
 				$configuration
-			)->setModelClass('MediaAttribute'));
+			)->setModelClass(MediaAttribute::class));
 		}
 
 		// Allow extension customisation.
@@ -107,7 +111,7 @@ class MediaType extends DataObject {
 		if($result->isValid() && !$this->Title) {
 			$result->addError('"Title" required!');
 		}
-		else if($result->isValid() && MediaType::get_one('MediaType', array(
+		else if($result->isValid() && MediaType::get_one(MediaType::class, array(
 			'ID != ?' => $this->ID,
 			'Title = ?' => $this->Title
 		))) {

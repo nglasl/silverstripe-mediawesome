@@ -1,0 +1,8 @@
+---
+name: mediawesome-upgrade
+---
+SilverStripe\ORM\DatabaseAdmin:
+  classname_value_remapping:
+    MediaTag: 'nglasl\mediawesome\MediaTag'
+    MediaType: 'nglasl\mediawesome\MediaType'
+    MediaHolder: 'nglasl\mediawesome\MediaHolder'

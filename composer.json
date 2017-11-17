@@ -1,6 +1,6 @@
 {
 	"name": "nglasl/silverstripe-mediawesome",
-	"description": "A module for SilverStripe which will allow creation of dynamic media holders/pages with CMS customisable types and attributes (blogs, events, news, publications).",
+	"description": "This module allows creation of dynamic media holders/pages with CMS customisable types and attributes (blogs, events, news, publications), including versioning.",
 	"type": "silverstripe-vendormodule",
 	"keywords": [
 		"silverstripe",
@@ -20,8 +20,18 @@
 		"silverstripe/cms": "~4.0",
 		"silverstripe/framework": "~4.0"
 	},
+	"autoload": {
+		"psr-4": {
+			"nglasl\\mediawesome\\": [
+				"src/controllers/",
+				"src/extensions/",
+				"src/objects/",
+				"src/pages/"
+			],
+			"nglasl\\mediawesome\\tests\\": "tests/"
+		}
+	},
 	"extra": {
-		"installer-name": "mediawesome",
 		"branch-alias": {
 			"dev-master": "4.0.x-dev"
 		},

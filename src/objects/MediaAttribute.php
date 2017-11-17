@@ -1,16 +1,20 @@
 <?php
 
+namespace nglasl\mediawesome;
+
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
 use SilverStripe\SiteConfig\SiteConfig;
 use SilverStripe\Versioned\Versioned;
 
 /**
- *	Mediawesome CMS attribute for a media type.
+ *	This is a CMS attribute for a media type.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class MediaAttribute extends DataObject {
+
+	private static $table_name = 'MediaAttribute';
 
 	private static $db = array(
 		'Title' => 'Varchar(255)',
@@ -18,11 +22,11 @@ class MediaAttribute extends DataObject {
 	);
 
 	private static $has_one = array(
-		'MediaType' => 'MediaType'
+		'MediaType' => MediaType::class
 	);
 
 	private static $belongs_many_many = array(
-		'MediaPages' => 'MediaPage.MediaAttributes'
+		'MediaPages' => MediaPage::class . '.MediaAttributes'
 	);
 
 	public function canView($member = null) {

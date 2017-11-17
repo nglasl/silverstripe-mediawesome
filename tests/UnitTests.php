@@ -1,5 +1,11 @@
 <?php
 
+namespace nglasl\mediawesome\tests;
+
+use nglasl\mediawesome\MediaAttribute;
+use nglasl\mediawesome\MediaHolder;
+use nglasl\mediawesome\MediaPage;
+use nglasl\mediawesome\MediaType;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Versioned\Versioned;
 
@@ -8,12 +14,12 @@ use SilverStripe\Versioned\Versioned;
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class MediawesomeUnitTests extends SapphireTest {
+class UnitTests extends SapphireTest {
 
 	protected $usesDatabase = true;
 
 	protected $requireDefaultRecordsFrom = array(
-		'MediaPage'
+		MediaPage::class
 	);
 
 	public function testMediaAttributes() {
