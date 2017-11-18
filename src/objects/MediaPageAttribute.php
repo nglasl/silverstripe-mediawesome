@@ -2,6 +2,7 @@
 
 namespace nglasl\mediawesome;
 
+use SilverStripe\Forms\DateField;
 use SilverStripe\Forms\TextareaField;
 use SilverStripe\ORM\DataObject;
 
@@ -24,17 +25,18 @@ class MediaPageAttribute extends DataObject {
 	);
 
 	private static $summary_fields = array(
-		'MediaAttribute.Title',
+		'Title',
 		'Content'
-	);
-
-	private static $field_labels = array(
-		'MediaAttribute.Title' => 'Title'
 	);
 
 	public function canDelete($member = null) {
 
 		return false;
+	}
+
+	public function getTitle() {
+
+		return $this->MediaAttribute()->Title;
 	}
 
 	public function getCMSFields() {
@@ -43,11 +45,24 @@ class MediaPageAttribute extends DataObject {
 		$fields->removeByName('MediaPageID');
 		$fields->removeByName('MediaAttributeID');
 
-		// This is most commonly a simple attribute, so a HTML field only complicates things for the user.
+		// Determine the field type.
 
-		$fields->replaceField('Content', TextareaField::create(
-			'Content'
-		));
+		if(strrpos($this->getTitle(), 'Date')) {
+
+			// The user expects this to be a date attribute.
+
+			$fields->replaceField('Content', DateField::create(
+				'Content'
+			));
+		}
+		else {
+
+			// This is most commonly a simple attribute, so a HTML field only complicates things for the user.
+
+			$fields->replaceField('Content', TextareaField::create(
+				'Content'
+			));
+		}
 
 		// Allow extension customisation.
 
