@@ -370,18 +370,6 @@ class MediaPage extends \Page {
 			if($type->exists()) {
 				$this->MediaTypeID = $type->ID;
 			}
-			else {
-				$existing = MediaType::get()->first();
-				$parent->MediaTypeID = $existing->ID;
-				$parent->write();
-				if($parent->isPublished()) {
-
-					// The parent needs to be published, otherwise it'll be considered an invalid media holder.
-
-					$parent->publishRecursive();
-				}
-				$this->MediaTypeID = $existing->ID;
-			}
 		}
 	}
 

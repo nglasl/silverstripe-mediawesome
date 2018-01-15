@@ -52,7 +52,7 @@ class MediaHolder extends \Page {
 				'MediaTypeID',
 				'Media Type',
 				MediaType::get()->map()->toArray()
-			)->setHasEmptyDefault(true), 'Title');
+			), 'Title');
 
 		// Allow customisation of the media URL format.
 
@@ -93,6 +93,18 @@ class MediaHolder extends \Page {
 
 		$this->extend('updateMediaHolderCMSFields', $fields);
 		return $fields;
+	}
+
+	public function onBeforeWrite() {
+
+		parent::onBeforeWrite();
+
+		// Apply the first media type by default.
+
+		if(!$this->MediaTypeID) {
+			$existing = MediaType::get()->first();
+			$this->MediaTypeID = $existing->ID;
+		}
 	}
 
 	/**

@@ -1,6 +1,6 @@
 # [mediawesome](https://packagist.org/packages/nglasl/silverstripe-mediawesome)
 
-_The current release is **4.0.0**_
+_The current release is **4.0.1**_
 
 > This module allows creation of dynamic media holders/pages with CMS customisable types and attributes (blogs, events, news, publications), including versioning.
 
