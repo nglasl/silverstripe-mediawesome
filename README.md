@@ -1,6 +1,6 @@
 # [mediawesome](https://packagist.org/packages/nglasl/silverstripe-mediawesome)
 
-_The current release is **4.0.1**_
+_The current release is **4.0.2**_
 
 > This module allows creation of dynamic media holders/pages with CMS customisable types and attributes (blogs, events, news, publications), including versioning.
 
@@ -91,7 +91,7 @@ Customisation of media types and their respective attributes will be restricted.
 
 A media holder request may have optional date, category and tag filters, which are extendable by developers.
 
-Retrieve the date filter form in the media holder template:
+The following on the media holder template allows a user to select a date, and then see media pages for and prior to that date:
 
 ```php
 $DateFilterForm

@@ -428,13 +428,9 @@ class MediaHolderController extends \PageController {
 		);
 		$form->setFormMethod('get');
 
-		// Display existing request filters.
-
-		$request = $this->getRequest();
-		$form->loadDataFrom($request->getVars());
-
 		// Remove validation if clear has been triggered.
 
+		$request = $this->getRequest();
 		if($request->getVar('action_clearFilters')) {
 			$form->unsetValidator();
 		}
@@ -442,6 +438,10 @@ class MediaHolderController extends \PageController {
 		// Allow extension customisation.
 
 		$this->extend('updateFilterForm', $form);
+
+		// Display existing request filters.
+
+		$form->loadDataFrom($request->getVars());
 		return $form;
 	}
 
