@@ -2,18 +2,20 @@
 
 namespace nglasl\mediawesome;
 
+use Page;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
 use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\ORM\DataList;
 
 /**
  *	Displays media holder/page children, with optional date/tag filters.
  *	@author Nathan Glasl <nathan@symbiote.com.au>
  */
 
-class MediaHolder extends \Page {
+class MediaHolder extends Page {
 
 	private static $table_name = 'MediaHolder';
 
@@ -110,7 +112,7 @@ class MediaHolder extends \Page {
 	/**
 	 *	Retrieve any `MediaHolder` children of this `MediaHolder`.
 	 *
-	 *	@return data list
+	 *	@return DataList|MediaHolder[]
 	 */
 
 	public function getMediaHolderChildren() {
@@ -121,9 +123,8 @@ class MediaHolder extends \Page {
 	/**
 	 *	Retrieve any `MediaPage` children of this `MediaHolder`.
 	 *
-	 *	@return data list
+	 *	@return DataList|MediaPage[]
 	 */
-
 	public function getMediaPageChildren() {
 
 		return $this->AllChildren()->filter('ClassName', MediaPage::class);
