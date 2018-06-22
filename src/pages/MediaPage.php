@@ -328,7 +328,15 @@ class MediaPage extends \Page {
 
 			// Customise a validation error message.
 
-			$message = is_numeric($this->URLSegment) ? '"URL Segment" must not be numeric!' : 'Invalid media holder!';
+			if(is_numeric($this->URLSegment)) {
+				$message = '"URL Segment" must not be numeric!';
+			}
+			else if(!($parent instanceof MediaHolder)) {
+				$message = 'The parent needs to be a published media holder!';
+			}
+			else {
+				$message = "The media holder type doesn't match this!";
+			}
 			$error = new HTTPResponse_Exception($message, 403);
 			$error->getResponse()->addHeader('X-Status', rawurlencode($message));
 
