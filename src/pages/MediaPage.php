@@ -24,8 +24,8 @@ use SilverStripe\Versioned\Versioned;
 use SilverStripe\View\Requirements;
 
 /**
- *	Displays customised media content relating to the respective media type.
- *	@author Nathan Glasl <nathan@symbiote.com.au>
+ *  Displays customised media content relating to the respective media type.
+ *  @author Nathan Glasl <nathan@symbiote.com.au>
  */
 
 class MediaPage extends \Page {
@@ -82,7 +82,7 @@ class MediaPage extends \Page {
 	private static $icon = 'nglasl/silverstripe-mediawesome: client/images/page.png';
 
 	/**
-	 *	The default media types and their respective attributes.
+	 *  The default media types and their respective attributes.
 	 */
 
 	private static $type_defaults = array();
@@ -252,7 +252,7 @@ class MediaPage extends \Page {
 
 		$fields->addFieldToTab('Root.Main', TextField::create(
 			'ExternalLink'
-		)->setDescription('An <strong>optional</strong> redirect URL to the media source'), 'URLSegment');
+		)->setDescription('An <strong>optional</strong> redirect URL to the media source. If this field is not empty, it will make this page act like a RedirectorPage.'), 'URLSegment');
 		$fields->addFieldToTab('Root.Main', DateField::create(
 			'Date'
 		), 'Content');
@@ -315,7 +315,7 @@ class MediaPage extends \Page {
 	}
 
 	/**
-	 *	Confirm that the current page is valid.
+	 *  Confirm that the current page is valid.
 	 */
 
 	public function validate() {
@@ -361,9 +361,28 @@ class MediaPage extends \Page {
 		// Confirm that the external link exists.
 
 		if($this->ExternalLink) {
-			if(stripos($this->ExternalLink, 'http') === false) {
-				$this->ExternalLink = 'http://' . $this->ExternalLink;
+			// The following code was taken from RedirectorPage::onBeforeWrite()
+			// on SilverStripe 4.1.1
+			if ($this->ExternalLink &&
+				substr($this->ExternalLink, 0, 2) !== '//') {
+				$urlParts = parse_url($this->ExternalLink);
+				if ($urlParts) {
+					if (empty($urlParts['scheme'])) {
+						// no scheme, assume http
+						$this->ExternalLink = 'http://' . $this->ExternalLink;
+					} elseif (!in_array($urlParts['scheme'], array(
+						'http',
+						'https',
+					))) {
+						// we only allow http(s) urls
+						$this->ExternalLink = '';
+					}
+				} else {
+					// malformed URL to reject
+					$this->ExternalLink = '';
+				}
 			}
+
 			$file_headers = @get_headers($this->ExternalLink);
 			if(!$file_headers || strripos($file_headers[0], '404 Not Found')) {
 				$this->ExternalLink = null;
@@ -392,17 +411,19 @@ class MediaPage extends \Page {
 			// The attributes of the respective type need to appear on this page.
 
 			foreach($this->MediaType()->MediaAttributes() as $attribute) {
-	 			$this->MediaAttributes()->add($attribute);
-	 		}
- 		}
+				$this->MediaAttributes()->add($attribute);
+			}
+		}
 	}
 
 	/**
-	 *	Determine the URL by using the media holder's defined URL format.
+	 *  Determine the URL by using the media holder's defined URL format.
 	 */
 
 	public function Link($action = null) {
-
+		if($this->ExternalLink) {
+			return $this->ExternalLink;
+		}
 		$parent = $this->getParent();
 		if(!$parent) {
 			return null;
@@ -416,11 +437,13 @@ class MediaPage extends \Page {
 	}
 
 	/**
-	 *	Determine the absolute URL by using the media holder's defined URL format.
+	 *  Determine the absolute URL by using the media holder's defined URL format.
 	 */
 
 	public function AbsoluteLink($action = null) {
-
+		if($this->ExternalLink) {
+			return $this->ExternalLink;
+		}
 		$parent = $this->getParent();
 		if(!$parent) {
 			return null;
@@ -434,9 +457,9 @@ class MediaPage extends \Page {
 	}
 
 	/**
-	 *	Retrieve the versioned attribute join records, since these are what we're editing.
+	 *  Retrieve the versioned attribute join records, since these are what we're editing.
 	 *
-	 *	@return media page attribute
+	 *  @return media page attribute
 	 */
 
 	public function MediaPageAttributes() {
@@ -445,10 +468,10 @@ class MediaPage extends \Page {
 	}
 
 	/**
-	 *	Retrieve a specific attribute for use in templates.
+	 *  Retrieve a specific attribute for use in templates.
 	 *
-	 *	@parameter <{ATTRIBUTE}> string
-	 *	@return media attribute
+	 *  @parameter <{ATTRIBUTE}> string
+	 *  @return media attribute
 	 */
 
 	public function getAttribute($title) {
@@ -457,10 +480,10 @@ class MediaPage extends \Page {
 	}
 
 	/**
-	 *	Retrieve a specific attribute for use in templates.
+	 *  Retrieve a specific attribute for use in templates.
 	 *
-	 *	@parameter <{ATTRIBUTE}> string
-	 *	@return media attribute
+	 *  @parameter <{ATTRIBUTE}> string
+	 *  @return media attribute
 	 */
 
 	public function Attribute($title) {
