@@ -66,7 +66,7 @@ class MediaHolderController extends \PageController {
 
 		$request = $this->getRequest();
 		if($limitVar = $request->getVar('limit')) {
-			$limit = $limitVar;
+			$limit = ($limitVar > 100) ? 100 : $limitVar;
 		}
 		if($sortVar = $request->getVar('sort')) {
 			$sort = $sortVar;
