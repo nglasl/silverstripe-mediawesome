@@ -408,9 +408,9 @@ class MediaPage extends \Page {
 			return null;
 		}
 		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting ?: 'y/MM/dd/') : '';
-		$link = $parent->Link() . "{$date}{$this->URLSegment}/";
+		$link = Controller::join_links($parent->Link(), "{$date}{$this->URLSegment}/");
 		if($action) {
-			$link .= "{$action}/";
+			$link = Controller::join_links($link, $action);
 		}
 		return $link;
 	}
