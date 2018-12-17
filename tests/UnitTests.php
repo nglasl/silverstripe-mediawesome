@@ -102,5 +102,34 @@ class UnitTests extends SapphireTest {
 		$this->assertEquals($first->MediaAttributes()->count(), $count + 1);
 		Versioned::set_stage('Stage');
 	}
+	
+	
+    public function testLinkCreation()
+    {
+        $type = MediaType::get()->first();
+        $holder = MediaHolder::create(
+            array(
+                'Title' => 'Holder',
+                'MediaTypeID' => $type->ID
+            )
+        );
+        $holder->writeToStage('Stage');
+        $holder->publishRecursive();
+        $first = MediaPage::create(
+            array(
+                'Title' => 'First again',
+                'ParentID' => $holder->ID
+            )
+        );
+        $first->writeToStage('Stage');
+        $first->publishRecursive();
+        
+        // test that the link doesn't have ?stage=Stage embedded
+        Versioned::set_stage('Stage');
+
+        $link = $first->Link('myaction');
+        $expected = 'first-again/myaction?stage=Stage';
+        $this->assertEquals('first-again/myaction?stage=Stage', substr($link, -1 * strlen('first-again/myaction?stage=Stage')), "Link was $link");
+    }
 
 }
