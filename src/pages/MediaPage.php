@@ -4,6 +4,7 @@ namespace nglasl\mediawesome;
 
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Image;
+use SilverStripe\Control\Controller;
 use SilverStripe\Control\HTTPResponse_Exception;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\DateField;
@@ -408,10 +409,14 @@ class MediaPage extends \Page {
 			return null;
 		}
 		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting ?: 'y/MM/dd/') : '';
-		$link = $parent->Link() . "{$date}{$this->URLSegment}/";
+		$join = array(
+			$parent->Link(),
+			"{$date}{$this->URLSegment}/"
+		);
 		if($action) {
-			$link .= "{$action}/";
+			$join[] = "{$action}/";
 		}
+		$link = Controller::join_links($join);
 		return $link;
 	}
 
