@@ -413,7 +413,7 @@ class MediaPage extends \Page {
 			$parent->Link(),
 			"{$date}{$this->URLSegment}/"
 		);
-		if($action) {
+		if($action && is_string($action)) {
 			$join[] = "{$action}/";
 		}
 		$link = Controller::join_links($join);
@@ -432,7 +432,7 @@ class MediaPage extends \Page {
 		}
 		$date = ($parent->URLFormatting !== '-') ? $this->dbObject('Date')->Format($parent->URLFormatting ?: 'y/MM/dd/') : '';
 		$link = $parent->AbsoluteLink() . "{$date}{$this->URLSegment}/";
-		if($action) {
+		if($action && is_string($action)) {
 			$link .= "{$action}/";
 		}
 		return $link;
