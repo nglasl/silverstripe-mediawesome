@@ -8,6 +8,8 @@ _The current release is **4.0.6**_
 
 * SilverStripe 3.1 → **4.0**
 
+**This repository is no longer supported, however this module is still supported [here](https://github.com/symbiote/silverstripe-mediawesome).**
+
 ## Getting Started
 
 * [Place the module under your root project directory.](https://packagist.org/packages/nglasl/silverstripe-mediawesome)
